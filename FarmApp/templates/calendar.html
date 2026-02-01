@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>📅 Calendar View</h2>
+
+<div class="card mb-4 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a href="{{ url_for('calendar_view', year=prev_year, month=prev_month) }}" class="btn btn-secondary">&larr; Previous</a>
+        <h3>{{ month_name }} {{ year }}</h3>
+        <a href="{{ url_for('calendar_view', year=next_year, month=next_month) }}" class="btn btn-secondary">Next &rarr;</a>
+    </div>
+    
+    <!-- Calendar Grid -->
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="table-success">
+                <tr>
+                    <th>Sun</th>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th>Sat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for week in cal_matrix %}
+                <tr style="height: 120px;">
+                    {% for day in week %}
+                    <td class="align-top" style="background-color: {% if day == 0 %}#f0f0f0{% elif day == today.day %}#e7f5e7{% else %}white{% endif %}; vertical-align: top; position: relative;">
+                        {% if day != 0 %}
+                            <div style="font-weight: bold; margin-bottom: 5px;">{{ day }}</div>
+                            {% if events_by_date.get(day) %}
+                                <div style="font-size: 0.8em;">
+                                    {% if events_by_date[day].records %}
+                                        {% for record in events_by_date[day].records|slice(2) %}
+                                            <span class="badge bg-info mb-1 d-block truncate">{{ record.activity_type }}</span>
+                                        {% endfor %}
+                                        {% if events_by_date[day].records|length > 2 %}
+                                            <span class="badge bg-secondary">+{{ events_by_date[day].records|length - 2 }} more</span>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if events_by_date[day].reminders %}
+                                        {% for reminder in events_by_date[day].reminders|slice(1) %}
+                                            <span class="badge {% if reminder.priority == 'High' %}bg-danger{% elif reminder.priority == 'Normal' %}bg-warning{% else %}bg-light text-dark{% endif %} mb-1 d-block truncate">🔔 {{ reminder.title|truncate(15) }}</span>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Legend -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h5>📋 Legend</h5>
+            <p><span class="badge bg-info">Activity</span> - Farm activity</p>
+            <p><span class="badge bg-danger">High</span> - High priority reminder</p>
+            <p><span class="badge bg-warning">Normal</span> - Normal priority reminder</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h5>🔗 Quick Links</h5>
+            <a href="{{ url_for('reminders') }}" class="btn btn-sm btn-warning">📝 Add Reminder</a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-success">➕ Add Activity</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const today = new Date();
+    document.querySelector('.table td:has(> div:contains("' + today.getDate() + '"))');
+</script>
+{% endblock %}

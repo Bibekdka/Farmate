@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>🌾 Crop Management</h2>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h4>➕ Add New Crop</h4>
+            <form method="POST">
+                <div class="mb-3">
+                    <label>Crop Name</label>
+                    <input type="text" name="crop_name" class="form-control" placeholder="e.g., Tomato" required>
+                </div>
+                <div class="mb-3">
+                    <label>Variety</label>
+                    <input type="text" name="variety" class="form-control" placeholder="e.g., Local, Hybrid">
+                </div>
+                <div class="mb-3">
+                    <label>Season</label>
+                    <select name="season" class="form-select">
+                        <option>Summer</option>
+                        <option>Rainy</option>
+                        <option>Winter</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Area/Plot</label>
+                    <input type="text" name="area" class="form-control" placeholder="e.g., Plot A">
+                </div>
+                <div class="mb-3">
+                    <label>Sowing Date</label>
+                    <input type="date" name="sowing_date" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label>Expected Harvest Date</label>
+                    <input type="date" name="expected_harvest" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label>Notes</label>
+                    <textarea name="notes" class="form-control" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Add Crop</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card p-4">
+            <h4>📊 All Crops</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Crop Name</th>
+                            <th>Variety</th>
+                            <th>Season</th>
+                            <th>Area</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for crop in crops %}
+                        <tr>
+                            <td><strong>{{ crop.crop_name }}</strong></td>
+                            <td>{{ crop.variety or '-' }}</td>
+                            <td>{{ crop.season or '-' }}</td>
+                            <td>{{ crop.area or '-' }}</td>
+                            <td>
+                                <span class="badge {% if crop.status == 'Active' %}bg-success{% elif crop.status == 'Harvested' %}bg-info{% else %}bg-danger{% endif %}">{{ crop.status }}</span>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('edit_crop', crop_id=crop.id) }}" class="btn btn-sm btn-warning">✏️</a>
+                                <form method="POST" action="{{ url_for('delete_crop', crop_id=crop.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Crop Details -->
+<div class="row mt-4">
+    {% for crop in crops %}
+    <div class="col-md-4">
+        <div class="card p-3 mb-3">
+            <h5>{{ crop.crop_name }}</h5>
+            <p><strong>Variety:</strong> {{ crop.variety or 'N/A' }}</p>
+            <p><strong>Season:</strong> {{ crop.season or 'N/A' }}</p>
+            <p><strong>Sowing:</strong> {{ crop.sowing_date.strftime('%Y-%m-%d') if crop.sowing_date else 'N/A' }}</p>
+            <p><strong>Expected Harvest:</strong> {{ crop.expected_harvest.strftime('%Y-%m-%d') if crop.expected_harvest else 'N/A' }}</p>
+            {% if crop.yields|length > 0 %}
+            <p><strong>Total Yield:</strong> {{ "%.2f"|format(crop.yields|map(attribute='yield_in_kg')|sum) }} kg</p>
+            {% endif %}
+            {% if crop.diseases|length > 0 %}
+            <p><strong>Reported Issues:</strong> {{ crop.diseases|length }}</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

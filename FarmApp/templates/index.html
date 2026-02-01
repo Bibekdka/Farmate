@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card weather-card p-4">
+            <h3>🌤️ Weather Forecast</h3>
+            <div class="d-flex overflow-auto">
+                {% if weather %}
+                    {% for day in weather %}
+                    <div class="me-4 text-center">
+                        <h5>{{ day.date }}</h5>
+                        <p class="display-6">{{ day.temp }}°C</p>
+                        <p>{{ day.desc }}</p>
+                        <p>💧 Rain: {{ day.rain_prob }}%</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Weather data unavailable. Please check API Key.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h4>📢 Quick Actions</h4>
+            <a href="/dashboard" class="btn btn-success mb-2">Add Today's Expenses</a>
+            <a href="/notes" class="btn btn-warning mb-2">Write a Note</a>
+            <a href="/calendar" class="btn btn-info mb-2">📅 View Calendar</a>
+            <a href="/crops" class="btn btn-primary mb-2">🌾 Manage Crops</a>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-3">
+            <h4>🚜 Recent Activity</h4>
+            <ul class="list-group">
+                {% for activity in activities %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ activity.activity_type }}
+                    <span class="badge bg-primary rounded-pill">₹{{ "%.2f"|format(activity.amount) }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% if reminders %}
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card p-3 border-warning">
+            <h4>🔔 Today's Reminders</h4>
+            <ul class="list-group">
+                {% for reminder in reminders %}
+                <li class="list-group-item">
+                    <span class="badge {% if reminder.priority == 'High' %}bg-danger{% elif reminder.priority == 'Normal' %}bg-warning{% else %}bg-success{% endif %}">{{ reminder.priority }}</span>
+                    <strong>{{ reminder.title }}</strong>
+                    {% if reminder.description %}
+                    <p class="mb-0 text-muted"><small>{{ reminder.description }}</small></p>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

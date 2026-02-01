@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>📈 Yield Tracking</h2>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h4>➕ Log Yield</h4>
+            <form method="POST">
+                <div class="mb-3">
+                    <label>Date</label>
+                    <input type="date" id="yieldDateInput" name="date" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Crop</label>
+                    <select name="crop_id" class="form-select" required>
+                        <option value="">-- Select Crop --</option>
+                        {% for crop in crops %}
+                        <option value="{{ crop.id }}">{{ crop.crop_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Yield Value</label>
+                    <input type="number" step="0.01" name="yield_value" class="form-control" placeholder="e.g., 100" required>
+                </div>
+                <div class="mb-3">
+                    <label>Unit</label>
+                    <select name="unit" class="form-select">
+                        <option>kg</option>
+                        <option>quintal</option>
+                        <option>tons</option>
+                        <option>grams</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label>Notes</label>
+                    <textarea name="notes" class="form-control" rows="2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Save Yield</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card p-4">
+            <h4>📊 Yield Records</h4>
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Date</th>
+                            <th>Crop</th>
+                            <th>Yield Value</th>
+                            <th>Unit</th>
+                            <th>In KG</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for yield_rec in yields|sort(attribute='date', reverse=True) %}
+                        <tr>
+                            <td>{{ yield_rec.date.strftime('%Y-%m-%d') }}</td>
+                            <td>
+                                {% set crop = crops|selectattr('id', 'equalto', yield_rec.crop_id)|first %}
+                                {{ crop.crop_name if crop else 'Unknown' }}
+                            </td>
+                            <td>{{ "%.2f"|format(yield_rec.yield_value) }}</td>
+                            <td>{{ yield_rec.unit }}</td>
+                            <td class="fw-bold text-success">{{ "%.2f"|format(yield_rec.yield_in_kg) }} kg</td>
+                            <td>
+                                <form method="POST" action="{{ url_for('delete_yield', yield_id=yield_rec.id) }}" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">🗑️</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Summary Statistics -->
+            <div class="mt-4">
+                <h5>📈 Statistics</h5>
+                <p><strong>Total Yield:</strong> {{ "%.2f"|format(yields|map(attribute='yield_in_kg')|sum) }} kg</p>
+                <p><strong>Average Yield per Crop:</strong>
+                    {% set crop_yields = {} %}
+                    {% for y in yields %}
+                        {% if y.crop_id not in crop_yields %}
+                            {% set crop_yields = crop_yields|combine({y.crop_id: []}) %}
+                        {% endif %}
+                        {% set _ = crop_yields[y.crop_id].append(y.yield_in_kg) %}
+                    {% endfor %}
+                    {% for crop_id, values in crop_yields.items() %}
+                        {% set crop = crops|selectattr('id', 'equalto', crop_id)|first %}
+                        {{ crop.crop_name }}: {{ "%.2f"|format(values|sum / values|length) }} kg
+                        {% if not loop.last %}<br>{% endif %}
+                    {% endfor %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('yieldDateInput').valueAsDate = new Date();
+</script>
+{% endblock %}

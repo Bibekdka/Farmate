@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>📊 Farm Reports & Analytics</h2>
+
+<!-- Overall Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Total Income</div>
+            <div class="card-body">
+                <h5 class="card-title">₹{{ "%.2f"|format(total_income) }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-header">Total Expenses</div>
+            <div class="card-body">
+                <h5 class="card-title">₹{{ "%.2f"|format(total_expense) }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Net Profit</div>
+            <div class="card-body">
+                <h5 class="card-title">₹{{ "%.2f"|format(net_profit) }}</h5>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-header">Total Yield</div>
+            <div class="card-body">
+                <h5 class="card-title">{{ "%.2f"|format(total_yield_kg) }} kg</h5>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Disease & Health Statistics -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5>🦠 Disease & Pest Report</h5>
+            <p><strong>Total Issues Reported:</strong> {{ disease_count }}</p>
+            <p><strong>Severe Issues:</strong> <span class="badge bg-danger">{{ severe_diseases }}</span></p>
+            <p><strong>Health Status:</strong> 
+                {% if severe_diseases == 0 %}
+                    <span class="badge bg-success">Excellent</span>
+                {% elif severe_diseases <= 2 %}
+                    <span class="badge bg-warning">Good</span>
+                {% else %}
+                    <span class="badge bg-danger">Needs Attention</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5>📈 Production Summary</h5>
+            <p><strong>Total Yield Recorded:</strong> {{ "%.2f"|format(total_yield_kg) }} kg</p>
+            {% if total_yield_kg > 0 %}
+                <p><strong>Average Yield Quality:</strong> <span class="badge bg-success">Good</span></p>
+            {% else %}
+                <p><strong>Status:</strong> No yield data recorded yet</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Breakdown Chart -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5>📈 Monthly Trend</h5>
+            <canvas id="monthlyChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Activity Breakdown Chart -->
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5>🎯 Activity Breakdown</h5>
+            <canvas id="activityChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Monthly Detailed Table -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card p-4">
+            <h5>📅 Monthly Summary</h5>
+            <table class="table table-striped">
+                <thead class="table-success">
+                    <tr>
+                        <th>Month</th>
+                        <th>Income</th>
+                        <th>Expenses</th>
+                        <th>Profit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for month, data in monthly_data.items()|sort(reverse=True) %}
+                    <tr>
+                        <td><strong>{{ month }}</strong></td>
+                        <td class="text-success">₹{{ "%.2f"|format(data.income) }}</td>
+                        <td class="text-danger">₹{{ "%.2f"|format(data.expense) }}</td>
+                        <td class="{% if data.income - data.expense >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ₹{{ "%.2f"|format(data.income - data.expense) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Type Breakdown -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-4">
+            <h5>🚜 Activity Type Breakdown</h5>
+            <table class="table table-striped">
+                <thead class="table-warning">
+                    <tr>
+                        <th>Activity</th>
+                        <th>Income</th>
+                        <th>Expenses</th>
+                        <th>Net</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity, data in activity_data.items()|sort %}
+                    <tr>
+                        <td><strong>{{ activity }}</strong></td>
+                        <td class="text-success">₹{{ "%.2f"|format(data.income) }}</td>
+                        <td class="text-danger">₹{{ "%.2f"|format(data.expense) }}</td>
+                        <td class="{% if data.income - data.expense >= 0 %}text-success{% else %}text-danger{% endif %}">
+                            ₹{{ "%.2f"|format(data.income - data.expense) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Monthly Chart
+    const monthlyLabels = {{ monthly_data.keys()|list|tojson }};
+    const monthlyIncomes = [{% for month in monthly_data.keys()|sort(reverse=True) %}{{ monthly_data[month].income }},{% endfor %}];
+    const monthlyExpenses = [{% for month in monthly_data.keys()|sort(reverse=True) %}{{ monthly_data[month].expense }},{% endfor %}];
+    
+    const monthlyCtx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(monthlyCtx, {
+        type: 'line',
+        data: {
+            labels: monthlyLabels.sort().reverse(),
+            datasets: [
+                {
+                    label: 'Income',
+                    data: monthlyIncomes.reverse(),
+                    borderColor: '#198754',
+                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                    tension: 0.3
+                },
+                {
+                    label: 'Expenses',
+                    data: monthlyExpenses.reverse(),
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true } }
+        }
+    });
+    
+    // Activity Chart
+    const activityLabels = {{ activity_data.keys()|list|tojson }};
+    const activityNetValues = [{% for activity in activity_data.keys()|sort %}{{ activity_data[activity].income - activity_data[activity].expense }},{% endfor %}];
+    
+    const activityCtx = document.getElementById('activityChart').getContext('2d');
+    new Chart(activityCtx, {
+        type: 'bar',
+        data: {
+            labels: activityLabels,
+            datasets: [{
+                label: 'Net Profit by Activity',
+                data: activityNetValues,
+                backgroundColor: activityNetValues.map(val => val >= 0 ? '#198754' : '#dc3545')
+            }]
+        },
+        options: {
+            responsive: true,
+            indexAxis: 'y'
+        }
+    });
+</script>
+{% endblock %}

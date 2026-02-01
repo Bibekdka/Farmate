@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>🔔 Reminders & Tasks</h2>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card p-4">
+            <h4>➕ Add Reminder</h4>
+            <form method="POST">
+                <div class="mb-3">
+                    <label>Date</label>
+                    <input type="date" id="reminderDate" name="date" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label>Title</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g., Water plants" required>
+                </div>
+                <div class="mb-3">
+                    <label>Description</label>
+                    <textarea name="description" class="form-control" rows="2" placeholder="Detailed description..."></textarea>
+                </div>
+                <div class="mb-3">
+                    <label>Priority</label>
+                    <select name="priority" class="form-select">
+                        <option>Low</option>
+                        <option selected>Normal</option>
+                        <option>High</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success w-100">Add Reminder</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card p-4">
+            <h4>📋 All Reminders</h4>
+            
+            <!-- Upcoming Reminders -->
+            <h5 class="mt-4">📌 Upcoming</h5>
+            <div class="list-group">
+                {% set upcoming = reminders|selectattr('completed', 'equalto', False)|list %}
+                {% for reminder in upcoming %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ reminder.title }}</h6>
+                            <small>{{ reminder.date.strftime('%Y-%m-%d') }} - 
+                                <span class="badge {% if reminder.priority == 'High' %}bg-danger{% elif reminder.priority == 'Normal' %}bg-warning{% else %}bg-success{% endif %}">
+                                    {{ reminder.priority }}
+                                </span>
+                            </small>
+                            {% if reminder.description %}
+                            <p class="mb-0 text-muted"><small>{{ reminder.description }}</small></p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <form method="POST" action="{{ url_for('complete_reminder', reminder_id=reminder.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success">✓ Done</button>
+                            </form>
+                            <form method="POST" action="{{ url_for('delete_reminder', reminder_id=reminder.id) }}" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">🗑️</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if upcoming|length == 0 %}
+                <p class="text-muted">No upcoming reminders</p>
+                {% endif %}
+            </div>
+
+            <!-- Completed Reminders -->
+            <h5 class="mt-4">✓ Completed</h5>
+            <div class="list-group">
+                {% set completed = reminders|selectattr('completed', 'equalto', True)|list %}
+                {% for reminder in completed %}
+                <div class="list-group-item" style="opacity: 0.6;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1"><s>{{ reminder.title }}</s></h6>
+                            <small>{{ reminder.date.strftime('%Y-%m-%d') }}</small>
+                        </div>
+                        <form method="POST" action="{{ url_for('delete_reminder', reminder_id=reminder.id) }}" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('reminderDate').valueAsDate = new Date();
+</script>
+{% endblock %}
