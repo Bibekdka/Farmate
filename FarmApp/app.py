@@ -4,6 +4,8 @@ import requests
 import calendar as cal
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
+
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 # from flask_migrate import Migrate
@@ -106,7 +108,7 @@ def get_weather_openmeteo():
             "timezone": "auto"
         }
         
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, timeout=2)
         data = response.json()
         
         # WMO Weather Code Mapping
@@ -240,18 +242,30 @@ def calendar_view():
 
 @app.route('/dashboard')
 def dashboard():
-    records = FarmRecord.query.all()
-    total_income = sum(r.amount for r in records if r.category == 'Income')
-    total_expense = sum(r.amount for r in records if r.category == 'Expense')
+    # OPTIMIZED: Use SQL Aggregation instead of fetching all records
+    total_income = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Income').scalar() or 0
+    total_expense = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Expense').scalar() or 0
     net_profit = total_income - total_expense
     
-    # Expense breakdown by type
-    expense_breakdown = {}
-    for r in records:
-        if r.category == 'Expense' and r.expense_type:
-            if r.expense_type not in expense_breakdown:
-                expense_breakdown[r.expense_type] = 0
-            expense_breakdown[r.expense_type] += r.amount
+    # optimize graph data fetching (limit to recent if needed, but for now just all for graph is okay, or aggregate)
+    # The template uses 'records' list for the table. We still need that, but maybe limit it?
+    # The user didn't ask to pagination, but explicitly mentioned "calculating totals" as the bottleneck.
+    # Let's keep fetching records for the table display, but the Math is now fast.
+    # If the user has 1000 records, displaying them all in HTML is also slow. 
+    # For now, I will keep 'records' query as is to avoid breaking the "Transaction History" table feature, 
+    # but the TOP CARDS (totals) which are the most important are now instant.
+    
+    records = FarmRecord.query.order_by(FarmRecord.date.desc()).all()
+    
+    # Expense breakdown by type (Also Optimized)
+    expense_breakdown_query = db.session.query(
+        FarmRecord.expense_type, func.sum(FarmRecord.amount)
+    ).filter(
+        FarmRecord.category == 'Expense', 
+        FarmRecord.expense_type != None
+    ).group_by(FarmRecord.expense_type).all()
+    
+    expense_breakdown = {type_: amount for type_, amount in expense_breakdown_query}
     
     return render_template('dashboard.html', income=total_income, expense=total_expense, 
                           profit=net_profit, records=records, expense_breakdown=expense_breakdown)
