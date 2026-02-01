@@ -3,46 +3,285 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Farmer App</title>
+    <title>Smart Farmer App - Kisan Samadhan</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #f4f9f4; }
-        .card { margin-bottom: 20px; border: none; shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .weather-card { background: linear-gradient(to right, #4facfe, #00f2fe); color: white; }
+        :root {
+            --primary-color: #2d7f3e;
+            --secondary-color: #52b788;
+            --accent-color: #95d5b2;
+            --danger-color: #d62828;
+            --warning-color: #f77f00;
+            --info-color: #457b9d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: url('https://images.unsplash.com/photo-1625246333195-58197bd47a26?q=80&w=2000&auto=format&fit=crop') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Outfit', 'Segoe UI', Tahoma, sans-serif;
+            min-height: 100vh;
+            color: #2c3e50;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(240, 249, 240, 0.9) 0%, rgba(232, 245, 233, 0.85) 100%);
+            z-index: -1;
+        }
+        
+        .navbar {
+            background: rgba(45, 127, 62, 0.85) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(45, 127, 62, 0.15);
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .navbar-brand {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        
+        .nav-link {
+            margin: 0 8px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            color: #fff !important;
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1200px;
+        }
+        
+        .card {
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            transform: translateY(-3px);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, rgba(45, 127, 62, 0.95) 0%, rgba(82, 183, 136, 0.95) 100%);
+            color: white;
+            font-weight: 600;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1.25rem;
+        }
+        
+        .weather-card {
+            background: linear-gradient(135deg, rgba(79, 172, 254, 0.9) 0%, rgba(0, 242, 254, 0.9) 100%);
+            color: white;
+            border: none;
+        }
+        
+        .btn {
+            border-radius: 8px;
+            font-weight: 600;
+            padding: 0.6rem 1.2rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 127, 62, 0.3);
+        }
+        
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e66d00;
+            transform: translateY(-2px);
+        }
+        
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.875rem;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(45, 127, 62, 0.1);
+        }
+        
+        .badge {
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        
+        .table {
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        
+        .table thead th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e0e0e0;
+            vertical-align: middle;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(45, 127, 62, 0.05);
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .stat-card {
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: white;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-income {
+            background: linear-gradient(135deg, #52b788 0%, #2d9d78 100%);
+        }
+        
+        .stat-expense {
+            background: linear-gradient(135deg, #d62828 0%, #a4161a 100%);
+        }
+        
+        .stat-profit {
+            background: linear-gradient(135deg, #457b9d 0%, #1d3557 100%);
+        }
+        
+        .stat-card h5 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .stat-card .display-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+        }
+        
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 1rem;
+            background: rgba(45, 127, 62, 0.02);
+        }
+        
+        .list-group-item:last-child {
+            border-bottom: none;
+        }
+        
+        .expense-category {
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            background: white;
+            border-left: 4px solid var(--secondary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        
+        .expense-category h6 {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+        
+        .expense-category .amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--danger-color);
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/">🌾 Kisan Smart App</a>
+            <a class="navbar-brand" href="/">🌾 Kisan Smart</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard & Records</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/">🏠 Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/dashboard">📊 Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="/calendar">📅 Calendar</a></li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="cropDropdown" role="button" data-bs-toggle="dropdown">
-                            🌾 Crop Management
+                            🌾 Crops
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="cropDropdown">
-                            <li><a class="dropdown-item" href="/crops">Crops</a></li>
+                            <li><a class="dropdown-item" href="/crops">Manage Crops</a></li>
                             <li><a class="dropdown-item" href="/yield">Yield Tracking</a></li>
-                            <li><a class="dropdown-item" href="/disease_log">Disease & Pest Log</a></li>
+                            <li><a class="dropdown-item" href="/disease_log">Disease & Pest</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item"><a class="nav-link" href="/reports">📊 Reports</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/reminders">🔔 Reminders</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/notes">Notes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/reports">📈 Reports</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/reminders">🔔 Tasks</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/notes">📝 Notes</a></li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <div class="container mt-5">
         {% block content %}{% endblock %}
     </div>
 

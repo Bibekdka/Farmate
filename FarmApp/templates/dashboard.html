@@ -1,28 +1,44 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card text-white bg-success mb-3">
-            <div class="card-header">Total Income</div>
-            <div class="card-body">
-                <h5 class="card-title">₹{{ "%.2f"|format(income) }}</h5>
-            </div>
+<div class="row mb-5">
+    <div class="col-md-4 mb-3">
+        <div class="stat-card stat-income">
+            <h5>💰 Total Income</h5>
+            <div class="display-value">₹{{ "%.0f"|format(income) }}</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-danger mb-3">
-            <div class="card-header">Total Expenses</div>
-            <div class="card-body">
-                <h5 class="card-title">₹{{ "%.2f"|format(expense) }}</h5>
-            </div>
+    <div class="col-md-4 mb-3">
+        <div class="stat-card stat-expense">
+            <h5>💸 Total Expenses</h5>
+            <div class="display-value">₹{{ "%.0f"|format(expense) }}</div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card text-white bg-primary mb-3">
-            <div class="card-header">Net Profit</div>
-            <div class="card-body">
-                <h5 class="card-title">₹{{ "%.2f"|format(profit) }}</h5>
+    <div class="col-md-4 mb-3">
+        <div class="stat-card stat-profit">
+            <h5>📈 Net Profit</h5>
+            <div class="display-value">₹{{ "%.0f"|format(profit) }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Expense Breakdown by Category -->
+<div class="row mb-5">
+    <div class="col-md-12">
+        <div class="card p-4">
+            <h4>💸 Expense Breakdown by Category</h4>
+            <div class="row mt-4">
+                {% for expense_cat, expense_amt in expense_breakdown.items() %}
+                <div class="col-md-2 col-sm-4 col-6 mb-3">
+                    <div class="expense-category">
+                        <h6>
+                            {% if expense_cat == 'Fuel' %}🛢️{% elif expense_cat == 'Labour' %}👷{% elif expense_cat == 'Food' %}🥕{% elif expense_cat == 'Transportation' %}🚚{% else %}📦{% endif %}
+                            {{ expense_cat }}
+                        </h6>
+                        <div class="amount">₹{{ "%.0f"|format(expense_amt) }}</div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -34,78 +50,97 @@
             <h4>➕ Add Daily Record</h4>
             <form action="/add_record" method="POST">
                 <div class="mb-3">
-                    <label>Date (Can add backdated records)</label>
+                    <label class="form-label fw-600">📅 Date</label>
                     <input type="date" id="dateInput" name="date" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label>Activity Name</label>
-                    <input type="text" name="activity" class="form-control" placeholder="e.g. Bought Seeds" required>
+                    <label class="form-label fw-600">📝 Activity Name</label>
+                    <input type="text" name="activity" class="form-control" placeholder="e.g., Bought Seeds, Watered Field" required>
                 </div>
                 <div class="mb-3">
-                    <label>Category</label>
-                    <select name="category" class="form-select">
-                        <option value="Expense">Expense (Cost)</option>
-                        <option value="Income">Income (Sales)</option>
+                    <label class="form-label fw-600">📂 Category</label>
+                    <select name="category" class="form-select" id="categorySelect" onchange="toggleExpenseType()">
+                        <option value="Expense">💸 Expense (Cost)</option>
+                        <option value="Income">💰 Income (Sales)</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="expenseTypeDiv">
+                    <label class="form-label fw-600">🏷️ Expense Type</label>
+                    <select name="expense_type" class="form-select">
+                        <option value="">Select Type</option>
+                        <option value="Fuel">🛢️ Fuel</option>
+                        <option value="Labour">👷 Labour</option>
+                        <option value="Food">🥕 Food/Seeds</option>
+                        <option value="Transportation">🚚 Transportation</option>
+                        <option value="Misc">📦 Misc</option>
                     </select>
                 </div>
                 <div class="mb-3">
-                    <label>Amount</label>
+                    <label class="form-label fw-600">💵 Amount</label>
                     <input type="number" step="0.01" name="amount" class="form-control" placeholder="0.00" required>
                 </div>
                 <div class="mb-3">
-                    <label>Description (Optional)</label>
-                    <input type="text" name="desc" class="form-control">
+                    <label class="form-label fw-600">📄 Description (Optional)</label>
+                    <input type="text" name="desc" class="form-control" placeholder="Add details...">
                 </div>
-                <button type="submit" class="btn btn-success w-100">Save Record</button>
+                <button type="submit" class="btn btn-success w-100">✅ Save Record</button>
             </form>
         </div>
     </div>
 
     <div class="col-md-7">
         <div class="card p-4">
-            <h5>📊 Financial Overview</h5>
+            <h4>📊 Financial Chart</h4>
             <canvas id="profitChart"></canvas>
         </div>
     </div>
 </div>
 
 <!-- Records List -->
-<div class="row mt-4">
+<div class="row mt-5">
     <div class="col-md-12">
         <div class="card p-4">
-            <h5>📋 All Records</h5>
+            <h4>📋 All Records (Edit & Delete)</h4>
             <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead class="table-dark">
+                <table class="table">
+                    <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Activity</th>
-                            <th>Category</th>
-                            <th>Amount</th>
-                            <th>Description</th>
-                            <th>Actions</th>
+                            <th>📅 Date</th>
+                            <th>📝 Activity</th>
+                            <th>🏷️ Type</th>
+                            <th>📂 Category</th>
+                            <th>💵 Amount</th>
+                            <th>📄 Description</th>
+                            <th>⚙️ Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for record in records|sort(attribute='date', reverse=True) %}
                         <tr>
-                            <td><strong>{{ record.date.strftime('%Y-%m-%d') }}</strong></td>
+                            <td><strong>{{ record.date.strftime('%d-%m-%Y') }}</strong></td>
                             <td>{{ record.activity_type }}</td>
                             <td>
-                                {% if record.category == 'Income' %}
-                                    <span class="badge bg-success">Income</span>
+                                {% if record.expense_type %}
+                                    <span class="badge bg-warning text-dark">{{ record.expense_type }}</span>
                                 {% else %}
-                                    <span class="badge bg-danger">Expense</span>
+                                    <span class="badge bg-secondary">-</span>
                                 {% endif %}
                             </td>
-                            <td class="{% if record.category == 'Income' %}text-success fw-bold{% else %}text-danger fw-bold{% endif %}">
+                            <td>
+                                {% if record.category == 'Income' %}
+                                    <span class="badge bg-success">💰 Income</span>
+                                {% else %}
+                                    <span class="badge bg-danger">💸 Expense</span>
+                                {% endif %}
+                            </td>
+                            <td class="fw-bold {% if record.category == 'Income' %}text-success{% else %}text-danger{% endif %}">
                                 ₹{{ "%.2f"|format(record.amount) }}
                             </td>
                             <td>{{ record.description or '-' }}</td>
                             <td>
                                 <a href="{{ url_for('edit_record', record_id=record.id) }}" class="btn btn-sm btn-warning">✏️ Edit</a>
                                 <form method="POST" action="{{ url_for('delete_record', record_id=record.id) }}" style="display:inline;">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">🗑️ Delete</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this record?')">🗑️</button>
                                 </form>
                             </td>
                         </tr>
@@ -120,6 +155,14 @@
 <script>
     // Set date input to today's date by default
     document.getElementById('dateInput').valueAsDate = new Date();
+    
+    // Toggle expense type field
+    function toggleExpenseType() {
+        const category = document.getElementById('categorySelect').value;
+        const expenseTypeDiv = document.getElementById('expenseTypeDiv');
+        expenseTypeDiv.style.display = category === 'Expense' ? 'block' : 'none';
+    }
+    toggleExpenseType(); // Run on page load
     
     // Simple Chart Logic
     const ctx = document.getElementById('profitChart').getContext('2d');

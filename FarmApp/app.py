@@ -5,20 +5,28 @@ import calendar as cal
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from dateutil.relativedelta import relativedelta
+from dotenv import load_dotenv
+from flask_migrate import Migrate
+from config import config
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 
 # --- CONFIGURATION ---
-# Database Setup (SQL)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///farm_data.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+# Load configuration from environment
+# FLASK_ENV is deprecated in Flask 2.3+, using APP_ENV instead
+config_name = os.environ.get('APP_ENV', 'development')
+app.config.from_object(config[config_name])
 
-# Weather API Config (Replace with your actual API Key)
-WEATHER_API_KEY = "YOUR_OPENWEATHERMAP_API_KEY"
-# Set your farm's location (Example: Guwahati, Assam)
-LAT = "26.1445"
-LON = "91.7362"
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+# Weather API Config (from environment variables)
+WEATHER_API_KEY = os.environ.get('OPENWEATHERMAP_API_KEY', 'YOUR_OPENWEATHERMAP_API_KEY')
+LAT = os.environ.get('FARM_LATITUDE', '26.1445')
+LON = os.environ.get('FARM_LONGITUDE', '91.7362')
 
 # --- DATABASE MODELS (SQL TABLES) ---
 class FarmRecord(db.Model):
@@ -26,6 +34,7 @@ class FarmRecord(db.Model):
     date = db.Column(db.Date, default=datetime.date.today)
     activity_type = db.Column(db.String(50))
     category = db.Column(db.String(50))
+    expense_type = db.Column(db.String(50))  # Fuel, Labour, Food, Transportation, Misc
     amount = db.Column(db.Float, default=0.0)
     description = db.Column(db.String(200))
 
@@ -158,8 +167,17 @@ def dashboard():
     total_income = sum(r.amount for r in records if r.category == 'Income')
     total_expense = sum(r.amount for r in records if r.category == 'Expense')
     net_profit = total_income - total_expense
+    
+    # Expense breakdown by type
+    expense_breakdown = {}
+    for r in records:
+        if r.category == 'Expense' and r.expense_type:
+            if r.expense_type not in expense_breakdown:
+                expense_breakdown[r.expense_type] = 0
+            expense_breakdown[r.expense_type] += r.amount
+    
     return render_template('dashboard.html', income=total_income, expense=total_expense, 
-                          profit=net_profit, records=records)
+                          profit=net_profit, records=records, expense_breakdown=expense_breakdown)
 
 @app.route('/add_record', methods=['POST'])
 def add_record():
@@ -169,6 +187,7 @@ def add_record():
         date=date_obj,
         activity_type=request.form.get('activity'),
         category=request.form.get('category'),
+        expense_type=request.form.get('expense_type'),
         amount=float(request.form.get('amount')),
         description=request.form.get('desc')
     )
@@ -185,6 +204,7 @@ def edit_record(record_id):
         record.date = date_obj
         record.activity_type = request.form.get('activity')
         record.category = request.form.get('category')
+        record.expense_type = request.form.get('expense_type')
         record.amount = float(request.form.get('amount'))
         record.description = request.form.get('desc')
         db.session.commit()
@@ -373,4 +393,6 @@ def notes():
     return render_template('notes.html', notes=all_notes)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    with app.app_context():
+        db.create_all()
+    app.run(debug=app.config['DEBUG'])

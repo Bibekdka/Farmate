@@ -16,9 +16,20 @@
                 </div>
                 <div class="mb-3">
                     <label>Category</label>
-                    <select name="category" class="form-select">
+                    <select name="category" class="form-select" id="categorySelect" onchange="toggleExpenseType()">
                         <option value="Expense" {% if record.category == 'Expense' %}selected{% endif %}>Expense (Cost)</option>
                         <option value="Income" {% if record.category == 'Income' %}selected{% endif %}>Income (Sales)</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="expenseTypeDiv">
+                    <label>Expense Type</label>
+                    <select name="expense_type" class="form-select">
+                        <option value="">Select Type</option>
+                        <option value="Fuel" {% if record.expense_type == 'Fuel' %}selected{% endif %}>🛢️ Fuel</option>
+                        <option value="Labour" {% if record.expense_type == 'Labour' %}selected{% endif %}>👷 Labour</option>
+                        <option value="Food" {% if record.expense_type == 'Food' %}selected{% endif %}>🥕 Food/Seeds</option>
+                        <option value="Transportation" {% if record.expense_type == 'Transportation' %}selected{% endif %}>🚚 Transportation</option>
+                        <option value="Misc" {% if record.expense_type == 'Misc' %}selected{% endif %}>📦 Misc</option>
                     </select>
                 </div>
                 <div class="mb-3">
@@ -37,4 +48,13 @@
         </div>
     </div>
 </div>
+
+<script>
+    function toggleExpenseType() {
+        const category = document.getElementById('categorySelect').value;
+        const expenseTypeDiv = document.getElementById('expenseTypeDiv');
+        expenseTypeDiv.style.display = category === 'Expense' ? 'block' : 'none';
+    }
+    toggleExpenseType(); // Run on page load
+</script>
 {% endblock %}

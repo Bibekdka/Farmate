@@ -1,0 +1,10 @@
+Flask==2.3.3
+Flask-SQLAlchemy==3.0.5
+SQLAlchemy==2.0.21
+requests==2.31.0
+python-dateutil==2.8.2
+python-dotenv==1.0.0
+gunicorn==21.2.0
+Werkzeug==2.3.7
+
+Flask-Migrate==4.0.5
