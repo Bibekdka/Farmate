@@ -21,7 +21,6 @@ config_name = os.environ.get('APP_ENV', 'development')
 app.config.from_object(config[config_name])
 
 db = SQLAlchemy(app)
-# migrate = Migrate(app, db)
 
 # Weather API Config (from environment variables)
 WEATHER_API_KEY = os.environ.get('OPENWEATHERMAP_API_KEY', 'YOUR_OPENWEATHERMAP_API_KEY')
