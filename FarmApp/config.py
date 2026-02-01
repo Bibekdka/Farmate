@@ -3,7 +3,13 @@ from datetime import timedelta
 
 class Config:
     """Base configuration"""
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///farm_data.db')
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    # Ensure instance folder exists
+    instance_path = os.path.join(basedir, 'instance')
+    if not os.path.exists(instance_path):
+        os.makedirs(instance_path)
+        
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', 'sqlite:///' + os.path.join(instance_path, 'farm_data.db'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
     SESSION_COOKIE_SECURE = True
