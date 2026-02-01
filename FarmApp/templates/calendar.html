@@ -5,11 +5,13 @@
 
 <div class="card mb-4 p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <a href="{{ url_for('calendar_view', year=prev_year, month=prev_month) }}" class="btn btn-secondary">&larr; Previous</a>
+        <a href="{{ url_for('calendar_view', year=prev_year, month=prev_month) }}" class="btn btn-secondary">&larr;
+            Previous</a>
         <h3>{{ month_name }} {{ year }}</h3>
-        <a href="{{ url_for('calendar_view', year=next_year, month=next_month) }}" class="btn btn-secondary">Next &rarr;</a>
+        <a href="{{ url_for('calendar_view', year=next_year, month=next_month) }}" class="btn btn-secondary">Next
+            &rarr;</a>
     </div>
-    
+
     <!-- Calendar Grid -->
     <div class="table-responsive">
         <table class="table table-bordered text-center">
@@ -28,26 +30,43 @@
                 {% for week in cal_matrix %}
                 <tr style="height: 120px;">
                     {% for day in week %}
-                    <td class="align-top" style="background-color: {% if day == 0 %}#f0f0f0{% elif day == today.day %}#e7f5e7{% else %}white{% endif %}; vertical-align: top; position: relative;">
+                    <td class="align-top"
+                        style="background-color: {% if day == 0 %}#f0f0f0{% elif day == today.day and year == today.year and month == today.month %}#e7f5e7{% else %}white{% endif %}; vertical-align: top; position: relative;">
                         {% if day != 0 %}
-                            <div style="font-weight: bold; margin-bottom: 5px;">{{ day }}</div>
-                            {% if events_by_date.get(day) %}
-                                <div style="font-size: 0.8em;">
-                                    {% if events_by_date[day].records %}
-                                        {% for record in events_by_date[day].records|slice(2) %}
-                                            <span class="badge bg-info mb-1 d-block truncate">{{ record.activity_type }}</span>
-                                        {% endfor %}
-                                        {% if events_by_date[day].records|length > 2 %}
-                                            <span class="badge bg-secondary">+{{ events_by_date[day].records|length - 2 }} more</span>
-                                        {% endif %}
-                                    {% endif %}
-                                    {% if events_by_date[day].reminders %}
-                                        {% for reminder in events_by_date[day].reminders|slice(1) %}
-                                            <span class="badge {% if reminder.priority == 'High' %}bg-danger{% elif reminder.priority == 'Normal' %}bg-warning{% else %}bg-light text-dark{% endif %} mb-1 d-block truncate">🔔 {{ reminder.title|truncate(15) }}</span>
-                                        {% endfor %}
-                                    {% endif %}
-                                </div>
+                        <div style="font-weight: bold; margin-bottom: 5px;">{{ day }}</div>
+                        {% if day in events_by_date %}
+                        <div style="font-size: 0.8em;">
+                            {% if events_by_date[day]['records'] %}
+                            {% for record in events_by_date[day]['records'][:2] %}
+                            <span class="badge bg-info mb-1 d-block text-truncate" title="{{ record.activity_type }}">{{
+                                record.activity_type }}</span>
+                            {% endfor %}
+                            {% if events_by_date[day]['records']|length > 2 %}
+                            <span class="badge bg-secondary">+{{ events_by_date[day]['records']|length - 2 }}
+                                more</span>
                             {% endif %}
+                            {% endif %}
+                            {% if events_by_date[day]['reminders'] %}
+                            {% for reminder in events_by_date[day]['reminders'][:1] %}
+                            <span
+                                class="badge {% if reminder.priority == 'High' %}bg-danger{% elif reminder.priority == 'Normal' %}bg-warning{% else %}bg-light text-dark{% endif %} mb-1 d-block text-truncate"
+                                title="{{ reminder.title }}">🔔
+                                {{ reminder.title }}</span>
+                            {% endfor %}
+                            {% endif %}
+
+                            {% if events_by_date[day].get('notes') %}
+                            {% for note in events_by_date[day]['notes'][:1] %}
+                            <span class="badge bg-white text-dark border mb-1 d-block text-truncate"
+                                title="{{ note.content }}">📝 {{ note.content }}</span>
+                            {% endfor %}
+                            {% if events_by_date[day]['notes']|length > 1 %}
+                            <span class="badge bg-light text-muted">+{{ events_by_date[day]['notes']|length - 1
+                                }}</span>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                        {% endif %}
                         {% endif %}
                     </td>
                     {% endfor %}

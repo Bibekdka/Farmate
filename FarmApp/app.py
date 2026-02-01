@@ -23,7 +23,7 @@ app.config.from_object(config[config_name])
 db = SQLAlchemy(app)
 
 # Weather API Config (from environment variables)
-WEATHER_API_KEY = os.environ.get('OPENWEATHERMAP_API_KEY', 'YOUR_OPENWEATHERMAP_API_KEY')
+# WEATHER_API_KEY removed (Using Open-Meteo)
 LAT = os.environ.get('FARM_LATITUDE', '26.1445')
 LON = os.environ.get('FARM_LONGITUDE', '91.7362')
 
@@ -82,26 +82,62 @@ class Reminder(db.Model):
     priority = db.Column(db.String(20), default='Normal')
     completed = db.Column(db.Boolean, default=False)
 
+class WeatherLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, unique=True, nullable=False)
+    max_temp = db.Column(db.Float)
+    rainfall = db.Column(db.Float)
+    description = db.Column(db.String(100))
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+
 # Initialize Database
 with app.app_context():
     db.create_all()
 
 # --- HELPER FUNCTIONS ---
-def get_weather():
+def get_weather_openmeteo():
     try:
-        url = f"https://api.openweathermap.org/data/2.5/forecast?lat={LAT}&lon={LON}&appid={WEATHER_API_KEY}&units=metric"
-        response = requests.get(url)
+        # Open-Meteo URL (No API Key needed)
+        url = "https://api.open-meteo.com/v1/forecast"
+        params = {
+            "latitude": LAT,
+            "longitude": LON,
+            "daily": ["weather_code", "temperature_2m_max", "precipitation_sum"],
+            "timezone": "auto"
+        }
+        
+        response = requests.get(url, params=params)
         data = response.json()
+        
+        # WMO Weather Code Mapping
+        wmo_codes = {
+            0: "☀️ Clear Sky",
+            1: "🌤️ Mainly Clear", 2: "⛅ Partly Cloudy", 3: "☁️ Overcast",
+            45: "🌫️ Fog", 48: "🌫️ Rime Fog",
+            51: "DRIZZLE: Light", 53: "DRIZZLE: Moderate", 55: "DRIZZLE: Dense",
+            61: "Rain: Slight", 63: "RAINING: Moderate", 65: "RAINING: Heavy",
+            71: "SNOW: Slight", 73: "SNOW: Moderate", 75: "SNOW: Heavy",
+            77: "❄️ Snow Grains",
+            80: "SHOWERS: Slight", 81: "SHOWERS: Moderate", 82: "SHOWERS: Violent",
+            95: "⚡ Thunderstorm", 96: "⚡ Thunderstorm + Hail", 99: "⚡ Thunderstorm + Heavy Hail"
+        }
+
         forecast = []
         if response.status_code == 200:
-            for item in data['list'][0:24:8]:
+            daily = data.get('daily', {})
+            # Loop through 7 days
+            for i in range(len(daily.get('time', []))):
+                code = daily['weather_code'][i]
+                desc = wmo_codes.get(code, f"Code: {code}")
+                
                 day_data = {
-                    'date': item['dt_txt'].split(" ")[0],
-                    'temp': item['main']['temp'],
-                    'desc': item['weather'][0]['description'],
-                    'rain_prob': item.get('pop', 0) * 100
+                    'date': daily['time'][i],
+                    'temp': daily['temperature_2m_max'][i],
+                    'desc': desc,
+                    'rain_prob': daily['precipitation_sum'][i] # Showing Rain amount in mm
                 }
                 forecast.append(day_data)
+        
         return forecast
     except Exception as e:
         print(f"Weather Error: {e}")
@@ -114,7 +150,31 @@ def convert_to_kg(value, unit):
 # --- ROUTES ---
 @app.route('/')
 def home():
-    weather_data = get_weather()
+    weather_data = get_weather_openmeteo()
+    
+    # --- AUTO-ARCHIVE WEATHER LOGIC (Lazy Cron) ---
+    # Check if we have weather data and haven't logged it for today yet
+    if weather_data:
+        today = datetime.date.today()
+        existing_log = WeatherLog.query.filter_by(date=today).first()
+        
+        if not existing_log:
+            try:
+                # weather_data[0] is today's forecast
+                todays_weather = weather_data[0]
+                new_log = WeatherLog(
+                    date=today,
+                    max_temp=todays_weather['temp'],
+                    rainfall=todays_weather['rain_prob'], # Stored as 'rain_prob' key in our helper, but represents sum in mm
+                    description=todays_weather['desc']
+                )
+                db.session.add(new_log)
+                db.session.commit()
+                print(f"✅ Archived weather for {today}")
+            except Exception as e:
+                print(f"❌ Failed to archive weather: {e}")
+                db.session.rollback()
+    
     recent_activities = FarmRecord.query.order_by(FarmRecord.date.desc()).limit(5).all()
     today_reminders = Reminder.query.filter_by(date=datetime.date.today(), completed=False).all()
     return render_template('index.html', weather=weather_data, activities=recent_activities, reminders=today_reminders)
@@ -140,14 +200,31 @@ def calendar_view():
     for record in records:
         date_key = record.date.day
         if date_key not in events_by_date:
-            events_by_date[date_key] = {'records': [], 'reminders': []}
+            events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
         events_by_date[date_key]['records'].append(record)
     
     for reminder in reminders:
         date_key = reminder.date.day
         if date_key not in events_by_date:
-            events_by_date[date_key] = {'records': [], 'reminders': []}
+            events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
         events_by_date[date_key]['reminders'].append(reminder)
+        
+    # FETCH NOTES FOR THIS MONTH
+    # Note: SQLite doesn't have extract('month'), so filter by range
+    start_date = datetime.date(year, month, 1)
+    # End date is start of next month
+    if month == 12:
+        end_date = datetime.date(year + 1, 1, 1)
+    else:
+        end_date = datetime.date(year, month + 1, 1)
+        
+    notes = Note.query.filter(Note.created_at >= start_date, Note.created_at < end_date).all()
+    
+    for note in notes:
+        date_key = note.created_at.day
+        if date_key not in events_by_date:
+             events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
+        events_by_date[date_key]['notes'].append(note)
     
     month_name = cal.month_name[month]
     prev_month = month - 1 if month > 1 else 12
@@ -158,7 +235,8 @@ def calendar_view():
     return render_template('calendar.html', cal_matrix=cal_matrix, year=year, month=month,
                           month_name=month_name, events_by_date=events_by_date,
                           prev_month=prev_month, next_month=next_month,
-                          prev_year=prev_year, next_year=next_year)
+                          prev_year=prev_year, next_year=next_year,
+                          today=now)
 
 @app.route('/dashboard')
 def dashboard():
@@ -177,6 +255,43 @@ def dashboard():
     
     return render_template('dashboard.html', income=total_income, expense=total_expense, 
                           profit=net_profit, records=records, expense_breakdown=expense_breakdown)
+
+@app.route('/weather_history')
+def weather_history():
+    logs = WeatherLog.query.order_by(WeatherLog.date.desc()).all()
+    return render_template('weather_history.html', logs=logs)
+
+@app.route('/daily_log')
+def daily_log():
+    notes = Note.query.order_by(Note.created_at.desc()).all()
+    return render_template('daily_log.html', notes=notes)
+
+@app.route('/save_daily_log', methods=['POST'])
+def save_daily_log():
+    content = request.form.get('content')
+    date_str = request.form.get('date')
+    
+    if content:
+        created_at = datetime.datetime.now()
+        if date_str:
+            try:
+                created_at = datetime.datetime.strptime(date_str, '%Y-%m-%d')
+            except ValueError:
+                pass
+        
+        note = Note(content=content, created_at=created_at)
+        db.session.add(note)
+        db.session.commit()
+    return redirect(url_for('daily_log'))
+
+@app.route('/quick_note', methods=['POST'])
+def quick_note():
+    content = request.form.get('content')
+    if content:
+        note = Note(content=f"📝 Daily Log: {content}")
+        db.session.add(note)
+        db.session.commit()
+    return redirect(url_for('dashboard'))
 
 @app.route('/add_record', methods=['POST'])
 def add_record():
@@ -390,6 +505,20 @@ def notes():
         return redirect(url_for('notes'))
     all_notes = Note.query.order_by(Note.created_at.desc()).all()
     return render_template('notes.html', notes=all_notes)
+
+@app.route('/edit_note/<int:note_id>', methods=['POST'])
+def edit_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    note.content = request.form.get('content')
+    db.session.commit()
+    return redirect(url_for('notes'))
+
+@app.route('/delete_note/<int:note_id>', methods=['POST'])
+def delete_note(note_id):
+    note = Note.query.get_or_404(note_id)
+    db.session.delete(note)
+    db.session.commit()
+    return redirect(url_for('notes'))
 
 if __name__ == '__main__':
     with app.app_context():

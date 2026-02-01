@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>🌤️ Weather History</h2>
+                <span class="badge bg-primary">Total Records: {{ logs|length }}</span>
+            </div>
+
+            <p class="text-muted">Historical weather data collected automatically when you visit the app.</p>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>📅 Date</th>
+                            <th>🌡️ Max Temp</th>
+                            <th>🌧️ Rainfall</th>
+                            <th>📝 Conditions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td><strong>{{ log.date.strftime('%Y-%m-%d') }}</strong></td>
+                            <td>
+                                <span
+                                    class="badge {% if log.max_temp > 30 %}bg-danger{% elif log.max_temp < 15 %}bg-info{% else %}bg-success{% endif %}">
+                                    {{ "%.1f"|format(log.max_temp) }}°C
+                                </span>
+                            </td>
+                            <td>
+                                {% if log.rainfall > 0 %}
+                                <span class="badg bg-info text-dark">💧 {{ "%.1f"|format(log.rainfall) }} mm</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ log.description }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4">
+                                <p class="text-muted mb-0">No weather history yet. Visit the home page to start logging!
+                                </p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
