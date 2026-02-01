@@ -6,7 +6,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
-from flask_migrate import Migrate
+# from flask_migrate import Migrate
 from config import config
 
 # Load environment variables
@@ -21,7 +21,7 @@ config_name = os.environ.get('APP_ENV', 'development')
 app.config.from_object(config[config_name])
 
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+# migrate = Migrate(app, db)
 
 # Weather API Config (from environment variables)
 WEATHER_API_KEY = os.environ.get('OPENWEATHERMAP_API_KEY', 'YOUR_OPENWEATHERMAP_API_KEY')
