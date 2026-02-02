@@ -1,108 +1,302 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>🌾 Crop Management</h2>
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <h2>🌾 Crop Lifecycle Manager</h2>
+            <div>
+                <button class="btn btn-warning text-dark me-2" data-bs-toggle="modal" data-bs-target="#smartPlanModal">
+                    💰 What to Plant?
+                </button>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCropModal">
+                    ➕ Add New Crop
+                </button>
+            </div>
+        </div>
+        <p class="text-muted">Track your crops from sowing to harvest.</p>
+    </div>
+</div>
 
 <div class="row">
-    <div class="col-md-5">
-        <div class="card p-4">
-            <h4>➕ Add New Crop</h4>
-            <form method="POST">
-                <div class="mb-3">
-                    <label>Crop Name</label>
-                    <input type="text" name="crop_name" class="form-control" placeholder="e.g., Tomato" required>
+    {% for crop in crops %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold text-success">{{ crop.crop_name }} <small class="text-muted">({{ crop.variety
+                        }})</small></h5>
+                <span class="badge {% if crop.status == 'Active' %}bg-success{% else %}bg-secondary{% endif %}">{{
+                    crop.status }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <small class="text-muted">Sowing Date</small>
+                        <p class="fw-bold">{{ crop.sowing_date.strftime('%d %b %Y') if crop.sowing_date else 'N/A' }}
+                        </p>
+                    </div>
+                    <div class="col-6 text-end">
+                        <small class="text-muted">Expected Harvest</small>
+                        <p class="fw-bold">{{ crop.expected_harvest.strftime('%d %b %Y') if crop.expected_harvest else
+                            'N/A' }}</p>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label>Variety</label>
-                    <input type="text" name="variety" class="form-control" placeholder="e.g., Local, Hybrid">
+
+                <!-- Progress Bar Logic -->
+                {% if crop.sowing_date and crop.expected_harvest and crop.status == 'Active' %}
+                {% set total_days = (crop.expected_harvest - crop.sowing_date).days %}
+                {% set days_passed = (today_date - crop.sowing_date).days %}
+                {% if total_days > 0 %}
+                {% set progress = (days_passed / total_days) * 100 %}
+                {% else %}
+                {% set progress = 100 %}
+                {% endif %}
+
+                {% if progress > 100 %}{% set progress = 100 %}{% endif %}
+
+                <small class="text-muted mb-1 d-block">
+                    Lifecycle Progress: {{ days_passed }} / {{ total_days }} Days
+                    {% if days_passed > total_days %} (Overdue) {% endif %}
+                </small>
+                <div class="progress mb-3" style="height: 10px;">
+                    <div class="progress-bar {% if progress >= 100 %}bg-warning{% else %}bg-success{% endif %}"
+                        role="progressbar" style="width: {{ progress }}%"></div>
                 </div>
-                <div class="mb-3">
-                    <label>Season</label>
-                    <select name="season" class="form-select">
-                        <option>Summer</option>
-                        <option>Rainy</option>
-                        <option>Winter</option>
-                    </select>
+                {% else %}
+                <div class="alert alert-light border text-center p-2 mb-3">
+                    <small>Add dates to track progress</small>
                 </div>
-                <div class="mb-3">
-                    <label>Area/Plot</label>
-                    <input type="text" name="area" class="form-control" placeholder="e.g., Plot A">
+                {% endif %}
+
+                <p class="card-text text-muted"><i class="bi bi-geo-alt"></i> Area: {{ crop.area }}</p>
+                {% if crop.notes %}
+                <div class="bg-light p-2 rounded mb-3">
+                    <small>📝 {{ crop.notes }}</small>
                 </div>
-                <div class="mb-3">
-                    <label>Sowing Date</label>
-                    <input type="date" name="sowing_date" class="form-control">
+                {% endif %}
+
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('edit_crop', crop_id=crop.id) }}"
+                        class="btn btn-outline-secondary btn-sm flex-grow-1">Edit</a>
+                    <form action="{{ url_for('delete_crop', crop_id=crop.id) }}" method="POST"
+                        class="d-inline flex-grow-1">
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+                            onclick="return confirm('Delete this crop?')">Delete</button>
+                    </form>
                 </div>
-                <div class="mb-3">
-                    <label>Expected Harvest Date</label>
-                    <input type="date" name="expected_harvest" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label>Notes</label>
-                    <textarea name="notes" class="form-control" rows="2"></textarea>
-                </div>
-                <button type="submit" class="btn btn-success w-100">Add Crop</button>
-            </form>
+            </div>
+            <!-- AI Insight -->
+            <div class="card-footer bg-light border-0">
+                <button class="btn btn-sm btn-info w-100 text-white"
+                    onclick="openCropDoctor('{{ crop.crop_name }}', '{{ crop.sowing_date }}')">
+                    🤖 Ask Crop Doctor
+                </button>
+            </div>
         </div>
     </div>
+    {% endfor %}
+</div>
 
-    <div class="col-md-7">
-        <div class="card p-4">
-            <h4>📊 All Crops</h4>
-            <div class="table-responsive">
-                <table class="table table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Crop Name</th>
-                            <th>Variety</th>
-                            <th>Season</th>
-                            <th>Area</th>
-                            <th>Status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for crop in crops %}
-                        <tr>
-                            <td><strong>{{ crop.crop_name }}</strong></td>
-                            <td>{{ crop.variety or '-' }}</td>
-                            <td>{{ crop.season or '-' }}</td>
-                            <td>{{ crop.area or '-' }}</td>
-                            <td>
-                                <span class="badge {% if crop.status == 'Active' %}bg-success{% elif crop.status == 'Harvested' %}bg-info{% else %}bg-danger{% endif %}">{{ crop.status }}</span>
-                            </td>
-                            <td>
-                                <a href="{{ url_for('edit_crop', crop_id=crop.id) }}" class="btn btn-sm btn-warning">✏️</a>
-                                <form method="POST" action="{{ url_for('delete_crop', crop_id=crop.id) }}" style="display:inline;">
-                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure?')">🗑️</button>
-                                </form>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<!-- Crop Doctor Modal -->
+<div class="modal fade" id="cropDoctorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">🤖 Crop Doctor</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <h5 id="doctorCropName" class="text-primary mb-3"></h5>
+                <div id="doctorContent">Thinking...</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Crop Details -->
-<div class="row mt-4">
-    {% for crop in crops %}
-    <div class="col-md-4">
-        <div class="card p-3 mb-3">
-            <h5>{{ crop.crop_name }}</h5>
-            <p><strong>Variety:</strong> {{ crop.variety or 'N/A' }}</p>
-            <p><strong>Season:</strong> {{ crop.season or 'N/A' }}</p>
-            <p><strong>Sowing:</strong> {{ crop.sowing_date.strftime('%Y-%m-%d') if crop.sowing_date else 'N/A' }}</p>
-            <p><strong>Expected Harvest:</strong> {{ crop.expected_harvest.strftime('%Y-%m-%d') if crop.expected_harvest else 'N/A' }}</p>
-            {% if crop.yields|length > 0 %}
-            <p><strong>Total Yield:</strong> {{ "%.2f"|format(crop.yields|map(attribute='yield_in_kg')|sum) }} kg</p>
-            {% endif %}
-            {% if crop.diseases|length > 0 %}
-            <p><strong>Reported Issues:</strong> {{ crop.diseases|length }}</p>
-            {% endif %}
+<!-- Add Crop Modal -->
+<div class="modal fade" id="addCropModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Crop</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{{ url_for('crops') }}" method="POST">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Crop Name</label>
+                            <input type="text" name="crop_name" class="form-control" placeholder="e.g. Rice" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Variety</label>
+                            <input type="text" name="variety" class="form-control" placeholder="e.g. Basmati">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Area (Acres/Hectares)</label>
+                        <input type="text" name="area" class="form-control" placeholder="e.g. 2 Acres">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Sowing Date</label>
+                            <input type="date" name="sowing_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Expected Harvest <small class="text-muted">(Optional)</small></label>
+                            <div class="input-group">
+                                <input type="date" name="expected_harvest" class="form-control" id="harvestDateInput">
+                                <button type="button" class="btn btn-outline-info" onclick="autoEstimateHarvest()"
+                                    title="Ask AI to guess">
+                                    ✨ Auto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Notes</label>
+                        <textarea name="notes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Add Crop</button>
+                </div>
+            </form>
         </div>
     </div>
-    {% endfor %}
 </div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Smart Plan Modal -->
+<div class="modal fade" id="smartPlanModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark">💰 Smart Profit Estimator</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label>Available Land</label>
+                        <input type="text" id="planArea" class="form-control" placeholder="e.g. 1 Acre">
+                    </div>
+                    <div class="col-md-6">
+                        <label>Season / Month</label>
+                        <select id="planSeason" class="form-select">
+                            <option value="Current Season">Current Season (Now)</option>
+                            <option value="Next Month">Next Month</option>
+                            <option value="Summer">Summer</option>
+                            <option value="Monsoon">Monsoon</option>
+                            <option value="Winter">Winter</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-dark w-100 mb-3" onclick="getSmartPlan()">🚀 Generate Profitable Plan</button>
+
+                <div id="planResult" class="p-3 border rounded bg-light d-none">
+                    <h5 class="text-success">💡 AI Recommendations:</h5>
+                    <div id="planContent">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Existing Crop Doctor Script
+    function openCropDoctor(cropName, sowingDate) {
+        // Show Modal
+        const modal = new bootstrap.Modal(document.getElementById('cropDoctorModal'));
+        document.getElementById('doctorCropName').innerText = "Analyzing " + cropName + "...";
+        document.getElementById('doctorContent').innerHTML = '<div class="spinner-border spinner-border-sm text-info"></div> Consulting database...';
+        modal.show();
+
+        // Call API
+        fetch('/api/ask_crop_doctor', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ crop_name: cropName, sowing_date: sowingDate })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('doctorContent').innerHTML = data.content;
+                } else {
+                    document.getElementById('doctorContent').innerText = "Error: " + data.message;
+                }
+            })
+            .catch(err => {
+                document.getElementById('doctorContent').innerText = "Connection Failed.";
+            });
+    }
+
+    // New Smart Plan Script
+    function getSmartPlan() {
+        const area = document.getElementById('planArea').value || "1 Acre";
+        const season = document.getElementById('planSeason').value;
+        const resultDiv = document.getElementById('planResult');
+        const contentDiv = document.getElementById('planContent');
+
+        resultDiv.classList.remove('d-none');
+        contentDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-success"></div> Crunching market data...';
+
+        fetch('/api/recommend_crops', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ area: area, season: season })
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    contentDiv.innerHTML = data.content;
+                } else {
+                    contentDiv.innerText = "Error: " + data.message;
+                }
+            })
+            .catch(err => {
+                contentDiv.innerText = "Connection Failed.";
+            });
+    }
+    function autoEstimateHarvest() {
+        const cropName = document.querySelector('input[name="crop_name"]').value;
+        const sowingDate = document.querySelector('input[name="sowing_date"]').value;
+        const harvestInput = document.getElementById('harvestDateInput');
+
+        if (!cropName || !sowingDate) {
+            alert("Please enter Crop Name and Sowing Date first!");
+            return;
+        }
+
+        harvestInput.type = 'text';
+        harvestInput.value = "🤖 Asking AI...";
+
+        fetch('/api/estimate_duration', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ crop_name: cropName })
+        })
+            .then(res => res.json())
+            .then(data => {
+                harvestInput.type = 'date';
+                if (data.status === 'success' && data.days) {
+                    // Calculate date: Sowing + Days
+                    const sowing = new Date(sowingDate);
+                    sowing.setDate(sowing.getDate() + data.days);
+                    harvestInput.valueAsDate = sowing;
+                    alert(`AI Estimated: ${data.days} days duration.`);
+                } else {
+                    harvestInput.value = "";
+                    alert("Could not estimate. Please enter manually.");
+                }
+            })
+            .catch(err => {
+                harvestInput.type = 'date';
+                harvestInput.value = "";
+                alert("AI Connection failed.");
+            });
+    }
+</script>
 {% endblock %}

@@ -5,9 +5,20 @@
     <div class="col-md-12">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>📝 Daily Blog</h2>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLogModal">
-                ➕ Add New Entry
-            </button>
+            <div>
+                <button class="btn btn-info text-white me-2" id="analyzeBtn" onclick="analyzeLogs()">
+                    🤖 Analyze Week
+                </button>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addLogModal">
+                    ➕ Add New Entry
+                </button>
+            </div>
+        </div>
+
+        <!-- AI Analysis Result Container -->
+        <div id="aiAnalysisResult" class="alert alert-info d-none">
+            <h5 class="alert-heading">🤖 AI Insight</h5>
+            <div id="aiContent">Loading analysis...</div>
         </div>
 
         <div class="card p-4">
@@ -106,5 +117,38 @@
 <script>
     // Set default date to today
     document.getElementById('todayDate').valueAsDate = new Date();
+
+    function analyzeLogs() {
+        const btn = document.getElementById('analyzeBtn');
+        const resultDiv = document.getElementById('aiAnalysisResult');
+        const contentDiv = document.getElementById('aiContent');
+
+        btn.disabled = true;
+        btn.innerHTML = "🤔 Thinking...";
+        resultDiv.classList.remove('d-none');
+        contentDiv.innerHTML = '<div class="spinner-border spinner-border-sm text-primary" role="status"></div> Analyzing your week...';
+
+        fetch('/api/analyze_logs', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                btn.disabled = false;
+                btn.innerHTML = "🤖 Analyze Week";
+
+                if (data.status === 'success') {
+                    contentDiv.innerHTML = data.content;
+                    resultDiv.className = 'alert alert-success';
+                } else {
+                    contentDiv.innerHTML = '<strong>Note:</strong> ' + data.message;
+                    resultDiv.className = 'alert alert-warning';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                btn.disabled = false;
+                btn.innerHTML = "🤖 Analyze Week";
+                contentDiv.innerHTML = 'Failed to connect to AI service.';
+                resultDiv.className = 'alert alert-danger';
+            });
+    }
 </script>
 {% endblock %}

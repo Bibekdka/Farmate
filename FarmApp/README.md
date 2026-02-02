@@ -1,4 +1,4 @@
-# 🌾 Smart Farmer - Farm Management Application
+# Farmate
 
 A comprehensive, mobile-responsive web application for modern farmers to track finances, crops, yields, diseases, and farming activities.
 

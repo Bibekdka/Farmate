@@ -5,6 +5,7 @@ import calendar as cal
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
+from ai_service import ai_advisor
 
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
@@ -18,14 +19,12 @@ app = Flask(__name__)
 
 # --- CONFIGURATION ---
 # Load configuration from environment
-# FLASK_ENV is deprecated in Flask 2.3+, using APP_ENV instead
 config_name = os.environ.get('APP_ENV', 'development')
 app.config.from_object(config[config_name])
 
 db = SQLAlchemy(app)
 
 # Weather API Config (from environment variables)
-# WEATHER_API_KEY removed (Using Open-Meteo)
 LAT = os.environ.get('FARM_LATITUDE', '26.1445')
 LON = os.environ.get('FARM_LONGITUDE', '91.7362')
 
@@ -108,7 +107,7 @@ def get_weather_openmeteo():
             "timezone": "auto"
         }
         
-        response = requests.get(url, params=params, timeout=2)
+        response = requests.get(url, params=params, timeout=10)
         data = response.json()
         
         # WMO Weather Code Mapping
@@ -172,9 +171,9 @@ def home():
                 )
                 db.session.add(new_log)
                 db.session.commit()
-                print(f"✅ Archived weather for {today}")
+                print(f"[SUCCESS] Archived weather for {today}")
             except Exception as e:
-                print(f"❌ Failed to archive weather: {e}")
+                print(f"[ERROR] Failed to archive weather: {e}")
                 db.session.rollback()
     
     recent_activities = FarmRecord.query.order_by(FarmRecord.date.desc()).limit(5).all()
@@ -415,6 +414,102 @@ def delete_yield(yield_id):
     db.session.delete(yield_rec)
     db.session.commit()
     return redirect(url_for('yield_tracking'))
+
+@app.route('/api/financial_data')
+def financial_data_api():
+    # 1. Monthly Income vs Expense (Last 6 Months)
+    today = datetime.date.today()
+    months = []
+    income_data = []
+    expense_data = []
+    
+    # Needs relativedelta import if not present globally, but it was imported at top
+    for i in range(5, -1, -1):
+        start_date = (today.replace(day=1) - relativedelta(months=i))
+        end_date = start_date + relativedelta(months=1)
+        
+        month_label = start_date.strftime("%b")
+        months.append(month_label)
+        
+        inc = db.session.query(func.sum(FarmRecord.amount)).filter(
+            FarmRecord.date >= start_date,
+            FarmRecord.date < end_date,
+            FarmRecord.category == 'Income'
+        ).scalar() or 0
+        income_data.append(inc)
+        
+        exp = db.session.query(func.sum(FarmRecord.amount)).filter(
+            FarmRecord.date >= start_date,
+            FarmRecord.date < end_date,
+            FarmRecord.category == 'Expense'
+        ).scalar() or 0
+        expense_data.append(exp)
+
+    # 2. Expense Breakdown (All Time)
+    expense_breakdown = db.session.query(
+        FarmRecord.expense_type, func.sum(FarmRecord.amount)
+    ).filter(
+        FarmRecord.category == 'Expense', 
+        FarmRecord.expense_type != None
+    ).group_by(FarmRecord.expense_type).all()
+    
+    expense_labels = [item[0] for item in expense_breakdown]
+    expense_values = [item[1] for item in expense_breakdown]
+    
+    return jsonify({
+        'months': months,
+        'income': income_data,
+        'expense': expense_data,
+        'expense_labels': expense_labels,
+        'expense_values': expense_values
+    })
+
+@app.route('/api/analyze_logs', methods=['POST'])
+def analyze_logs_api():
+    # Fetch last 7 days of logs
+    one_week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
+    recent_logs = Note.query.filter(Note.created_at >= one_week_ago).order_by(Note.created_at.asc()).all()
+    
+    if not recent_logs:
+        return jsonify({"status": "error", "message": "No logs found for the last 7 days to analyze."})
+        
+    # Call AI Service
+    result = ai_advisor.analyze_logs(recent_logs)
+    return jsonify(result)
+
+@app.route('/api/ask_crop_doctor', methods=['POST'])
+def ask_crop_doctor():
+    data = request.json
+    crop_name = data.get('crop_name')
+    sowing_date = data.get('sowing_date')
+    
+    if not crop_name:
+        return jsonify({"status": "error", "message": "Crop name is required"})
+        
+    result = ai_advisor.ask_crop_doctor(crop_name, sowing_date)
+    return jsonify(result)
+
+@app.route('/api/recommend_crops', methods=['POST'])
+def recommend_crops_api():
+    data = request.json
+    area = data.get('area')
+    season = data.get('season')
+    
+    if not area or not season:
+        return jsonify({"status": "error", "message": "Area and Season are required"})
+        
+    result = ai_advisor.recommend_crops(area, season)
+    return jsonify(result)
+
+@app.route('/api/estimate_duration', methods=['POST'])
+def estimate_duration_api():
+    data = request.json
+    crop_name = data.get('crop_name')
+    if not crop_name:
+        return jsonify({"status": "error"})
+    
+    days = ai_advisor.get_crop_duration(crop_name)
+    return jsonify({"status": "success", "days": days} if days else {"status": "error"})
 
 @app.route('/disease_log', methods=['GET', 'POST'])
 def disease_log():
