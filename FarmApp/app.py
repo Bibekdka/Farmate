@@ -501,6 +501,43 @@ def recommend_crops_api():
     result = ai_advisor.recommend_crops(area, season)
     return jsonify(result)
 
+@app.route('/api/diagnose_disease', methods=['POST'])
+def diagnose_disease_api():
+    if 'image' not in request.files:
+        return jsonify({"status": "error", "message": "No image uploaded"})
+    
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({"status": "error", "message": "No selected file"})
+        
+    try:
+        image_bytes = file.read()
+        mime_type = file.mimetype or "image/jpeg"
+        
+        result = ai_advisor.diagnose_from_image(image_bytes, mime_type)
+        
+        # Ensure result is JSON
+        if result.get('status') == 'success':
+            import json
+            content = result['content']
+            # Strip markdown code blocks if present
+            if "```json" in content:
+                content = content.split("```json")[1].split("```")[0].strip()
+            elif "```" in content:
+                content = content.split("```")[1].split("```")[0].strip()
+            
+            try:
+                # Parse string to JSON object
+                json_data = json.loads(content)
+                return jsonify({"status": "success", "data": json_data})
+            except:
+                # If parsing fails, return text as is
+                return jsonify({"status": "success", "data": {"treatment": content, "disease_name": "AI Diagnosis", "severity": "Check Description"}})
+                
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)})
+
 @app.route('/api/estimate_duration', methods=['POST'])
 def estimate_duration_api():
     data = request.json
