@@ -1,0 +1,92 @@
+[
+    {
+        "crop": "Okra (Lady Finger)",
+        "season_months": [
+            1,
+            2,
+            3,
+            5,
+            6,
+            7
+        ],
+        "pests": [
+            {
+                "name": "Whitefly",
+                "risk_stage": "Germination to Fruiting",
+                "symptoms": "Transmits Yellow Vein Mosaic Virus",
+                "threshold": "4 adults per leaf",
+                "prevention": "Use Yellow Sticky Traps; Spray Neem Oil"
+            },
+            {
+                "name": "Shoot and Fruit Borer",
+                "risk_stage": "Vegetative & Fruiting",
+                "symptoms": "Drooping terminal shoots, holes in fruit",
+                "threshold": "1 infested plant per meter row",
+                "prevention": "Remove affected shoots immediately"
+            }
+        ]
+    },
+    {
+        "crop": "Chilly",
+        "season_months": [
+            1,
+            2,
+            12
+        ],
+        "pests": [
+            {
+                "name": "Thrips",
+                "risk_stage": "All stages (peaks in Feb-March)",
+                "symptoms": "Upward curling of leaves",
+                "threshold": "6 thrips per leaf",
+                "prevention": "Spray Imidacloprid if > threshold"
+            },
+            {
+                "name": "Mites",
+                "risk_stage": "Vegetative",
+                "symptoms": "Downward curling (inverted boat shape)",
+                "prevention": "Apply acaricides or neem oil"
+            }
+        ]
+    },
+    {
+        "crop": "Cucumber/Gourds",
+        "season_months": [
+            2,
+            3,
+            4
+        ],
+        "pests": [
+            {
+                "name": "Red Pumpkin Beetle",
+                "risk_stage": "Seedling (Critical)",
+                "symptoms": "Holes in young leaves",
+                "threshold": "1 insect per sq.m",
+                "prevention": "Dust wood ash or use chemical control"
+            },
+            {
+                "name": "Fruit Fly",
+                "risk_stage": "Fruiting",
+                "symptoms": "Rotting fruits, maggots inside",
+                "prevention": "Pheromone traps; Cover fruits with paper/cloth"
+            }
+        ]
+    },
+    {
+        "crop": "Boro Rice",
+        "season_months": [
+            1,
+            2,
+            3
+        ],
+        "pests": [
+            {
+                "name": "Rice Hispa",
+                "risk_stage": "Tillering (Feb onwards)",
+                "symptoms": "White parallel streaks on leaves",
+                "threshold": "1 adult or 1 damaged leaf per hill",
+                "prevention": "Clip leaf tips before transplanting"
+            }
+        ]
+    }
+]

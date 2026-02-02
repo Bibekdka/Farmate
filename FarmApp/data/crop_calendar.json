@@ -1,0 +1,83 @@
+[
+    {
+        "crop": "Rice (Ahu - Direct)",
+        "sowing_months": [
+            "March",
+            "April"
+        ]
+    },
+    {
+        "crop": "Rice (Sali - Winter)",
+        "sowing_months": [
+            "June",
+            "July"
+        ]
+    },
+    {
+        "crop": "Tomato (Winter)",
+        "sowing_months": [
+            "October",
+            "November"
+        ]
+    },
+    {
+        "crop": "Tomato (Polyhouse)",
+        "sowing_months": [
+            "March",
+            "April",
+            "May",
+            "June"
+        ]
+    },
+    {
+        "crop": "Brinjal (Winter)",
+        "sowing_months": [
+            "September",
+            "October"
+        ]
+    },
+    {
+        "crop": "Chilli",
+        "sowing_months": [
+            "December",
+            "January"
+        ]
+    },
+    {
+        "crop": "Putmpkin",
+        "sowing_months": [
+            "January",
+            "February",
+            "September",
+            "October"
+        ]
+    },
+    {
+        "crop": "Potato",
+        "sowing_months": [
+            "October",
+            "November"
+        ]
+    },
+    {
+        "crop": "Okra (Spring)",
+        "sowing_months": [
+            "January",
+            "February",
+            "March"
+        ]
+    },
+    {
+        "crop": "Turmeric",
+        "sowing_months": [
+            "April"
+        ]
+    },
+    {
+        "crop": "Ginger",
+        "sowing_months": [
+            "March",
+            "April"
+        ]
+    }
+]

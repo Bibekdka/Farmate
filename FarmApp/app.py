@@ -24,9 +24,25 @@ app.config.from_object(config[config_name])
 
 db = SQLAlchemy(app)
 
+import json
+
 # Weather API Config (from environment variables)
 LAT = os.environ.get('FARM_LATITUDE', '26.1445')
 LON = os.environ.get('FARM_LONGITUDE', '91.7362')
+
+# Load Knowledge Data
+try:
+    with open('data/pest_etl.json', 'r') as f:
+        PEST_ETL_DB = json.load(f)
+    with open('data/pest_calendar.json', 'r') as f:
+        PEST_CALENDAR_DB = json.load(f)
+    with open('data/crop_calendar.json', 'r') as f:
+        CROP_CALENDAR_DB = json.load(f)
+except Exception as e:
+    print(f"Warning: Knowledge Base Load Error - {e}")
+    PEST_ETL_DB = []
+    PEST_CALENDAR_DB = []
+    CROP_CALENDAR_DB = []
 
 # --- DATABASE MODELS (SQL TABLES) ---
 class FarmRecord(db.Model):
@@ -636,10 +652,19 @@ def reports():
     disease_count = len(diseases)
     severe_diseases = len([d for d in diseases if d.severity == 'Severe'])
     
+    severe_diseases = len([d for d in diseases if d.severity == 'Severe'])
+    
     return render_template('reports.html', total_income=total_income, total_expense=total_expense,
                           net_profit=net_profit, monthly_data=monthly_data, activity_data=activity_data,
                           total_yield_kg=total_yield_kg, disease_count=disease_count,
                           severe_diseases=severe_diseases)
+
+@app.route('/knowledge')
+def knowledge_hub():
+    return render_template('knowledge.html', 
+                          pest_etl=PEST_ETL_DB, 
+                          pest_calendar=PEST_CALENDAR_DB, 
+                          crop_calendar=CROP_CALENDAR_DB)
 
 @app.route('/notes', methods=['GET', 'POST'])
 def notes():

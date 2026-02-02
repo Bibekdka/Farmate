@@ -1,0 +1,452 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 text-center">
+        <h2 class="fw-bold text-success">🧠 Knowledge Hub</h2>
+        <p class="text-muted">Tools, Calculators & Farming Intelligence for Assam</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Navigation Cards -->
+    <div class="col-md-3 mb-3">
+        <div class="list-group shadow-sm">
+            <a href="#fertilizer" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                🧪 Fertilizer Calculator
+            </a>
+            <a href="#zecc" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                ❄️ Cool Storage (ZECC)
+            </a>
+            <a href="#compliance" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                📋 Export Compliance
+            </a>
+            <a href="#pest_warning" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                ⚠️ Pest Warning System
+            </a>
+            <a href="#pest_calendar" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                🗓️ Pest Calendar
+            </a>
+            <a href="#crop_calendar" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                🌾 Crop Calendar
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="col-md-9">
+        <div class="tab-content">
+
+            <!-- 1. Fertilizer Calculator -->
+            <div class="tab-pane fade show active" id="fertilizer">
+                <div class="card shadow-sm p-4">
+                    <h4 class="text-success">🌾 Winter Rice Fertilizer Calculator</h4>
+                    <p class="text-muted small">Based on Assam Agriculture University FPE Formulas for Sali Rice.</p>
+
+                    <form id="fertForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Target Yield (Quintal/Ha)</label>
+                                <input type="number" id="targetYield" class="form-control" placeholder="e.g. 40"
+                                    required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Organic Manure (Ton/Ha)</label>
+                                <input type="number" id="organicManure" class="form-control" placeholder="e.g. 2"
+                                    value="0">
+                            </div>
+                        </div>
+                        <h6 class="mt-2">Soil Test Values (Kg/Ha)</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label>Nitrogen (N)</label>
+                                <input type="number" id="soilN" class="form-control" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Phosphorus (P)</label>
+                                <input type="number" id="soilP" class="form-control" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Potassium (K)</label>
+                                <input type="number" id="soilK" class="form-control" required>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success w-100" onclick="calculateFertilizer()">Calculate
+                            Dosage</button>
+                    </form>
+
+                    <div id="fertResult" class="mt-4 d-none">
+                        <div class="alert alert-info">
+                            <h5>🧪 Recommended Dosage per Hectare:</h5>
+                            <ul class="mb-0">
+                                <li><strong>Urea:</strong> <span id="resUrea">0</span> kg</li>
+                                <li><strong>SSP (Single Super Phosphate):</strong> <span id="resSSP">0</span> kg</li>
+                                <li><strong>MOP (Muriate of Potash):</strong> <span id="resMOP">0</span> kg</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.5 ZECC Storage Builder -->
+            <div class="tab-pane fade" id="zecc">
+                <div class="card shadow-sm p-4 border-info">
+                    <h4 class="text-info">❄️ Zero Energy Cool Chamber (ZECC) Builder</h4>
+                    <p class="text-muted small">Extend shelf life by 4x without electricity! (Pusa Model)</p>
+
+                    <div class="row">
+                        <div class="col-md-6 text-center">
+                            <div class="alert alert-light border">
+                                <h6>🌡️ Why build this?</h6>
+                                <ul class="text-start small mb-0">
+                                    <li>Keeps temperature <strong>10-15°C cooler</strong> than outside.</li>
+                                    <li>Maintains <strong>95% humidity</strong> (keeps veggies fresh).</li>
+                                    <li>Ideal for: Spinach, Tomato, Banana.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Amount to Store (Kg)</label>
+                            <input type="number" id="zeccInput" class="form-control" placeholder="e.g. 120"
+                                onkeyup="calculateZECC()">
+                            <small class="text-muted">Standard size is for 100kg capacity</small>
+                        </div>
+                    </div>
+
+                    <div id="zeccResult" class="mt-4 d-none">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h5>🧱 Materials Required:</h5>
+                                <div class="row text-center mt-3">
+                                    <div class="col-6">
+                                        <h3 class="text-danger" id="resBricks">0</h3>
+                                        <p class="small text-muted">Bricks</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <h3 class="text-warning" id="resSand">0</h3>
+                                        <p class="small text-muted">Sand (m³)</p>
+                                    </div>
+                                </div>
+                                <div class="alert alert-warning mt-2 mb-0 small">
+                                    <strong>Construction Tip:</strong> Build a double-walled chamber. Fill the 7.5cm gap
+                                    between walls with wet river sand. Keep sand wet always!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Compliance Checklist -->
+            <div class="tab-pane fade" id="compliance">
+                <div class="card shadow-sm p-4">
+                    <h4 class="text-primary">📋 Turmeric Export & Profit Estimator</h4>
+
+                    <ul class="nav nav-tabs mb-3" id="compTab" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#check-tab">Export
+                                Checklist</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profit-tab">Profit
+                                Estimator</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="check-tab">
+                            <h5>🇺🇸 US / 🇪🇺 EU Export Requirements</h5>
+                            <div class="list-group">
+                                <label class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" value="">
+                                    <strong>FDA Registration:</strong> Required for all food facilities exporting to
+                                    USA.
+                                </label>
+                                <label class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" value="">
+                                    <strong>Phytosanitary Certificate:</strong> Proof that produce is pest-free.
+                                </label>
+                                <label class="list-group-item">
+                                    <input class="form-check-input me-1" type="checkbox" value="">
+                                    <strong>Lead Test:</strong> Turmeric must have < 2.5 ppm lead content. </label>
+                                        <label class="list-group-item">
+                                            <input class="form-check-input me-1" type="checkbox" value="">
+                                            <strong>Packaging:</strong> Use Corrugated Plastic / Thermoformed for
+                                            hygiene.
+                                        </label>
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="profit-tab">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Land Area (Hectares)</label>
+                                    <input type="number" id="turmericArea" class="form-control" value="1">
+                                </div>
+                                <div class="col-md-6">
+                                    <label>Expected Cultivation Loss (%)</label>
+                                    <input type="number" id="turmericLoss" class="form-control" value="35">
+                                </div>
+                            </div>
+                            <button class="btn btn-primary mt-3 w-100" onclick="estimateTurmeric()">Estimate
+                                Revenue</button>
+
+                            <div id="turmResult" class="alert alert-warning mt-3 d-none">
+                                <h6>💰 Estimated Revenue: ₹<span id="resRevenue">0</span></h6>
+                                <small>⚠️ Note: Revenue is realized in <strong>January</strong>. Maintain 11 months
+                                    working capital.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Pest Warning System -->
+            <div class="tab-pane fade" id="pest_warning">
+                <div class="card shadow-sm p-4">
+                    <h4 class="text-danger">⚠️ Pest ETL Warning System</h4>
+                    <p class="text-muted">Enter your observation to check if Action is needed.</p>
+
+                    <div class="mb-3">
+                        <label>Select Crop</label>
+                        <select id="etlCrop" class="form-select">
+                            <option>Rice</option>
+                            <option>Tea</option>
+                            <option>Tomato</option>
+                            <option>Mustard</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Observed Pest</label>
+                        <select id="etlPest" class="form-select">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Observed Count / Percentage</label>
+                        <input type="number" id="etlValue" class="form-control" placeholder="e.g. 5">
+                        <small class="text-muted" id="etlUnitHint"></small>
+                    </div>
+                    <button class="btn btn-danger w-100" onclick="checkEtlStatus()">Check Status</button>
+
+                    <div id="etlResult" class="mt-3"></div>
+                </div>
+            </div>
+
+            <!-- 4. Pest Calendar -->
+            <div class="tab-pane fade" id="pest_calendar">
+                <div class="card shadow-sm p-4">
+                    <h4>🗓️ Monthly Pest Risk Calendar</h4>
+                    <div class="accordion" id="pestAccordion">
+                        {% for item in pest_calendar %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse{{ loop.index }}">
+                                    <strong>{{ item.crop }}</strong> &nbsp; <small class="text-muted">(Monitor in: {{
+                                        item.season_months|join(', ') }})</small>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ loop.index }}" class="accordion-collapse collapse"
+                                data-bs-parent="#pestAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        {% for pest in item.pests %}
+                                        <li class="list-group-item">
+                                            <h6 class="text-danger">{{ pest.name }} <small>({{ pest.risk_stage
+                                                    }})</small></h6>
+                                            <p class="mb-1"><strong>Symptoms:</strong> {{ pest.symptoms }}</p>
+                                            <p class="mb-1"><strong>Threshold:</strong> {{ pest.threshold }}</p>
+                                            <p class="mb-0 text-success"><strong>Prevention:</strong> {{ pest.prevention
+                                                }}</p>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Crop Calendar -->
+            <div class="tab-pane fade" id="crop_calendar">
+                <div class="card shadow-sm p-4">
+                    <h4>🌾 Assam Crop Sowing Calendar</h4>
+                    <input type="text" id="cropSearch" class="form-control mb-3" placeholder="Search crop name..."
+                        onkeyup="filterCrops()">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Crop Name</th>
+                                    <th>Recommended Sowing Months</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cropTableBody">
+                                {% for crop in crop_calendar %}
+                                <tr>
+                                    <td><strong>{{ crop.crop }}</strong></td>
+                                    <td>
+                                        {% for month in crop.sowing_months %}
+                                        <span class="badge bg-success">{{ month }}</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 1. Fertilizer Logic ---
+    function calculateFertilizer() {
+        const T = parseFloat(document.getElementById('targetYield').value) || 0;
+        const STVN = parseFloat(document.getElementById('soilN').value) || 0;
+        const STVP = parseFloat(document.getElementById('soilP').value) || 0;
+        const STVK = parseFloat(document.getElementById('soilK').value) || 0;
+        const OM = parseFloat(document.getElementById('organicManure').value) || 0;
+
+        // Equations
+        const N_dem = (5.22 * T) - (0.75 * STVN) - (0.11 * OM);
+        const P_dem = (0.77 * T) - (1.64 * STVP) - (0.10 * OM);
+        const K_dem = (5.12 * T) - (1.70 * STVK) - (0.30 * OM);
+
+        // Convert to Commercial Units
+        const urea = Math.max(0, N_dem / 0.46).toFixed(2);
+        const ssp = Math.max(0, P_dem / 0.16).toFixed(2);
+        const mop = Math.max(0, K_dem / 0.60).toFixed(2);
+
+        document.getElementById('resUrea').innerText = urea;
+        document.getElementById('resSSP').innerText = ssp;
+        document.getElementById('resMOP').innerText = mop;
+        document.getElementById('fertResult').classList.remove('d-none');
+    }
+
+    // --- 1.5 ZECC Logic ---
+    function calculateZECC() {
+        const kg = parseFloat(document.getElementById('zeccInput').value) || 0;
+        if (kg > 0) {
+            // Factor: ~4.17 bricks per kg, 0.0042 m3 sand per kg (Derived from standard dimensions)
+            const bricks = Math.ceil(kg * 4.17);
+            const sand = (kg * 0.0042).toFixed(2);
+
+            document.getElementById('resBricks').innerText = bricks;
+            document.getElementById('resSand').innerText = sand;
+            document.getElementById('zeccResult').classList.remove('d-none');
+        } else {
+            document.getElementById('zeccResult').classList.add('d-none');
+        }
+    }
+
+    // --- 2. Turmeric Logic ---
+    function estimateTurmeric() {
+        const ha = parseFloat(document.getElementById('turmericArea').value) || 0;
+
+        // Base Yield = 25,000 kg/ha (approx)
+        const baseYield = ha * 25000;
+
+        // Scenario A: Raw (50% loss, Low Price)
+        const yieldRaw = baseYield * 0.50;
+        const revRaw = yieldRaw * 30; // ₹30/kg
+
+        // Scenario B: Processed (35% loss, High Price, Recovery 22%)
+        const yieldOptimized = baseYield * 0.65;
+        const yieldPowder = yieldOptimized * 0.22;
+        const revProcessed = yieldPowder * 250; // ₹250/kg
+
+        document.getElementById('resRevenue').innerHTML = `
+            <div class="row text-center">
+                <div class="col-6 border-end">
+                    <small>Selling Raw Rhizomes</small>
+                    <h5 class="text-secondary">₹${revRaw.toLocaleString('en-IN')}</h5>
+                </div>
+                <div class="col-6">
+                    <small>Selling Powder (Value Added)</small>
+                    <h5 class="text-success fw-bold">₹${revProcessed.toLocaleString('en-IN')}</h5>
+                </div>
+            </div>
+            <div class="mt-2 text-center text-success small">
+                <strong>💡 Potential Gain: ₹${(revProcessed - revRaw).toLocaleString('en-IN')}</strong>
+            </div>
+        `;
+        document.getElementById('turmResult').classList.remove('d-none');
+    }
+
+    // --- 3. Pest ETL Logic ---
+    // Load pest data from server-side variable passed to template? 
+    // Ideally we fetch, but for simplicity let's inline a small subset or use the JSON if rendered.
+    // We will use the JSON injected into the template variable safely.
+    const pestDB = {{ pest_etl | tojson }};
+
+    function updatePestList() {
+        const crop = document.getElementById('etlCrop').value;
+        const pestSelect = document.getElementById('etlPest');
+        pestSelect.innerHTML = "";
+
+        const pests = pestDB.filter(p => p.crop.includes(crop));
+        if (pests.length === 0) {
+            pestSelect.innerHTML = "<option>No data available</option>";
+            return;
+        }
+
+        pests.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value = p.pest_name;
+            opt.text = p.pest_name + " (" + p.unit + ")";
+            opt.dataset.limit = p.etl_value;
+            opt.dataset.action = p.action;
+            pestSelect.appendChild(opt);
+        });
+    }
+
+    document.getElementById('etlCrop').addEventListener('change', updatePestList);
+    // Init once
+    window.onload = function () {
+        updatePestList();
+    };
+
+    function checkEtlStatus() {
+        const sel = document.getElementById('etlPest');
+        const opt = sel.options[sel.selectedIndex];
+        if (!opt || !opt.dataset.limit) return;
+
+        const limit = parseFloat(opt.dataset.limit);
+        const val = parseFloat(document.getElementById('etlValue').value) || 0;
+        const div = document.getElementById('etlResult');
+
+        if (val >= limit) {
+            div.innerHTML = `<div class="alert alert-danger"><strong>🚨 ALERT! Threshold Exceeded.</strong><br>Action: ${opt.dataset.action}</div>`;
+        } else {
+            div.innerHTML = `<div class="alert alert-success">✅ Below Threshold. Keep monitoring.</div>`;
+        }
+    }
+
+    // --- 5. Crop Filter ---
+    function filterCrops() {
+        const input = document.getElementById("cropSearch");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("cropTableBody");
+        const tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}

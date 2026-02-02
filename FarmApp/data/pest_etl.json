@@ -1,0 +1,64 @@
+[
+  {
+    "crop": "Rice",
+    "pest_name": "Stem Borer",
+    "stage": "Dead Heart",
+    "etl_condition": "percentage",
+    "etl_value": 5,
+    "unit": "% dead hearts",
+    "action": "Spray Chlorantraniliprole 18.5 SC"
+  },
+  {
+    "crop": "Rice",
+    "pest_name": "Stem Borer",
+    "stage": "Adult Moth",
+    "etl_condition": "count",
+    "etl_value": 1,
+    "unit": "egg mass per sq.m",
+    "action": "Release Trichogramma japonicum"
+  },
+  {
+    "crop": "Tea",
+    "pest_name": "Tea Mosquito Bug",
+    "location": "North East India",
+    "etl_condition": "percentage",
+    "etl_value": 2.81,
+    "unit": "% shoot infestation",
+    "action": "Follow barrier spraying"
+  },
+  {
+    "crop": "Tomato",
+    "pest_name": "Fruit Borer",
+    "etl_condition": "count",
+    "etl_value": 1,
+    "unit": "larva per plant",
+    "action": "Install pheromone traps"
+  },
+  {
+    "crop": "Rice",
+    "pest_name": "Rice Hispa",
+    "stage": "Adult/Leaf",
+    "etl_condition": "count",
+    "etl_value": 1,
+    "unit": "adult or damaged leaf per hill",
+    "action": "Spray recommended insecticide"
+  },
+  {
+    "crop": "Rice",
+    "pest_name": "Leaf Folder",
+    "stage": "Tillering",
+    "etl_condition": "count",
+    "etl_value": 1,
+    "unit": "damaged leaf per hill",
+    "action": "Apply Neem Oil"
+  },
+  {
+    "crop": "Mustard",
+    "pest_name": "Mustard Aphid",
+    "stage": "Shoot",
+    "etl_condition": "count",
+    "etl_value": 30,
+    "unit": "aphids per 10cm shoot",
+    "action": "Spray Dimethoate"
+  }
+]
