@@ -9,3 +9,4 @@ Werkzeug==2.3.7
 
 Flask-Migrate==4.0.5
 psycopg2-binary==2.9.9
+# ensure newline
