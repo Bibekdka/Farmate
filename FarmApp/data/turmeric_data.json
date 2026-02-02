@@ -1,0 +1,51 @@
+{
+    "turmeric_varieties": [
+        {
+            "name": "Lakadong",
+            "curcumin_pct": 9.0,
+            "recovery_rate": 0.18,
+            "region": "Meghalaya/Highland",
+            "best_for": "Export/Pharma",
+            "description": "Premium variety with the highest curcumin content."
+        },
+        {
+            "name": "CL-24",
+            "curcumin_pct": 8.55,
+            "recovery_rate": 0.2635,
+            "fresh_yield_ha_tons": 54,
+            "cured_yield_ha_tons": 11.60,
+            "description": "High yielding variety with superior recovery (26.35%)."
+        },
+        {
+            "name": "PTC-38",
+            "curcumin_pct": 5.0,
+            "recovery_rate": 0.24,
+            "description": "Excellent processing characteristics and 24% recovery."
+        },
+        {
+            "name": "PCT-13",
+            "curcumin_pct": 4.8,
+            "recovery_rate": 0.17,
+            "fresh_yield_ha_tons": 66,
+            "cured_yield_ha_tons": 11.25
+        },
+        {
+            "name": "Shillong Type",
+            "curcumin_pct": 3.0,
+            "recovery_rate": 0.16,
+            "description": "Highly resistant to leaf spot."
+        },
+        {
+            "name": "Tall Clone",
+            "curcumin_pct": 1.9,
+            "recovery_rate": 0.17,
+            "description": "Local variety popular in Assam."
+        },
+        {
+            "name": "Standard",
+            "curcumin_pct": 2.5,
+            "recovery_rate": 0.15,
+            "description": "Baseline estimate for local varieties."
+        }
+    ]
+}

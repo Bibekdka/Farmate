@@ -38,11 +38,14 @@ try:
         PEST_CALENDAR_DB = json.load(f)
     with open('data/crop_calendar.json', 'r') as f:
         CROP_CALENDAR_DB = json.load(f)
+    with open('data/turmeric_data.json', 'r') as f:
+        TURMERIC_DB = json.load(f)
 except Exception as e:
     print(f"Warning: Knowledge Base Load Error - {e}")
     PEST_ETL_DB = []
     PEST_CALENDAR_DB = []
     CROP_CALENDAR_DB = []
+    TURMERIC_DB = {}
 
 # --- DATABASE MODELS (SQL TABLES) ---
 class FarmRecord(db.Model):
@@ -90,6 +93,16 @@ class DiseaseLog(db.Model):
     treatment = db.Column(db.String(500))
     notes = db.Column(db.String(200))
     crop = db.relationship('Crop', backref='diseases')
+
+# --- 3. Pest Log Model ---
+class PestLog(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, default=datetime.date.today)
+    crop_name = db.Column(db.String(50))
+    pest_name = db.Column(db.String(50))
+    value = db.Column(db.Float)
+    alert_status = db.Column(db.String(20)) # SAFE, ALERT, WARNING
+    notes = db.Column(db.String(200))
 
 class Reminder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -664,7 +677,92 @@ def knowledge_hub():
     return render_template('knowledge.html', 
                           pest_etl=PEST_ETL_DB, 
                           pest_calendar=PEST_CALENDAR_DB, 
-                          crop_calendar=CROP_CALENDAR_DB)
+                          crop_calendar=CROP_CALENDAR_DB,
+                          turmeric_db=TURMERIC_DB)
+
+# --- HELPER: Weather ---
+def get_current_weather():
+    api_key = os.environ.get('OPENWEATHERMAP_API_KEY')
+    if not api_key:
+        return None
+    try:
+        url = f"http://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&appid={api_key}&units=metric"
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            return response.json()
+    except:
+        pass
+    return None
+
+# --- API: Check ETL ---
+@app.route('/api/check-etl', methods=['POST'])
+def api_check_etl():
+    data = request.json
+    crop_name = data.get('crop')
+    pest_name = data.get('pest')
+    current_value = float(data.get('value', 0))
+    
+    # 1. Database Lookup
+    if crop_name not in PEST_ETL_DB:
+         return jsonify({"status": "Error", "message": f"Crop '{crop_name}' not found."})
+    
+    crop_data = PEST_ETL_DB[crop_name]
+    if pest_name not in crop_data:
+        return jsonify({"status": "Error", "message": f"Pest '{pest_name}' not found for {crop_name}."})
+        
+    pest_info = crop_data[pest_name]
+    threshold = pest_info["threshold"]
+    condition = pest_info["condition"]
+    unit = pest_info["unit"]
+    
+    # 2. Logic Check
+    is_alert = False
+    if condition == "greater_equal" and current_value >= threshold:
+        is_alert = True
+    elif condition == "greater" and current_value > threshold:
+        is_alert = True
+        
+    # 3. Weather Context (Real-time)
+    weather = get_current_weather()
+    weather_risk = ""
+    if weather:
+        temp = weather['main']['temp']
+        humidity = weather['main']['humidity']
+        # Contextual Logic: Tea Mosquito Bug loves warm & humid
+        if pest_name == "Tea Mosquito Bug" and temp > 25 and humidity > 80:
+             weather_risk = "Create Pre-warning: Current warm & humid weather favors rapid pest growth."
+             if not is_alert and current_value >= (threshold * 0.8):
+                 is_alert = True # Lower threshold trigger
+                 pest_info["advisory"] += " (Triggered early due to high risk weather)"
+
+    # 4. Historical Trend Check
+    # Check if value is increasing
+    last_log = PestLog.query.filter_by(crop_name=crop_name, pest_name=pest_name).order_by(PestLog.date.desc()).first()
+    trend_msg = ""
+    if last_log:
+        if current_value > last_log.value:
+            trend_msg = f"📈 Trend: Value increased from {last_log.value} since {last_log.date}."
+        elif current_value < last_log.value:
+            trend_msg = "📉 Trend: Pest population is declining."
+            
+    # 5. Save to Log
+    status_label = "ALERT" if is_alert else "SAFE"
+    new_log = PestLog(crop_name=crop_name, pest_name=pest_name, value=current_value, alert_status=status_label, notes=weather_risk)
+    db.session.add(new_log)
+    db.session.commit()
+    
+    # 6. Response
+    response = {
+        "status": status_label,
+        "severity": "High" if is_alert else "Low",
+        "threshold": threshold,
+        "unit": unit,
+        "message": f"⚠️ ALERT: {pest_name} ({current_value}) exceeds threshold!" if is_alert else f"✅ Normal: Below limit ({threshold}).",
+        "recommendation": pest_info["advisory"] if is_alert else "Continue regular monitoring.",
+        "weather_context": weather_risk,
+        "trend": trend_msg
+    }
+    return jsonify(response)
 
 @app.route('/notes', methods=['GET', 'POST'])
 def notes():

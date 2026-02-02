@@ -1,64 +1,89 @@
-[
-  {
-    "crop": "Rice",
-    "pest_name": "Stem Borer",
-    "stage": "Dead Heart",
-    "etl_condition": "percentage",
-    "etl_value": 5,
-    "unit": "% dead hearts",
-    "action": "Spray Chlorantraniliprole 18.5 SC"
+{
+  "Rice": {
+    "Stem Borer": {
+      "threshold": 5.0,
+      "unit": "percent_dead_hearts",
+      "condition": "greater_equal",
+      "advisory": "Apply Chlorantraniliprole 18.5 SC (20ml in 67L water per bigha) or release Trichogramma japonicum.",
+      "source_id": ""
+    },
+    "Rice Hispa": {
+      "threshold": 1.0,
+      "unit": "adult_or_damaged_leaf_per_hill",
+      "condition": "greater_equal",
+      "advisory": "Clip leaf tips before transplanting. Spray Chlorpyriphos 20EC @ 0.02%.",
+      "source_id": "Assam_POP_Rice"
+    },
+    "Leaf Folder": {
+      "threshold": 1.0,
+      "unit": "damaged_leaf_per_hill",
+      "condition": "greater",
+      "advisory": "Release Trichogramma chilonis. Spray Quinalphos 25EC.",
+      "source_id": ""
+    },
+    "Gandhi Bug": {
+      "threshold": 1.0,
+      "unit": "bugs_per_sq_m",
+      "condition": "greater_equal",
+      "advisory": "Apply Malathion 5% dust @ 20 kg/ha.",
+      "source_id": ""
+    }
   },
-  {
-    "crop": "Rice",
-    "pest_name": "Stem Borer",
-    "stage": "Adult Moth",
-    "etl_condition": "count",
-    "etl_value": 1,
-    "unit": "egg mass per sq.m",
-    "action": "Release Trichogramma japonicum"
+  "Tea": {
+    "Tea Mosquito Bug": {
+      "threshold": 5.0,
+      "unit": "percent_shoot_infestation",
+      "condition": "greater_equal",
+      "advisory": "Follow barrier spraying. Spray Thiamethoxam 25 WG. (Warning: high humidity increases risk)",
+      "source_id": ""
+    },
+    "Red Spider Mite": {
+      "threshold": 4.0,
+      "unit": "mites_per_leaf",
+      "condition": "greater_equal",
+      "advisory": "Apply acaricides. Inspect shade trees.",
+      "source_id": ""
+    },
+    "Leaf Roller": {
+      "threshold": 5.0,
+      "unit": "infested_rolls_per_bush",
+      "condition": "greater_equal",
+      "advisory": "Collection and destruction of egg masses. Spray Deltamethrin 2.8% EC.",
+      "source_id": ""
+    }
   },
-  {
-    "crop": "Tea",
-    "pest_name": "Tea Mosquito Bug",
-    "location": "North East India",
-    "etl_condition": "percentage",
-    "etl_value": 2.81,
-    "unit": "% shoot infestation",
-    "action": "Follow barrier spraying"
+  "Okra": {
+    "Shoot and Fruit Borer": {
+      "threshold": 1.0,
+      "unit": "infected_plant_per_meter_row",
+      "condition": "greater_equal",
+      "advisory": "Remove affected shoots. Spray Deltamethrin 2.8 EC.",
+      "source_id": ""
+    },
+    "Whitefly": {
+      "threshold": 4.0,
+      "unit": "adults_per_leaf",
+      "condition": "greater_equal",
+      "advisory": "Install yellow sticky traps. Spray Azadirachtin (Neem) 0.15% EC.",
+      "source_id": ""
+    }
   },
-  {
-    "crop": "Tomato",
-    "pest_name": "Fruit Borer",
-    "etl_condition": "count",
-    "etl_value": 1,
-    "unit": "larva per plant",
-    "action": "Install pheromone traps"
+  "Tomato": {
+    "Fruit Borer": {
+      "threshold": 1.0,
+      "unit": "larva_per_plant",
+      "condition": "greater_equal",
+      "advisory": "Install pheromone traps @ 15/ha. Spray HaNPV 250 LE/ha.",
+      "source_id": ""
+    }
   },
-  {
-    "crop": "Rice",
-    "pest_name": "Rice Hispa",
-    "stage": "Adult/Leaf",
-    "etl_condition": "count",
-    "etl_value": 1,
-    "unit": "adult or damaged leaf per hill",
-    "action": "Spray recommended insecticide"
-  },
-  {
-    "crop": "Rice",
-    "pest_name": "Leaf Folder",
-    "stage": "Tillering",
-    "etl_condition": "count",
-    "etl_value": 1,
-    "unit": "damaged leaf per hill",
-    "action": "Apply Neem Oil"
-  },
-  {
-    "crop": "Mustard",
-    "pest_name": "Mustard Aphid",
-    "stage": "Shoot",
-    "etl_condition": "count",
-    "etl_value": 30,
-    "unit": "aphids per 10cm shoot",
-    "action": "Spray Dimethoate"
+  "Mustard": {
+    "Mustard Aphid": {
+      "threshold": 30.0,
+      "unit": "aphids_per_10cm_shoot",
+      "condition": "greater_equal",
+      "advisory": "Spray Dimethoate 30 EC.",
+      "source_id": ""
+    }
   }
-]
+}
