@@ -8,7 +8,6 @@ from ai_service import ai_advisor
 
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
-# from flask_migrate import Migrate
 from config import config
 
 # Load environment variables
