@@ -118,9 +118,7 @@ class WeatherLog(db.Model):
     description = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
-# Initialize Database
-with app.app_context():
-    db.create_all()
+
 
 # --- HELPER FUNCTIONS ---
 def get_weather_openmeteo():
