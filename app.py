@@ -812,6 +812,43 @@ def delete_note(note_id):
     db.session.commit()
     return redirect(url_for('notes'))
 
+@app.route('/api/backup_status')
+def backup_status_api():
+    """Return backup status for UI display"""
+    try:
+        backup_dir = Path('backups')
+        if not backup_dir.exists():
+            return jsonify({'last_backup': None, 'status': 'no_backups'})
+        
+        # Find all backups
+        all_backups = list(backup_dir.glob('*.db'))
+        if not all_backups:
+            return jsonify({'last_backup': None, 'status': 'no_backups'})
+        
+        # Get the newest backup
+        newest_backup = max(all_backups, key=lambda x: x.stat().st_mtime)
+        last_backup_time = datetime.datetime.fromtimestamp(newest_backup.stat().st_mtime)
+        
+        # Get current database info
+        db_path = Path('instance/farm_data.db')
+        db_info = {}
+        if db_path.exists():
+            db_time = datetime.datetime.fromtimestamp(db_path.stat().st_mtime)
+            db_info = {
+                'last_modified': db_time.isoformat(),
+                'size_kb': db_path.stat().st_size / 1024
+            }
+        
+        return jsonify({
+            'last_backup': last_backup_time.isoformat(),
+            'backup_count': len(all_backups),
+            'database': db_info,
+            'status': 'ok'
+        })
+    except Exception as e:
+        return jsonify({'error': str(e), 'status': 'error'})
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
