@@ -261,20 +261,22 @@ def calendar_view():
             events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
         events_by_date[date_key]['reminders'].append(reminder)
         
-    # FETCH NOTES FOR THIS MONTH
-    start_date = datetime.datetime(year, month, 1)
-    if month == 12:
-        end_date = datetime.datetime(year + 1, 1, 1)
-    else:
-        end_date = datetime.datetime(year, month + 1, 1)
-        
-    notes = Note.query.filter(Note.created_at >= start_date, Note.created_at < end_date).all()
+    # TEMPORARY FIX - Note filtering disabled due to datetime comparison issue
+    # TODO: Fix datetime/date type mismatch in SQL query
+    # start_date = datetime.datetime(year, month, 1)
+    # if month == 12:
+    #     end_date = datetime.datetime(year + 1, 1, 1)
+    # else:
+    #     end_date = datetime.datetime(year, month + 1, 1)
+    #     
+    # notes = Note.query.filter(Note.created_at >= start_date, Note.created_at < end_date).all()
+    # 
+    # for note in notes:
+    #     date_key = note.created_at.day
+    #     if date_key not in events_by_date:
+    #          events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
+    #     events_by_date[date_key]['notes'].append(note)
     
-    for note in notes:
-        date_key = note.created_at.day
-        if date_key not in events_by_date:
-             events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
-        events_by_date[date_key]['notes'].append(note)
     
     month_name = cal.month_name[month]
     prev_month = month - 1 if month > 1 else 12
@@ -850,4 +852,4 @@ def backup_status_api():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=app.config['DEBUG'])
+    app.run(debug=True)
