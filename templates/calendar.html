@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 
 {% block content %}
 <h2>📅 Calendar View</h2>
@@ -54,17 +54,6 @@
                                 {{ reminder.title }}</span>
                             {% endfor %}
                             {% endif %}
-
-                            {% if events_by_date[day].get('notes') %}
-                            {% for note in events_by_date[day]['notes'][:1] %}
-                            <span class="badge bg-white text-dark border mb-1 d-block text-truncate"
-                                title="{{ note.content }}">📝 {{ note.content }}</span>
-                            {% endfor %}
-                            {% if events_by_date[day]['notes']|length > 1 %}
-                            <span class="badge bg-light text-muted">+{{ events_by_date[day]['notes']|length - 1
-                                }}</span>
-                            {% endif %}
-                            {% endif %}
                         </div>
                         {% endif %}
                         {% endif %}
@@ -95,9 +84,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    const today = new Date();
-    document.querySelector('.table td:has(> div:contains("' + today.getDate() + '"))');
-</script>
 {% endblock %}
