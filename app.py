@@ -262,13 +262,11 @@ def calendar_view():
         events_by_date[date_key]['reminders'].append(reminder)
         
     # FETCH NOTES FOR THIS MONTH
-    # Note: SQLite doesn't have extract('month'), so filter by range
-    start_date = datetime.date(year, month, 1)
-    # End date is start of next month
+    start_date = datetime.datetime(year, month, 1)
     if month == 12:
-        end_date = datetime.date(year + 1, 1, 1)
+        end_date = datetime.datetime(year + 1, 1, 1)
     else:
-        end_date = datetime.date(year, month + 1, 1)
+        end_date = datetime.datetime(year, month + 1, 1)
         
     notes = Note.query.filter(Note.created_at >= start_date, Note.created_at < end_date).all()
     
