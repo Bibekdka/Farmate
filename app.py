@@ -2,6 +2,8 @@ import os
 import datetime
 import requests
 import calendar as cal
+import shutil
+from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import func
@@ -28,6 +30,29 @@ import json
 # Weather API Config (from environment variables)
 LAT = os.environ.get('FARM_LATITUDE', '26.1445')
 LON = os.environ.get('FARM_LONGITUDE', '91.7362')
+
+# === AUTO-BACKUP SYSTEM ===
+def auto_backup_database():
+    """Automatic backup after database changes"""
+    try:
+        db_path = Path('instance/farm_data.db')
+        if not db_path.exists():
+            return
+        
+        backup_dir = Path('backups')
+        backup_dir.mkdir(exist_ok=True)
+        
+        # Create timestamped backup
+        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
+        backup_path = backup_dir / f'auto_backup_{timestamp}.db'
+        shutil.copy2(db_path, backup_path)
+        
+        # Keep only last 20 auto-backups
+        backups = sorted(backup_dir.glob('auto_backup_*.db'), key=lambda x: x.stat().st_mtime, reverse=True)
+        for old_backup in backups[20:]:
+            old_backup.unlink()
+    except Exception as e:
+        print(f"Auto-backup warning: {e}")
 
 # Load Knowledge Data
 try:
@@ -321,6 +346,7 @@ def save_daily_log():
         note = Note(content=content, created_at=created_at)
         db.session.add(note)
         db.session.commit()
+        auto_backup_database()  # Automatic backup
     return redirect(url_for('daily_log'))
 
 @app.route('/quick_note', methods=['POST'])
