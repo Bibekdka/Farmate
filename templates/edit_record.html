@@ -8,33 +8,47 @@
             <form action="{{ url_for('edit_record', record_id=record.id) }}" method="POST">
                 <div class="mb-3">
                     <label>Date</label>
-                    <input type="date" name="date" class="form-control" value="{{ record.date.strftime('%Y-%m-%d') }}" required>
+                    <input type="date" name="date" class="form-control" value="{{ record.date.strftime('%Y-%m-%d') }}"
+                        required>
                 </div>
                 <div class="mb-3">
                     <label>Activity Name</label>
-                    <input type="text" name="activity" class="form-control" value="{{ record.activity_type }}" placeholder="e.g. Bought Seeds" required>
+                    <input type="text" name="activity" class="form-control" value="{{ record.activity_type }}"
+                        placeholder="e.g. Bought Seeds" required>
                 </div>
                 <div class="mb-3">
                     <label>Category</label>
                     <select name="category" class="form-select" id="categorySelect" onchange="toggleExpenseType()">
-                        <option value="Expense" {% if record.category == 'Expense' %}selected{% endif %}>Expense (Cost)</option>
-                        <option value="Income" {% if record.category == 'Income' %}selected{% endif %}>Income (Sales)</option>
+                        <option value="Expense" {% if record.category=='Expense' %}selected{% endif %}>Expense (Cost)
+                        </option>
+                        <option value="Income" {% if record.category=='Income' %}selected{% endif %}>Income (Sales)
+                        </option>
                     </select>
                 </div>
                 <div class="mb-3" id="expenseTypeDiv">
-                    <label>Expense Type</label>
-                    <select name="expense_type" class="form-select">
-                        <option value="">Select Type</option>
-                        <option value="Fuel" {% if record.expense_type == 'Fuel' %}selected{% endif %}>🛢️ Fuel</option>
-                        <option value="Labour" {% if record.expense_type == 'Labour' %}selected{% endif %}>👷 Labour</option>
-                        <option value="Food" {% if record.expense_type == 'Food' %}selected{% endif %}>🥕 Food/Seeds</option>
-                        <option value="Transportation" {% if record.expense_type == 'Transportation' %}selected{% endif %}>🚚 Transportation</option>
-                        <option value="Misc" {% if record.expense_type == 'Misc' %}selected{% endif %}>📦 Misc</option>
-                    </select>
+                    <label class="form-label fw-600">🏷️ Expense Type (Select Multiple)</label>
+                    <div class="border p-2 rounded" style="max-height: 150px; overflow-y: auto; background: #fff;">
+                        {% set current_types = record.expense_type.split(', ') if record.expense_type else [] %}
+                        {% set expense_options = ['Fuel', 'Labour', 'Seed', 'Water', 'Transportation', 'Medicine',
+                        'Misc'] %}
+                        {% for opt in expense_options %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="expense_type" value="{{ opt }}"
+                                id="exp_{{ opt }}" {% if opt in current_types %}checked{% endif %}>
+                            <label class="form-check-label" for="exp_{{ opt }}">
+                                {% if opt == 'Fuel' %}🛢️{% elif opt == 'Labour' %}👷{% elif opt == 'Seed' %}🌱{% elif
+                                opt == 'Water' %}💧{% elif opt == 'Transportation' %}🚚{% elif opt == 'Medicine' %}💊{%
+                                else %}📦{% endif %}
+                                {{ opt }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label>Amount</label>
-                    <input type="number" step="0.01" name="amount" class="form-control" value="{{ record.amount }}" required>
+                    <input type="number" step="0.01" name="amount" class="form-control" value="{{ record.amount }}"
+                        required>
                 </div>
                 <div class="mb-3">
                     <label>Description (Optional)</label>

@@ -50,33 +50,49 @@ def get_historical_weather(date_str):
         print(f"Error fetching weather for {date_str}: {e}")
     return None
 
-# Add weather data for Feb 1 and 2, 2026
+# Check for missing dates in the last 60 days
 with app.app_context():
-    dates_to_add = [
-        datetime.date(2026, 2, 1),
-        datetime.date(2026, 2, 2)
-    ]
+    print("Checking for missing weather data in the last 60 days...")
     
-    for date in dates_to_add:
-        # Check if already exists
-        existing = WeatherLog.query.filter_by(date=date).first()
-        if existing:
-            print(f"✓ Weather data for {date} already exists, skipping...")
-            continue
+    today = datetime.date.today()
+    start_check_date = today - datetime.timedelta(days=60)
+    
+    # Get all existing dates
+    existing_logs = WeatherLog.query.filter(WeatherLog.date >= start_check_date).all()
+    existing_dates = {log.date for log in existing_logs}
+    
+    # Identify missing dates
+    missing_dates = []
+    current = start_check_date
+    while current < today:
+        if current not in existing_dates:
+            missing_dates.append(current)
+        current += datetime.timedelta(days=1)
+    
+    if not missing_dates:
+        print("[OK] No missing dates found in the last 60 days.")
+    else:
+        print(f"Found {len(missing_dates)} missing days. Starting import...")
+        count = 0
+        for date in missing_dates:
+            try:
+                weather_data = get_historical_weather(date.strftime('%Y-%m-%d'))
+                if weather_data:
+                    new_log = WeatherLog(
+                        date=date,
+                        max_temp=weather_data['temp'],
+                        rainfall=weather_data['rainfall'],
+                        description=weather_data['desc'],
+                        created_at=datetime.datetime.now()
+                    )
+                    db.session.add(new_log)
+                    print(f"[ADDED] {date}: {weather_data['temp']}C, {weather_data['desc']}")
+                    count += 1
+                else:
+                    print(f"[FAIL] Could not fetch data for {date}")
+            except Exception as e:
+                print(f"[ERROR] {date}: {e}")
         
-        weather_data = get_historical_weather(date.strftime('%Y-%m-%d'))
-        if weather_data:
-            new_log = WeatherLog(
-                date=date,
-                max_temp=weather_data['temp'],
-                rainfall=weather_data['rainfall'],
-                description=weather_data['desc'],
-                created_at=datetime.datetime.now()
-            )
-            db.session.add(new_log)
-            db.session.commit()
-            print(f"✓ Added weather data for {date}: {weather_data['temp']}°C, {weather_data['desc']}")
-        else:
-            print(f"✗ Failed to fetch weather data for {date}")
+        db.session.commit()
+        print(f"\n[DONE] Successfully added {count} missing weather records.")
 
-print("\n✅ Historical weather data import complete!")

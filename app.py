@@ -6,7 +6,10 @@ import shutil
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from sqlalchemy import func
+import subprocess
+import sys
 from ai_service import ai_advisor
 
 from dateutil.relativedelta import relativedelta
@@ -24,6 +27,10 @@ config_name = os.environ.get('APP_ENV', 'development')
 app.config.from_object(config[config_name])
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+if app.config['SECRET_KEY'] == 'dev-secret-key-change-in-production' and config_name == 'production':
+    print("WARNING: You are using the default secret key in production. Please set SECRET_KEY environment variable.")
 
 import json
 
@@ -199,9 +206,83 @@ def convert_to_kg(value, unit):
     conversions = {'kg': 1, 'quintal': 100, 'tons': 1000, 'grams': 0.001}
     return value * conversions.get(unit.lower(), 1)
 
+def fetch_historical_weather(start_date, end_date):
+    try:
+        url = "https://archive-api.open-meteo.com/v1/archive"
+        params = {
+            "latitude": LAT,
+            "longitude": LON,
+            "start_date": start_date.strftime('%Y-%m-%d'),
+            "end_date": end_date.strftime('%Y-%m-%d'),
+            "daily": ["weather_code", "temperature_2m_max", "precipitation_sum"],
+            "timezone": "auto"
+        }
+        response = requests.get(url, params=params, timeout=10)
+        data = response.json()
+        if 'daily' in data:
+            return data['daily']
+    except Exception as e:
+        print(f"Historical Weather Error: {e}")
+    return None
+
+def backfill_weather_history():
+    """Fetches missing weather data for past days."""
+    try:
+        # Check last log
+        last_log = WeatherLog.query.order_by(WeatherLog.date.desc()).first()
+        today = datetime.date.today()
+        
+        start_date = None
+        if not last_log:
+             # Backfill 14 days if empty
+            start_date = today - datetime.timedelta(days=14)
+        else:
+            if last_log.date < today - datetime.timedelta(days=1):
+                start_date = last_log.date + datetime.timedelta(days=1)
+        
+        if start_date and start_date < today:
+            end_date = today - datetime.timedelta(days=1)
+            print(f"Attempting weather backfill: {start_date} to {end_date}")
+            
+            daily_data = fetch_historical_weather(start_date, end_date)
+            
+            if daily_data and 'time' in daily_data:
+                count = 0
+                for i in range(len(daily_data['time'])):
+                    try:
+                        d_str = daily_data['time'][i]
+                        d_obj = datetime.datetime.strptime(d_str, '%Y-%m-%d').date()
+                        
+                        # Double check if exists
+                        if not WeatherLog.query.filter_by(date=d_obj).first():
+                            code = daily_data['weather_code'][i]
+                            # Simple mapping for history
+                            desc = f"History (Code: {code})" 
+                            
+                            new_log = WeatherLog(
+                                date=d_obj,
+                                max_temp=daily_data['temperature_2m_max'][i],
+                                rainfall=daily_data['precipitation_sum'][i],
+                                description=desc
+                            )
+                            db.session.add(new_log)
+                            count += 1
+                    except Exception as inner_e:
+                        print(f"Error processing day {i}: {inner_e}")
+                        continue
+                
+                db.session.commit()
+                print(f"[SUCCESS] Backfilled {count} weather logs.")
+    except Exception as e:
+        print(f"Backfill Error: {e}")
+
 # --- ROUTES ---
 @app.route('/')
 def home():
+    # Attempt backfill periodically (naive check)
+    # Ideally async, but for small range it's fast
+    backfill_weather_history()
+    
     weather_data = get_weather_openmeteo()
     
     # --- AUTO-ARCHIVE WEATHER LOGIC (Lazy Cron) ---
@@ -362,11 +443,19 @@ def quick_note():
 def add_record():
     date_str = request.form.get('date')
     date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+    
+    # Handle multiple expense types
+    expense_types = request.form.getlist('expense_type')
+    expense_type_str = ", ".join(expense_types) if expense_types else request.form.get('expense_type')
+    # fallback if user didn't use updated form or only one selected (if string) involves list logic
+    # Actually getlist returns list even for one value. If using old template, might be different?
+    # request.form.getlist handles both select multiple and separate inputs with same name.
+    
     new_record = FarmRecord(
         date=date_obj,
         activity_type=request.form.get('activity'),
         category=request.form.get('category'),
-        expense_type=request.form.get('expense_type'),
+        expense_type=expense_type_str,
         amount=float(request.form.get('amount')),
         description=request.form.get('desc')
     )
@@ -383,7 +472,11 @@ def edit_record(record_id):
         record.date = date_obj
         record.activity_type = request.form.get('activity')
         record.category = request.form.get('category')
-        record.expense_type = request.form.get('expense_type')
+        
+        # Multiple expense types
+        expense_types = request.form.getlist('expense_type')
+        record.expense_type = ", ".join(expense_types) if expense_types else request.form.get('expense_type')
+        
         record.amount = float(request.form.get('amount'))
         record.description = request.form.get('desc')
         db.session.commit()
@@ -848,6 +941,32 @@ def backup_status_api():
     except Exception as e:
         return jsonify({'error': str(e), 'status': 'error'})
 
+@app.route('/api/run_backup', methods=['POST'])
+def run_manual_backup():
+    try:
+        # Run the daily backup logic (reusing backup_db.py)
+        # We can run it as a subprocess to keep independent environment
+        result = subprocess.run([sys.executable, 'backup_db.py'], capture_output=True, text=True)
+        
+        if result.returncode == 0:
+            return jsonify({'status': 'success', 'message': 'Backup completed successfully!', 'log': result.stdout})
+        else:
+            return jsonify({'status': 'error', 'message': 'Backup failed.', 'log': result.stderr})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+
+@app.route('/api/add_historical_weather', methods=['POST'])
+def run_add_historical_weather():
+    try:
+        # Run add_historical_weather.py
+        result = subprocess.run([sys.executable, 'add_historical_weather.py'], capture_output=True, text=True)
+        if result.returncode == 0:
+             return jsonify({'status': 'success', 'message': 'Historical weather data added!', 'log': result.stdout})
+        else:
+             return jsonify({'status': 'error', 'message': 'Failed to add weather data', 'log': result.stderr})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
 
 if __name__ == '__main__':
     with app.app_context():
