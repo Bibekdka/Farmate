@@ -38,28 +38,6 @@ import json
 LAT = os.environ.get('FARM_LATITUDE', '26.1445')
 LON = os.environ.get('FARM_LONGITUDE', '91.7362')
 
-# === AUTO-BACKUP SYSTEM ===
-def auto_backup_database():
-    """Automatic backup after database changes"""
-    try:
-        db_path = Path('instance/farm_data.db')
-        if not db_path.exists():
-            return
-        
-        backup_dir = Path('backups')
-        backup_dir.mkdir(exist_ok=True)
-        
-        # Create timestamped backup
-        timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
-        backup_path = backup_dir / f'auto_backup_{timestamp}.db'
-        shutil.copy2(db_path, backup_path)
-        
-        # Keep only last 20 auto-backups
-        backups = sorted(backup_dir.glob('auto_backup_*.db'), key=lambda x: x.stat().st_mtime, reverse=True)
-        for old_backup in backups[20:]:
-            old_backup.unlink()
-    except Exception as e:
-        print(f"Auto-backup warning: {e}")
 
 # Load Knowledge Data
 try:
