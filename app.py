@@ -204,37 +204,70 @@ def fetch_historical_weather(start_date, end_date):
     return None
 
 def backfill_weather_history():
-    """Fetches missing weather data for past days."""
+    """Fetches missing weather data for past days, including all of February 2026."""
     try:
-        # Check last log
-        last_log = WeatherLog.query.order_by(WeatherLog.date.desc()).first()
         today = datetime.date.today()
         
-        start_date = None
-        if not last_log:
-             # Backfill 14 days if empty
-            start_date = today - datetime.timedelta(days=14)
-        else:
-            if last_log.date < today - datetime.timedelta(days=1):
-                start_date = last_log.date + datetime.timedelta(days=1)
+        # STRATEGY: Fetch data from Feb 1, 2026 to yesterday
+        # This ensures we have all of February and onwards
+        feb_start_2026 = datetime.date(2026, 2, 1)
         
-        if start_date and start_date < today:
-            end_date = today - datetime.timedelta(days=1)
-            print(f"Attempting weather backfill: {start_date} to {end_date}")
-            
-            daily_data = fetch_historical_weather(start_date, end_date)
+        # Get the earliest date we should fetch from
+        # Either Feb 1, 2026 or 30 days ago, whichever is earlier
+        thirty_days_ago = today - datetime.timedelta(days=30)
+        start_date = min(feb_start_2026, thirty_days_ago)
+        end_date = today - datetime.timedelta(days=1)  # Yesterday
+        
+        print(f"Weather backfill range: {start_date} to {end_date}")
+        
+        # Check which dates are already in database
+        existing_dates = set()
+        existing_logs = WeatherLog.query.filter(
+            WeatherLog.date >= start_date,
+            WeatherLog.date <= end_date
+        ).all()
+        existing_dates = {log.date for log in existing_logs}
+        
+        # Calculate missing date ranges to minimize API calls
+        current_date = start_date
+        missing_ranges = []
+        range_start = None
+        
+        while current_date <= end_date:
+            if current_date not in existing_dates:
+                if range_start is None:
+                    range_start = current_date
+            else:
+                if range_start is not None:
+                    missing_ranges.append((range_start, current_date - datetime.timedelta(days=1)))
+                    range_start = None
+            current_date += datetime.timedelta(days=1)
+        
+        # Add final range if needed
+        if range_start is not None:
+            missing_ranges.append((range_start, end_date))
+        
+        if not missing_ranges:
+            print("[INFO] No missing weather data to fetch")
+            return
+        
+        print(f"[INFO] Found {len(missing_ranges)} gap(s) in weather data")
+        
+        # Fetch missing data for each range
+        total_added = 0
+        for range_start, range_end in missing_ranges:
+            print(f"Fetching weather data: {range_start} to {range_end}")
+            daily_data = fetch_historical_weather(range_start, range_end)
             
             if daily_data and 'time' in daily_data:
-                count = 0
                 for i in range(len(daily_data['time'])):
                     try:
                         d_str = daily_data['time'][i]
                         d_obj = datetime.datetime.strptime(d_str, '%Y-%m-%d').date()
                         
-                        # Double check if exists
+                        # Double check if exists (shouldn't, but being safe)
                         if not WeatherLog.query.filter_by(date=d_obj).first():
                             code = daily_data['weather_code'][i]
-                            # Simple mapping for history
                             desc = f"History (Code: {code})" 
                             
                             new_log = WeatherLog(
@@ -244,15 +277,20 @@ def backfill_weather_history():
                                 description=desc
                             )
                             db.session.add(new_log)
-                            count += 1
+                            total_added += 1
                     except Exception as inner_e:
-                        print(f"Error processing day {i}: {inner_e}")
+                        print(f"Error processing date {d_str}: {inner_e}")
                         continue
-                
-                db.session.commit()
-                print(f"[SUCCESS] Backfilled {count} weather logs.")
+        
+        if total_added > 0:
+            db.session.commit()
+            print(f"[SUCCESS] ✅ Backfilled {total_added} weather logs (including all of February 2026)")
+        else:
+            print("[INFO] No new weather data to add")
+            
     except Exception as e:
         print(f"Backfill Error: {e}")
+        db.session.rollback()
 
 # --- ROUTES ---
 @app.route('/')
@@ -405,7 +443,6 @@ def save_daily_log():
         note = Note(content=content, created_at=created_at)
         db.session.add(note)
         db.session.commit()
-        auto_backup_database()  # Automatic backup
     return redirect(url_for('daily_log'))
 
 @app.route('/quick_note', methods=['POST'])
@@ -924,7 +961,14 @@ def run_manual_backup():
     try:
         # Run the daily backup logic (reusing backup_db.py)
         # We can run it as a subprocess to keep independent environment
-        result = subprocess.run([sys.executable, 'backup_db.py'], capture_output=True, text=True)
+        import os
+        cwd = os.path.dirname(os.path.abspath(__file__))
+        result = subprocess.run(
+            [sys.executable, 'backup_db.py'], 
+            capture_output=True, 
+            text=True,
+            cwd=cwd
+        )
         
         if result.returncode == 0:
             return jsonify({'status': 'success', 'message': 'Backup completed successfully!', 'log': result.stdout})

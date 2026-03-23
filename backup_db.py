@@ -1,9 +1,29 @@
 import os
+import sys
 import shutil
 import datetime
 import json
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Fix Windows console encoding for emoji support
+if sys.platform == 'win32':
+    try:
+        # Try to set UTF-8 encoding for stdout
+        sys.stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        # Python <3.7 fallback
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+
+def safe_print(text):
+    """Print with fallback for environments that don't support Unicode"""
+    try:
+        print(text)
+    except UnicodeEncodeError:
+        # Fallback: remove emojis
+        ascii_text = text.encode('ascii', 'ignore').decode('ascii')
+        print(ascii_text)
 
 load_dotenv()
 
@@ -12,7 +32,7 @@ def backup_to_multiple_locations():
     db_path = Path('instance/farm_data.db')
     
     if not db_path.exists():
-        print("⚠️ No database file found to backup")
+        safe_print("⚠️ No database file found to backup")
         return False
     
     timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -23,7 +43,7 @@ def backup_to_multiple_locations():
     backup_dir.mkdir(exist_ok=True)
     local_backup = backup_dir / f'farm_data_{timestamp}.db'
     shutil.copy2(db_path, local_backup)
-    print(f"✅ Local backup: {local_backup}")
+    safe_print(f"✅ Local backup: {local_backup}")
     
     # Backup Location 2: OneDrive (if available)
     onedrive_base = Path(os.environ.get('USERPROFILE', '')) / 'OneDrive'
@@ -33,9 +53,9 @@ def backup_to_multiple_locations():
             onedrive_path.mkdir(parents=True, exist_ok=True)
             onedrive_backup = onedrive_path / f'farm_data_{timestamp}.db'
             shutil.copy2(db_path, onedrive_backup)
-            print(f"✅ OneDrive backup: {onedrive_backup}")
+            safe_print(f"✅ OneDrive backup: {onedrive_backup}")
         except Exception as e:
-            print(f"⚠️ OneDrive backup failed: {e}")
+            safe_print(f"⚠️ OneDrive backup failed: {e}")
     else:
         onedrive_backup = None
     
@@ -44,14 +64,14 @@ def backup_to_multiple_locations():
     desktop_backup_dir.mkdir(parents=True, exist_ok=True)
     desktop_backup = desktop_backup_dir / f'farm_data_{timestamp}.db'
     shutil.copy2(db_path, desktop_backup)
-    print(f"✅ Desktop backup: {desktop_backup}")
+    safe_print(f"✅ Desktop backup: {desktop_backup}")
     
     # Keep only last 10 backups in local folder
     backups = sorted(backup_dir.glob('farm_data_*.db'), key=lambda x: x.stat().st_mtime, reverse=True)
     if len(backups) > 10:
         for old_backup in backups[10:]:
             old_backup.unlink()
-            print(f"🗑️ Removed old backup: {old_backup.name}")
+            safe_print(f"🗑️ Removed old backup: {old_backup.name}")
     
     # Create a backup manifest
     manifest = {
@@ -69,17 +89,17 @@ def backup_to_multiple_locations():
     with open(manifest_file, 'w') as f:
         json.dump(manifest, f, indent=2)
     
-    print(f"\n📋 Backup manifest: {manifest_file}")
-    print(f"💾 Total size: {manifest['database_size_kb']:.2f} KB")
+    safe_print(f"\n📋 Backup manifest: {manifest_file}")
+    safe_print(f"💾 Total size: {manifest['database_size_kb']:.2f} KB")
     return True
 
 if __name__ == '__main__':
-    print("=" * 60)
-    print("🔒 MULTI-LOCATION DATABASE BACKUP SYSTEM")
-    print("=" * 60)
+    safe_print("=" * 60)
+    safe_print("🔒 MULTI-LOCATION DATABASE BACKUP SYSTEM")
+    safe_print("=" * 60)
     success = backup_to_multiple_locations()
     if success:
-        print("\n✅ ALL BACKUPS COMPLETED SUCCESSFULLY!")
-        print("Your data is now safe in 3 locations.")
+        safe_print("\n✅ ALL BACKUPS COMPLETED SUCCESSFULLY!")
+        safe_print("Your data is now safe in 3 locations.")
     else:
-        print("\n❌ BACKUP FAILED - Check database location")
+        safe_print("\n❌ BACKUP FAILED - Check database location")
