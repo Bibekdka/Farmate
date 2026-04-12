@@ -2,11 +2,12 @@ import os
 import datetime
 import requests
 import calendar as cal
-import shutil
+import logging
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func
 import subprocess
 import sys
@@ -15,6 +16,11 @@ from ai_service import ai_advisor
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
 from config import config
+from utils import (
+    setup_logging, load_all_knowledge_bases, convert_to_kg, validate_date,
+    validate_amount, validate_crop_id, validate_string, validate_category,
+    FARM_LATITUDE, FARM_LONGITUDE, WMO_CODES, RECORDS_PER_PAGE
+)
 
 # Load environment variables
 load_dotenv()
@@ -26,35 +32,25 @@ app = Flask(__name__)
 config_name = os.environ.get('APP_ENV', 'development')
 app.config.from_object(config[config_name])
 
+# Setup logging
+logger = setup_logging(app)
+
+# Initialize security
+CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
+# Security check
 if app.config['SECRET_KEY'] == 'dev-secret-key-change-in-production' and config_name == 'production':
-    print("WARNING: You are using the default secret key in production. Please set SECRET_KEY environment variable.")
-
-import json
-
-# Weather API Config (from environment variables)
-LAT = os.environ.get('FARM_LATITUDE', '26.1445')
-LON = os.environ.get('FARM_LONGITUDE', '91.7362')
-
+    logger.critical("SECURITY: Using default SECRET_KEY in production!")
+    raise RuntimeError("Must set SECRET_KEY environment variable in production")
 
 # Load Knowledge Data
-try:
-    with open('data/pest_etl.json', 'r') as f:
-        PEST_ETL_DB = json.load(f)
-    with open('data/pest_calendar.json', 'r') as f:
-        PEST_CALENDAR_DB = json.load(f)
-    with open('data/crop_calendar.json', 'r') as f:
-        CROP_CALENDAR_DB = json.load(f)
-    with open('data/turmeric_data.json', 'r') as f:
-        TURMERIC_DB = json.load(f)
-except Exception as e:
-    print(f"Warning: Knowledge Base Load Error - {e}")
-    PEST_ETL_DB = []
-    PEST_CALENDAR_DB = []
-    CROP_CALENDAR_DB = []
-    TURMERIC_DB = {}
+knowledge_bases = load_all_knowledge_bases()
+PEST_ETL_DB = knowledge_bases['pest_etl']
+PEST_CALENDAR_DB = knowledge_bases['pest_calendar']
+CROP_CALENDAR_DB = knowledge_bases['crop_calendar']
+TURMERIC_DB = knowledge_bases['turmeric_data']
 
 # --- DATABASE MODELS (SQL TABLES) ---
 class FarmRecord(db.Model):
@@ -133,102 +129,84 @@ class WeatherLog(db.Model):
 
 # --- HELPER FUNCTIONS ---
 def get_weather_openmeteo():
+    """Fetch weather forecast from Open-Meteo API."""
     try:
-        # Open-Meteo URL (No API Key needed)
         url = "https://api.open-meteo.com/v1/forecast"
         params = {
-            "latitude": LAT,
-            "longitude": LON,
+            "latitude": FARM_LATITUDE,
+            "longitude": FARM_LONGITUDE,
             "daily": ["weather_code", "temperature_2m_max", "precipitation_sum"],
             "timezone": "auto"
         }
         
         response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
         data = response.json()
-        
-        # WMO Weather Code Mapping
-        wmo_codes = {
-            0: "☀️ Clear Sky",
-            1: "🌤️ Mainly Clear", 2: "⛅ Partly Cloudy", 3: "☁️ Overcast",
-            45: "🌫️ Fog", 48: "🌫️ Rime Fog",
-            51: "DRIZZLE: Light", 53: "DRIZZLE: Moderate", 55: "DRIZZLE: Dense",
-            61: "Rain: Slight", 63: "RAINING: Moderate", 65: "RAINING: Heavy",
-            71: "SNOW: Slight", 73: "SNOW: Moderate", 75: "SNOW: Heavy",
-            77: "❄️ Snow Grains",
-            80: "SHOWERS: Slight", 81: "SHOWERS: Moderate", 82: "SHOWERS: Violent",
-            95: "⚡ Thunderstorm", 96: "⚡ Thunderstorm + Hail", 99: "⚡ Thunderstorm + Heavy Hail"
-        }
 
         forecast = []
         if response.status_code == 200:
             daily = data.get('daily', {})
-            # Loop through 7 days
             for i in range(len(daily.get('time', []))):
                 code = daily['weather_code'][i]
-                desc = wmo_codes.get(code, f"Code: {code}")
+                desc = WMO_CODES.get(code, f"Code: {code}")
                 
                 day_data = {
                     'date': daily['time'][i],
                     'temp': daily['temperature_2m_max'][i],
                     'desc': desc,
-                    'rain_prob': daily['precipitation_sum'][i] # Showing Rain amount in mm
+                    'rain_prob': daily['precipitation_sum'][i]
                 }
                 forecast.append(day_data)
         
         return forecast
+    except requests.RequestException as e:
+        logger.error(f"Weather API error: {e}")
+        return []
     except Exception as e:
-        print(f"Weather Error: {e}")
+        logger.error(f"Weather Error: {e}")
         return []
 
-def convert_to_kg(value, unit):
-    conversions = {'kg': 1, 'quintal': 100, 'tons': 1000, 'grams': 0.001}
-    return value * conversions.get(unit.lower(), 1)
-
 def fetch_historical_weather(start_date, end_date):
+    """Fetch historical weather data."""
     try:
         url = "https://archive-api.open-meteo.com/v1/archive"
         params = {
-            "latitude": LAT,
-            "longitude": LON,
+            "latitude": FARM_LATITUDE,
+            "longitude": FARM_LONGITUDE,
             "start_date": start_date.strftime('%Y-%m-%d'),
             "end_date": end_date.strftime('%Y-%m-%d'),
             "daily": ["weather_code", "temperature_2m_max", "precipitation_sum"],
             "timezone": "auto"
         }
         response = requests.get(url, params=params, timeout=10)
+        response.raise_for_status()
         data = response.json()
-        if 'daily' in data:
-            return data['daily']
+        return data.get('daily')
+    except requests.RequestException as e:
+        logger.error(f"Historical Weather API Error: {e}")
     except Exception as e:
-        print(f"Historical Weather Error: {e}")
+        logger.error(f"Historical Weather Error: {e}")
     return None
 
 def backfill_weather_history():
-    """Fetches missing weather data for past days, including all of February 2026."""
+    """Fetch missing weather data for past 30 days."""
     try:
         today = datetime.date.today()
-        
-        # STRATEGY: Fetch data from Feb 1, 2026 to yesterday
-        # This ensures we have all of February and onwards
         feb_start_2026 = datetime.date(2026, 2, 1)
-        
-        # Get the earliest date we should fetch from
-        # Either Feb 1, 2026 or 30 days ago, whichever is earlier
         thirty_days_ago = today - datetime.timedelta(days=30)
         start_date = min(feb_start_2026, thirty_days_ago)
-        end_date = today - datetime.timedelta(days=1)  # Yesterday
+        end_date = today - datetime.timedelta(days=1)
         
-        print(f"Weather backfill range: {start_date} to {end_date}")
+        logger.debug(f"Weather backfill range: {start_date} to {end_date}")
         
-        # Check which dates are already in database
-        existing_dates = set()
+        # Check which dates exist
         existing_logs = WeatherLog.query.filter(
             WeatherLog.date >= start_date,
             WeatherLog.date <= end_date
         ).all()
         existing_dates = {log.date for log in existing_logs}
         
-        # Calculate missing date ranges to minimize API calls
+        # Find gaps
         current_date = start_date
         missing_ranges = []
         range_start = None
@@ -243,20 +221,17 @@ def backfill_weather_history():
                     range_start = None
             current_date += datetime.timedelta(days=1)
         
-        # Add final range if needed
         if range_start is not None:
             missing_ranges.append((range_start, end_date))
         
         if not missing_ranges:
-            print("[INFO] No missing weather data to fetch")
+            logger.debug("No missing weather data to fetch")
             return
         
-        print(f"[INFO] Found {len(missing_ranges)} gap(s) in weather data")
+        logger.info(f"Found {len(missing_ranges)} gap(s) in weather data")
         
-        # Fetch missing data for each range
         total_added = 0
         for range_start, range_end in missing_ranges:
-            print(f"Fetching weather data: {range_start} to {range_end}")
             daily_data = fetch_historical_weather(range_start, range_end)
             
             if daily_data and 'time' in daily_data:
@@ -265,63 +240,54 @@ def backfill_weather_history():
                         d_str = daily_data['time'][i]
                         d_obj = datetime.datetime.strptime(d_str, '%Y-%m-%d').date()
                         
-                        # Double check if exists (shouldn't, but being safe)
                         if not WeatherLog.query.filter_by(date=d_obj).first():
                             code = daily_data['weather_code'][i]
-                            desc = f"History (Code: {code})" 
-                            
                             new_log = WeatherLog(
                                 date=d_obj,
                                 max_temp=daily_data['temperature_2m_max'][i],
                                 rainfall=daily_data['precipitation_sum'][i],
-                                description=desc
+                                description=f"History (Code: {code})"
                             )
                             db.session.add(new_log)
                             total_added += 1
-                    except Exception as inner_e:
-                        print(f"Error processing date {d_str}: {inner_e}")
+                    except Exception as e:
+                        logger.warning(f"Error processing date {d_str}: {e}")
                         continue
         
         if total_added > 0:
             db.session.commit()
-            print(f"[SUCCESS] ✅ Backfilled {total_added} weather logs (including all of February 2026)")
+            logger.info(f"Backfilled {total_added} weather logs")
         else:
-            print("[INFO] No new weather data to add")
+            logger.debug("No new weather data to add")
             
     except Exception as e:
-        print(f"Backfill Error: {e}")
+        logger.error(f"Backfill Error: {e}")
         db.session.rollback()
 
 # --- ROUTES ---
 @app.route('/')
 def home():
-    # Attempt backfill periodically (naive check)
-    # Ideally async, but for small range it's fast
+    """Home/dashboard page."""
     backfill_weather_history()
-    
     weather_data = get_weather_openmeteo()
     
-    # --- AUTO-ARCHIVE WEATHER LOGIC (Lazy Cron) ---
-    # Check if we have weather data and haven't logged it for today yet
+    # Auto-archive today's weather
     if weather_data:
         today = datetime.date.today()
-        existing_log = WeatherLog.query.filter_by(date=today).first()
-        
-        if not existing_log:
+        if not WeatherLog.query.filter_by(date=today).first():
             try:
-                # weather_data[0] is today's forecast
                 todays_weather = weather_data[0]
                 new_log = WeatherLog(
                     date=today,
                     max_temp=todays_weather['temp'],
-                    rainfall=todays_weather['rain_prob'], # Stored as 'rain_prob' key in our helper, but represents sum in mm
+                    rainfall=todays_weather['rain_prob'],
                     description=todays_weather['desc']
                 )
                 db.session.add(new_log)
                 db.session.commit()
-                print(f"[SUCCESS] Archived weather for {today}")
+                logger.debug(f"Archived weather for {today}")
             except Exception as e:
-                print(f"[ERROR] Failed to archive weather: {e}")
+                logger.error(f"Failed to archive weather: {e}")
                 db.session.rollback()
     
     recent_activities = FarmRecord.query.order_by(FarmRecord.date.desc()).limit(5).all()
@@ -456,26 +422,44 @@ def quick_note():
 
 @app.route('/add_record', methods=['POST'])
 def add_record():
-    date_str = request.form.get('date')
-    date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+    """Add farm record with validation."""
+    try:
+        # Validate inputs
+        date_obj = validate_date(request.form.get('date'))
+        if not date_obj:
+            return redirect(url_for('dashboard'))
+        
+        activity = validate_string(request.form.get('activity'), min_len=2, max_len=100)
+        if not activity:
+            logger.warning(f"Invalid activity_type from {request.remote_addr}")
+            return redirect(url_for('dashboard'))
+        
+        category = validate_category(request.form.get('category'))
+        if not category:
+            return redirect(url_for('dashboard'))
+        
+        amount = validate_amount(request.form.get('amount'))
+        if amount is None:
+            return redirect(url_for('dashboard'))
+        
+        expense_types = request.form.getlist('expense_type')
+        expense_type_str = ", ".join(expense_types) if expense_types else None
+        
+        new_record = FarmRecord(
+            date=date_obj,
+            activity_type=activity,
+            category=category,
+            expense_type=expense_type_str,
+            amount=amount,
+            description=validate_string(request.form.get('desc'), min_len=0, max_len=200, allow_empty=True)
+        )
+        db.session.add(new_record)
+        db.session.commit()
+        logger.info(f"Record created: {activity} - {amount} ({category})")
+    except Exception as e:
+        logger.error(f"Error adding record: {e}")
+        db.session.rollback()
     
-    # Handle multiple expense types
-    expense_types = request.form.getlist('expense_type')
-    expense_type_str = ", ".join(expense_types) if expense_types else request.form.get('expense_type')
-    # fallback if user didn't use updated form or only one selected (if string) involves list logic
-    # Actually getlist returns list even for one value. If using old template, might be different?
-    # request.form.getlist handles both select multiple and separate inputs with same name.
-    
-    new_record = FarmRecord(
-        date=date_obj,
-        activity_type=request.form.get('activity'),
-        category=request.form.get('category'),
-        expense_type=expense_type_str,
-        amount=float(request.form.get('amount')),
-        description=request.form.get('desc')
-    )
-    db.session.add(new_record)
-    db.session.commit()
     return redirect(url_for('dashboard'))
 
 @app.route('/edit_record/<int:record_id>', methods=['GET', 'POST'])
@@ -765,12 +749,17 @@ def delete_reminder(reminder_id):
 
 @app.route('/reports')
 def reports():
-    records = FarmRecord.query.all()
-    total_income = sum(r.amount for r in records if r.category == 'Income')
-    total_expense = sum(r.amount for r in records if r.category == 'Expense')
+    """Generate financial and operational reports."""
+    # Use aggregation for better performance
+    total_income = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Income').scalar() or 0
+    total_expense = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Expense').scalar() or 0
     net_profit = total_income - total_expense
     
+    # Get monthly breakdown
+    records = FarmRecord.query.all()
     monthly_data = {}
+    activity_data = {}
+    
     for record in records:
         month_key = record.date.strftime('%Y-%m')
         if month_key not in monthly_data:
@@ -779,9 +768,7 @@ def reports():
             monthly_data[month_key]['income'] += record.amount
         else:
             monthly_data[month_key]['expense'] += record.amount
-    
-    activity_data = {}
-    for record in records:
+        
         activity = record.activity_type
         if activity not in activity_data:
             activity_data[activity] = {'income': 0, 'expense': 0}
@@ -790,13 +777,12 @@ def reports():
         else:
             activity_data[activity]['expense'] += record.amount
     
-    yields = Yield.query.all()
-    total_yield_kg = sum(y.yield_in_kg or 0 for y in yields)
-    diseases = DiseaseLog.query.all()
-    disease_count = len(diseases)
-    severe_diseases = len([d for d in diseases if d.severity == 'Severe'])
+    # Yield and disease data (optimized)
+    total_yield_kg = db.session.query(func.sum(Yield.yield_in_kg)).scalar() or 0
+    disease_count = db.session.query(func.count(DiseaseLog.id)).scalar() or 0
+    severe_diseases = db.session.query(func.count(DiseaseLog.id)).filter(DiseaseLog.severity == 'Severe').scalar() or 0
     
-    severe_diseases = len([d for d in diseases if d.severity == 'Severe'])
+    logger.info(f"Reports generated - Income: {total_income}, Expense: {total_expense}")
     
     return render_template('reports.html', total_income=total_income, total_expense=total_expense,
                           net_profit=net_profit, monthly_data=monthly_data, activity_data=activity_data,
