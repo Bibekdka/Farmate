@@ -968,7 +968,6 @@ def run_manual_backup():
 def download_export():
     fmt = request.args.get('format', 'xlsx')
     try:
-        # Generate Excel export file
         from export_records import export_records
         xlsx_path = export_records()
 
@@ -978,37 +977,81 @@ def download_export():
         if fmt in ('pdf',):
             # Lazy import heavy deps
             import pandas as pd
-            from reportlab.lib.pagesizes import letter, landscape
-            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+            from reportlab.lib.pagesizes import A4, landscape
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
             from reportlab.lib import colors
-            from reportlab.lib.styles import getSampleStyleSheet
+            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+            from reportlab.lib.units import inch
 
             xls = pd.ExcelFile(xlsx_path)
             pdf_path = xlsx_path.replace('.xlsx', '.pdf')
 
-            doc = SimpleDocTemplate(pdf_path, pagesize=landscape(letter))
+            # Use A4 landscape for better data fit
+            doc = SimpleDocTemplate(
+                pdf_path, 
+                pagesize=landscape(A4),
+                topMargin=0.3*inch,
+                bottomMargin=0.3*inch,
+                leftMargin=0.4*inch,
+                rightMargin=0.4*inch
+            )
             elements = []
             styles = getSampleStyleSheet()
+            
+            # Custom styles for compact layout
+            title_style = ParagraphStyle(
+                'CustomTitle',
+                parent=styles['Heading2'],
+                fontSize=11,
+                textColor=colors.HexColor('#2d7f3e'),
+                spaceAfter=6
+            )
 
             for sheet in xls.sheet_names:
                 df = xls.parse(sheet)
-                elements.append(Paragraph(sheet, styles['Heading2']))
-                elements.append(Spacer(1, 6))
+                
+                # Add page break between sections (except first)
+                if elements:
+                    elements.append(PageBreak())
+                
+                elements.append(Paragraph(f"<b>{sheet}</b>", title_style))
+                elements.append(Spacer(1, 4))
 
-                # Prepare table data (convert all to strings)
+                # Prepare table data with optimized sizing
                 data = [list(df.columns)] + df.fillna('').astype(str).values.tolist()
-                table = Table(data, repeatRows=1)
+                
+                # Calculate column widths based on content
+                col_widths = []
+                for i in range(len(df.columns)):
+                    max_width = max(len(str(cell)) for cell in df.iloc[:, i].astype(str))
+                    col_widths.append(min(max(max_width * 0.08, 0.8), 2.2) * inch)  # Scale and cap
+                
+                table = Table(data, colWidths=col_widths, repeatRows=1)
                 table.setStyle(TableStyle([
-                    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f2f2f2')),
+                    ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2d7f3e')),
+                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                    ('FONTSIZE', (0, 0), (-1, 0), 8),
+                    ('FONTSIZE', (0, 1), (-1, -1), 7),
+                    ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8f8f8')]),
+                    ('TOPPADDING', (0, 0), (-1, -1), 2),
+                    ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+                    ('LEFTPADDING', (0, 0), (-1, -1), 3),
+                    ('RIGHTPADDING', (0, 0), (-1, -1), 3),
                 ]))
                 elements.append(table)
-                elements.append(Spacer(1, 12))
+                elements.append(Spacer(1, 8))
 
+            # Build PDF with optimization
             doc.build(elements)
+            logger.info(f"PDF export created: {pdf_path}")
             return send_file(pdf_path, as_attachment=True, download_name=os.path.basename(pdf_path))
 
     except Exception as e:
+        logger.error(f"Export error: {e}")
         return jsonify({'status': 'error', 'message': str(e)})
 
 
