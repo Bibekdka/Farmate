@@ -4,7 +4,7 @@ import requests
 import calendar as cal
 import shutil
 from pathlib import Path
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import func
@@ -974,6 +974,54 @@ def run_manual_backup():
             return jsonify({'status': 'success', 'message': 'Backup completed successfully!', 'log': result.stdout})
         else:
             return jsonify({'status': 'error', 'message': 'Backup failed.', 'log': result.stderr})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+
+@app.route('/download_export')
+def download_export():
+    fmt = request.args.get('format', 'xlsx')
+    try:
+        # Generate Excel export file
+        from export_records import export_records
+        xlsx_path = export_records()
+
+        if fmt in ('xlsx', 'excel'):
+            return send_file(xlsx_path, as_attachment=True, download_name=os.path.basename(xlsx_path))
+
+        if fmt in ('pdf',):
+            # Lazy import heavy deps
+            import pandas as pd
+            from reportlab.lib.pagesizes import letter, landscape
+            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+            from reportlab.lib import colors
+            from reportlab.lib.styles import getSampleStyleSheet
+
+            xls = pd.ExcelFile(xlsx_path)
+            pdf_path = xlsx_path.replace('.xlsx', '.pdf')
+
+            doc = SimpleDocTemplate(pdf_path, pagesize=landscape(letter))
+            elements = []
+            styles = getSampleStyleSheet()
+
+            for sheet in xls.sheet_names:
+                df = xls.parse(sheet)
+                elements.append(Paragraph(sheet, styles['Heading2']))
+                elements.append(Spacer(1, 6))
+
+                # Prepare table data (convert all to strings)
+                data = [list(df.columns)] + df.fillna('').astype(str).values.tolist()
+                table = Table(data, repeatRows=1)
+                table.setStyle(TableStyle([
+                    ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#f2f2f2')),
+                ]))
+                elements.append(table)
+                elements.append(Spacer(1, 12))
+
+            doc.build(elements)
+            return send_file(pdf_path, as_attachment=True, download_name=os.path.basename(pdf_path))
+
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 

@@ -37,6 +37,16 @@
     </div>
 </div>
 
+<!-- Export Buttons -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('download_export') }}?format=xlsx" class="btn btn-outline-primary">⬇️ Download Excel</a>
+            <a href="{{ url_for('download_export') }}?format=pdf" class="btn btn-outline-secondary">⬇️ Download PDF</a>
+        </div>
+    </div>
+</div>
+
 <!-- Expense Breakdown by Category -->
 <div class="row mb-5">
     <div class="col-md-12">
