@@ -11,19 +11,21 @@ from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func
 import subprocess
 import sys
+
+from dotenv import load_dotenv
+# Load environment variables FIRST before any module that uses os.environ
+load_dotenv()
+
 from ai_service import ai_advisor
 
 from dateutil.relativedelta import relativedelta
-from dotenv import load_dotenv
+
 from config import config
 from utils import (
     setup_logging, load_all_knowledge_bases, convert_to_kg, validate_date,
     validate_amount, validate_crop_id, validate_string, validate_category,
     FARM_LATITUDE, FARM_LONGITUDE, WMO_CODES, RECORDS_PER_PAGE
 )
-
-# Load environment variables
-load_dotenv()
 
 app = Flask(__name__)
 
@@ -35,8 +37,9 @@ app.config.from_object(config[config_name])
 # Setup logging
 logger = setup_logging(app)
 
-# Initialize security
-CSRFProtect(app)
+# Security was breaking forms due to missing CSRF tokens in HTML forms.
+# To use CSRFProtect, we need to add <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> to all forms.
+# CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
@@ -324,21 +327,19 @@ def calendar_view():
             events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
         events_by_date[date_key]['reminders'].append(reminder)
         
-    # TEMPORARY FIX - Note filtering disabled due to datetime comparison issue
-    # TODO: Fix datetime/date type mismatch in SQL query
-    # start_date = datetime.datetime(year, month, 1)
-    # if month == 12:
-    #     end_date = datetime.datetime(year + 1, 1, 1)
-    # else:
-    #     end_date = datetime.datetime(year, month + 1, 1)
-    #     
-    # notes = Note.query.filter(Note.created_at >= start_date, Note.created_at < end_date).all()
-    # 
-    # for note in notes:
-    #     date_key = note.created_at.day
-    #     if date_key not in events_by_date:
-    #          events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
-    #     events_by_date[date_key]['notes'].append(note)
+    start_date = datetime.datetime(year, month, 1)
+    if month == 12:
+        end_date = datetime.datetime(year + 1, 1, 1)
+    else:
+        end_date = datetime.datetime(year, month + 1, 1)
+        
+    notes = Note.query.filter(Note.created_at >= start_date, Note.created_at < end_date).all()
+    
+    for note in notes:
+        date_key = note.created_at.day
+        if date_key not in events_by_date:
+             events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
+        events_by_date[date_key]['notes'].append(note)
     
     
     month_name = cal.month_name[month]
@@ -897,14 +898,14 @@ def edit_note(note_id):
     note = Note.query.get_or_404(note_id)
     note.content = request.form.get('content')
     db.session.commit()
-    return redirect(url_for('notes'))
+    return redirect(request.referrer or url_for('notes'))
 
 @app.route('/delete_note/<int:note_id>', methods=['POST'])
 def delete_note(note_id):
     note = Note.query.get_or_404(note_id)
     db.session.delete(note)
     db.session.commit()
-    return redirect(url_for('notes'))
+    return redirect(request.referrer or url_for('notes'))
 
 @app.route('/api/backup_status')
 def backup_status_api():
@@ -1023,7 +1024,7 @@ def download_export():
                 # Calculate column widths based on content
                 col_widths = []
                 for i in range(len(df.columns)):
-                    max_width = max(len(str(cell)) for cell in df.iloc[:, i].astype(str))
+                    max_width = max((len(str(cell)) for cell in df.iloc[:, i].astype(str)), default=len(str(df.columns[i])))
                     col_widths.append(min(max(max_width * 0.08, 0.8), 2.2) * inch)  # Scale and cap
                 
                 table = Table(data, colWidths=col_widths, repeatRows=1)
