@@ -1,0 +1,623 @@
+2026-04-12 14:05:38,935 - root - CRITICAL - SECURITY: Using default SECRET_KEY in production!
+2026-04-12 14:05:53,632 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-04-12 14:05:53,632 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-04-12 14:05:53,634 - werkzeug - INFO -  * Restarting with stat
+2026-04-12 14:05:54,799 - werkzeug - WARNING -  * Debugger is active!
+2026-04-12 14:05:54,805 - werkzeug - INFO -  * Debugger PIN: 119-744-768
+2026-04-12 14:06:12,347 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:06:12] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:06:21,343 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:06:21] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:07:13,347 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:07:13] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:07:21,342 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:07:21] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:07:30,101 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\export_records.py', reloading
+2026-04-12 14:07:30,347 - werkzeug - INFO -  * Restarting with stat
+2026-04-12 14:07:31,508 - werkzeug - WARNING -  * Debugger is active!
+2026-04-12 14:07:31,513 - werkzeug - INFO -  * Debugger PIN: 119-744-768
+2026-04-12 14:07:49,327 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\export_records.py', reloading
+2026-04-12 14:07:49,432 - werkzeug - INFO -  * Restarting with stat
+2026-04-12 14:07:50,686 - werkzeug - WARNING -  * Debugger is active!
+2026-04-12 14:07:50,692 - werkzeug - INFO -  * Debugger PIN: 119-744-768
+2026-04-12 14:07:53,960 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-04-12 14:07:54,110 - werkzeug - INFO -  * Restarting with stat
+2026-04-12 14:07:55,428 - werkzeug - WARNING -  * Debugger is active!
+2026-04-12 14:07:55,433 - werkzeug - INFO -  * Debugger PIN: 119-744-768
+2026-04-12 14:08:04,068 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-04-12 14:08:04,247 - werkzeug - INFO -  * Restarting with stat
+2026-04-12 14:08:05,488 - werkzeug - WARNING -  * Debugger is active!
+2026-04-12 14:08:05,493 - werkzeug - INFO -  * Debugger PIN: 119-744-768
+2026-04-12 14:08:13,881 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-04-12 14:08:13,881 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-04-12 14:08:13,883 - werkzeug - INFO -  * Restarting with stat
+2026-04-12 14:08:14,333 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:08:14] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:08:15,321 - werkzeug - WARNING -  * Debugger is active!
+2026-04-12 14:08:15,332 - werkzeug - INFO -  * Debugger PIN: 119-744-768
+2026-04-12 14:08:21,339 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:08:21] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:09:15,338 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:09:15] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:09:21,343 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:09:21] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:10:16,361 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:10:16] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:10:21,341 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:10:21] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:11:17,366 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:11:17] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:11:21,334 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:11:21] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:12:18,348 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:12:18] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:12:21,334 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:12:21] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:12:29,186 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\check_production_readiness.py', reloading
+2026-04-12 14:12:29,210 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\check_production_readiness.py', reloading
+2026-04-12 14:12:29,333 - werkzeug - INFO -  * Restarting with stat
+2026-04-12 14:12:29,355 - werkzeug - INFO -  * Restarting with stat
+2026-04-12 14:12:30,683 - werkzeug - WARNING -  * Debugger is active!
+2026-04-12 14:12:30,683 - werkzeug - WARNING -  * Debugger is active!
+2026-04-12 14:12:30,689 - werkzeug - INFO -  * Debugger PIN: 119-744-768
+2026-04-12 14:12:30,690 - werkzeug - INFO -  * Debugger PIN: 119-744-768
+2026-04-12 14:13:19,344 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:13:19] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:13:21,347 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:13:21] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:14:20,342 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:14:20] "GET /api/backup_status HTTP/1.1" 200 -
+2026-04-12 14:14:21,338 - werkzeug - INFO - 127.0.0.1 - - [12/Apr/2026 14:14:21] "GET /api/backup_status HTTP/1.1" 200 -
+2026-05-06 04:52:57,858 - root - CRITICAL - SECURITY: Using default SECRET_KEY in production!
+2026-05-06 04:53:52,058 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-06 04:53:52,059 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-06 04:53:52,062 - werkzeug - INFO -  * Restarting with stat
+2026-05-06 04:53:54,170 - werkzeug - WARNING -  * Debugger is active!
+2026-05-06 04:53:54,175 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-06 04:54:23,852 - root - DEBUG - Weather backfill range: 2026-02-01 to 2026-05-05
+2026-05-06 04:54:23,877 - root - INFO - Found 1 gap(s) in weather data
+2026-05-06 04:54:23,884 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): archive-api.open-meteo.com:443
+2026-05-06 04:54:27,159 - urllib3.connectionpool - DEBUG - https://archive-api.open-meteo.com:443 "GET /v1/archive?latitude=26.1445&longitude=91.7362&start_date=2026-04-13&end_date=2026-05-05&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-06 04:54:27,281 - root - INFO - Backfilled 23 weather logs
+2026-05-06 04:54:27,286 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.open-meteo.com:443
+2026-05-06 04:54:28,650 - urllib3.connectionpool - DEBUG - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=26.1445&longitude=91.7362&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-06 04:54:28,681 - root - DEBUG - Archived weather for 2026-05-06
+2026-05-06 04:54:28,736 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:54:28] "GET / HTTP/1.1" 200 -
+2026-05-06 04:56:07,837 - root - DEBUG - Weather backfill range: 2026-02-01 to 2026-05-05
+2026-05-06 04:56:07,846 - root - DEBUG - No missing weather data to fetch
+2026-05-06 04:56:07,855 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.open-meteo.com:443
+2026-05-06 04:56:09,454 - urllib3.connectionpool - DEBUG - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=26.1445&longitude=91.7362&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-06 04:56:09,471 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:09] "GET / HTTP/1.1" 200 -
+2026-05-06 04:56:10,054 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:10] "GET /api/backup_status HTTP/1.1" 200 -
+2026-05-06 04:56:10,551 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:10] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-06 04:56:13,945 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:13] "GET /dashboard HTTP/1.1" 200 -
+2026-05-06 04:56:14,133 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:14] "GET /api/backup_status HTTP/1.1" 200 -
+2026-05-06 04:56:14,149 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:14] "GET /api/backup_status HTTP/1.1" 200 -
+2026-05-06 04:56:22,855 - root - ERROR - Export error: max() iterable argument is empty
+2026-05-06 04:56:22,855 - root - ERROR - Export error: max() iterable argument is empty
+2026-05-06 04:56:22,856 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:22] "GET /download_export?format=pdf HTTP/1.1" 200 -
+2026-05-06 04:56:22,856 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:22] "GET /download_export?format=pdf HTTP/1.1" 200 -
+2026-05-06 04:56:44,156 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:44] "GET /api/backup_status HTTP/1.1" 200 -
+2026-05-06 04:56:44,156 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:44] "GET /api/backup_status HTTP/1.1" 200 -
+2026-05-06 04:56:51,573 - flask_wtf.csrf - INFO - The CSRF token is missing.
+2026-05-06 04:56:51,573 - flask_wtf.csrf - INFO - The CSRF token is missing.
+2026-05-06 04:56:51,573 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:51] "[31m[1mPOST /add_record HTTP/1.1[0m" 400 -
+2026-05-06 04:56:51,573 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 04:56:51] "[31m[1mPOST /add_record HTTP/1.1[0m" 400 -
+2026-05-06 04:58:35,222 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-06 04:58:35,222 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-06 04:58:35,527 - werkzeug - INFO -  * Restarting with stat
+2026-05-06 05:00:21,336 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-06 05:00:21,337 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-06 05:00:21,338 - werkzeug - INFO -  * Restarting with stat
+2026-05-06 05:00:22,598 - werkzeug - WARNING -  * Debugger is active!
+2026-05-06 05:00:22,604 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-06 05:00:33,522 - root - INFO - PDF export created: exports\farm_records_20260506_050032.pdf
+2026-05-06 05:00:33,522 - root - INFO - PDF export created: exports\farm_records_20260506_050032.pdf
+2026-05-06 05:00:33,540 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 05:00:33] "GET /download_export?format=pdf HTTP/1.1" 200 -
+2026-05-06 05:00:33,540 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 05:00:33] "GET /download_export?format=pdf HTTP/1.1" 200 -
+2026-05-06 05:02:29,187 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-06 05:02:29,187 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-06 05:02:29,688 - werkzeug - INFO -  * Restarting with stat
+2026-05-06 05:02:32,115 - werkzeug - WARNING -  * Debugger is active!
+2026-05-06 05:02:32,122 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-06 05:03:15,658 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-06 05:03:15,848 - werkzeug - INFO -  * Restarting with stat
+2026-05-06 05:03:17,351 - werkzeug - WARNING -  * Debugger is active!
+2026-05-06 05:03:17,357 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-06 05:03:58,674 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-06 05:03:58,858 - werkzeug - INFO -  * Restarting with stat
+2026-05-06 05:05:01,616 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-06 05:05:01,616 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-06 05:05:01,620 - werkzeug - INFO -  * Restarting with stat
+2026-05-06 05:05:02,919 - werkzeug - WARNING -  * Debugger is active!
+2026-05-06 05:05:02,925 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-06 12:04:47,610 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 12:04:47] "GET /api/financial_data HTTP/1.1" 200 -
+2026-05-06 12:04:56,680 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 12:04:56] "GET /dashboard HTTP/1.1" 200 -
+2026-05-06 12:05:06,383 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 12:05:06] "GET /calendar HTTP/1.1" 200 -
+2026-05-06 12:05:14,770 - werkzeug - INFO - 127.0.0.1 - - [06/May/2026 12:05:14] "GET /knowledge HTTP/1.1" 200 -
+2026-05-06 12:29:38,382 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-06 12:29:38,383 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-07 19:20:05,564 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\config.py', reloading
+2026-05-07 19:20:05,833 - werkzeug - INFO -  * Restarting with stat
+2026-05-07 19:20:07,588 - werkzeug - WARNING -  * Debugger is active!
+2026-05-07 19:20:07,596 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-07 20:09:48,721 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-07 20:09:48,722 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-07 20:09:48,725 - werkzeug - INFO -  * Restarting with stat
+2026-05-07 20:09:50,446 - werkzeug - WARNING -  * Debugger is active!
+2026-05-07 20:09:50,452 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-07 23:00:46,839 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-07 23:00:46,840 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-07 23:00:46,843 - werkzeug - INFO -  * Restarting with stat
+2026-05-07 23:00:59,306 - werkzeug - WARNING -  * Debugger is active!
+2026-05-07 23:00:59,321 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-07 23:01:29,537 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:01:29] "GET / HTTP/1.1" 200 -
+2026-05-07 23:01:29,660 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:01:29] "GET /static/css/public.css HTTP/1.1" 200 -
+2026-05-07 23:01:29,896 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:01:29] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-07 23:01:47,989 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:01:47] "GET /shop HTTP/1.1" 200 -
+2026-05-07 23:01:48,060 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:01:48] "[36mGET /static/css/public.css HTTP/1.1[0m" 304 -
+2026-05-07 23:01:58,892 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:01:58] "GET /cart HTTP/1.1" 200 -
+2026-05-07 23:01:58,935 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:01:58] "[36mGET /static/css/public.css HTTP/1.1[0m" 304 -
+2026-05-07 23:02:04,039 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:02:04] "GET /login HTTP/1.1" 200 -
+2026-05-07 23:02:04,103 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:02:04] "[36mGET /static/css/public.css HTTP/1.1[0m" 304 -
+2026-05-07 23:02:09,323 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:02:09] "GET /register HTTP/1.1" 200 -
+2026-05-07 23:02:09,389 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:02:09] "[36mGET /static/css/public.css HTTP/1.1[0m" 304 -
+2026-05-07 23:03:04,623 - root - DEBUG - Weather backfill range: 2026-02-01 to 2026-05-06
+2026-05-07 23:03:05,203 - root - DEBUG - No missing weather data to fetch
+2026-05-07 23:03:05,207 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.open-meteo.com:443
+2026-05-07 23:03:06,400 - urllib3.connectionpool - DEBUG - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=26.1445&longitude=91.7362&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-07 23:03:07,645 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:03:07] "GET /admin HTTP/1.1" 200 -
+2026-05-07 23:03:08,080 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:03:08] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:03:31,559 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:03:31] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-07 23:03:31,707 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:03:31] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:03:31,723 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:03:31] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:03:50,214 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:03:50] "GET /admin/calendar HTTP/1.1" 200 -
+2026-05-07 23:03:50,292 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:03:50] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:04:06,052 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:06] "GET /admin/weather_history HTTP/1.1" 200 -
+2026-05-07 23:04:06,876 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:06] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:04:22,985 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:22] "GET /admin/crops HTTP/1.1" 200 -
+2026-05-07 23:04:23,039 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:23] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:04:29,773 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:29] "GET /admin/yield HTTP/1.1" 200 -
+2026-05-07 23:04:29,813 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:04:35,968 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:35] "GET /admin/crops HTTP/1.1" 200 -
+2026-05-07 23:04:36,010 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:36] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:04:52,937 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:52] "GET /admin/yield HTTP/1.1" 200 -
+2026-05-07 23:04:52,975 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:04:52] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:05:07,919 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:05:07] "GET /admin/disease_log HTTP/1.1" 200 -
+2026-05-07 23:05:07,958 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:05:07] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:05:22,903 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:05:22] "GET /admin/knowledge HTTP/1.1" 200 -
+2026-05-07 23:05:22,954 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:05:22] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:05:40,346 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:05:40] "GET /admin/daily_log HTTP/1.1" 200 -
+2026-05-07 23:05:40,387 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:05:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:05:54,776 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:05:54] "GET /admin/notes HTTP/1.1" 200 -
+2026-05-07 23:05:54,825 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:05:54] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:06:10,288 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:06:10] "GET /admin/reminders HTTP/1.1" 200 -
+2026-05-07 23:06:10,345 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:06:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:06:27,595 - root - INFO - Reports generated - Income: 0, Expense: 0
+2026-05-07 23:06:27,972 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:06:27] "GET /admin/reports HTTP/1.1" 200 -
+2026-05-07 23:06:28,015 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:06:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:06:33,317 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:06:33] "GET /admin/api/financial_data HTTP/1.1" 200 -
+2026-05-07 23:06:58,019 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:06:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:07:10,987 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:07:10] "GET / HTTP/1.1" 200 -
+2026-05-07 23:07:11,003 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:07:11] "GET /static/css/public.css HTTP/1.1" 200 -
+2026-05-07 23:07:12,278 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:07:12] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-07 23:07:26,855 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:07:26] "GET /shop HTTP/1.1" 200 -
+2026-05-07 23:07:26,862 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:07:26] "[36mGET /static/css/public.css HTTP/1.1[0m" 304 -
+2026-05-07 23:07:28,019 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:07:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:07:49,191 - root - DEBUG - Weather backfill range: 2026-02-01 to 2026-05-06
+2026-05-07 23:07:50,012 - root - DEBUG - No missing weather data to fetch
+2026-05-07 23:07:50,014 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.open-meteo.com:443
+2026-05-07 23:07:51,724 - urllib3.connectionpool - DEBUG - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=26.1445&longitude=91.7362&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-07 23:07:53,089 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:07:53] "GET /admin HTTP/1.1" 200 -
+2026-05-07 23:07:56,263 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:07:56] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:07:58,021 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:07:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:08:15,827 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:08:15] "[33mGET /daily_log HTTP/1.1[0m" 404 -
+2026-05-07 23:08:28,018 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:08:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:08:58,059 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:08:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:09:21,273 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:21] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-07 23:09:21,529 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:21] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:09:21,546 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:21] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:09:28,024 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:09:31,982 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:31] "GET /admin/knowledge HTTP/1.1" 200 -
+2026-05-07 23:09:32,038 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:32] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:09:44,095 - root - INFO - Reports generated - Income: 0, Expense: 0
+2026-05-07 23:09:44,416 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:44] "GET /admin/reports HTTP/1.1" 200 -
+2026-05-07 23:09:44,546 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:44] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:09:49,446 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:49] "GET /admin/api/financial_data HTTP/1.1" 200 -
+2026-05-07 23:09:58,019 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:09:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:14,073 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:14] "GET /admin/download_export?format=xlsx HTTP/1.1" 200 -
+2026-05-07 23:10:14,073 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:14] "GET /admin/download_export?format=xlsx HTTP/1.1" 200 -
+2026-05-07 23:10:14,555 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:14] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:14,555 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:14] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:21,877 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:21] "GET /admin/crops HTTP/1.1" 200 -
+2026-05-07 23:10:21,877 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:21] "GET /admin/crops HTTP/1.1" 200 -
+2026-05-07 23:10:21,973 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:21] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:21,973 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:21] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:28,030 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:28,030 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:51,973 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:51] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:51,973 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:51] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:58,026 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:10:58,026 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:10:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:11:21,981 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:11:21] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:11:21,981 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:11:21] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:11:28,038 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:11:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:11:28,038 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:11:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:11:51,978 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:11:51] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:11:51,978 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:11:51] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:11:58,023 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:11:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:11:58,023 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:11:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:12:21,977 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:12:21] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:12:21,977 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:12:21] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:12:28,025 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:12:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:12:28,025 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:12:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:12:39,103 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\config.py', reloading
+2026-05-07 23:12:39,103 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\config.py', reloading
+2026-05-07 23:12:39,456 - werkzeug - INFO -  * Restarting with stat
+2026-05-07 23:12:51,012 - werkzeug - WARNING -  * Debugger is active!
+2026-05-07 23:12:51,031 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-07 23:12:51,991 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:12:51] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:12:58,027 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:12:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:13:19,950 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-07 23:13:20,242 - werkzeug - INFO -  * Restarting with stat
+2026-05-07 23:13:32,418 - werkzeug - WARNING -  * Debugger is active!
+2026-05-07 23:13:32,428 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-07 23:13:32,509 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:13:32] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:13:32,510 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:13:32] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:13:38,869 - root - DEBUG - Weather backfill range: 2026-02-01 to 2026-05-06
+2026-05-07 23:13:39,486 - root - DEBUG - No missing weather data to fetch
+2026-05-07 23:13:39,496 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.open-meteo.com:443
+2026-05-07 23:13:41,243 - urllib3.connectionpool - DEBUG - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=26.1445&longitude=91.7362&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-07 23:13:42,494 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:13:42] "GET /admin HTTP/1.1" 200 -
+2026-05-07 23:13:42,545 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:13:42] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:13:56,264 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:13:56] "GET /shop HTTP/1.1" 200 -
+2026-05-07 23:13:56,439 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:13:56] "[36mGET /static/css/public.css HTTP/1.1[0m" 304 -
+2026-05-07 23:13:58,026 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:13:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:14:28,025 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:14:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-07 23:14:58,025 - werkzeug - INFO - 127.0.0.1 - - [07/May/2026 23:14:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:42:23,969 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-08 00:42:23,971 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-08 00:42:23,979 - werkzeug - INFO -  * Restarting with stat
+2026-05-08 00:42:36,386 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 00:42:36,406 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-08 00:42:36,647 - root - DEBUG - Weather backfill range: 2026-02-01 to 2026-05-07
+2026-05-08 00:42:37,224 - root - DEBUG - No missing weather data to fetch
+2026-05-08 00:42:37,244 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.open-meteo.com:443
+2026-05-08 00:42:39,064 - urllib3.connectionpool - DEBUG - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=26.1445&longitude=91.7362&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-08 00:42:40,011 - root - DEBUG - Archived weather for 2026-05-08
+2026-05-08 00:42:41,310 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:42:41] "HEAD /admin HTTP/1.1" 200 -
+2026-05-08 00:42:41,313 - root - DEBUG - Weather backfill range: 2026-02-01 to 2026-05-07
+2026-05-08 00:42:41,957 - root - DEBUG - No missing weather data to fetch
+2026-05-08 00:42:41,963 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.open-meteo.com:443
+2026-05-08 00:42:43,697 - urllib3.connectionpool - DEBUG - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=26.1445&longitude=91.7362&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-08 00:42:45,057 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:42:45] "GET /admin HTTP/1.1" 200 -
+2026-05-08 00:47:46,870 - root - DEBUG - Weather backfill range: 2026-02-01 to 2026-05-07
+2026-05-08 00:47:47,433 - root - DEBUG - No missing weather data to fetch
+2026-05-08 00:47:47,439 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.open-meteo.com:443
+2026-05-08 00:47:48,710 - urllib3.connectionpool - DEBUG - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=26.1445&longitude=91.7362&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-08 00:47:50,019 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:47:50] "GET /admin HTTP/1.1" 200 -
+2026-05-08 00:47:51,248 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:47:51] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:47:52,340 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:47:52] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2026-05-08 00:47:56,873 - root - INFO - Reports generated - Income: 0, Expense: 0
+2026-05-08 00:47:57,285 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:47:57] "GET /admin/reports HTTP/1.1" 200 -
+2026-05-08 00:47:57,689 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:47:57] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:48:03,742 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:48:03] "GET /admin/api/financial_data HTTP/1.1" 200 -
+2026-05-08 00:48:04,869 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:48:04] "GET /admin/weather_history HTTP/1.1" 200 -
+2026-05-08 00:48:05,203 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:48:05] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:48:10,708 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:48:10] "GET /admin/daily_log HTTP/1.1" 200 -
+2026-05-08 00:48:11,136 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:48:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:48:41,222 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:48:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:49:11,218 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:49:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:49:41,225 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:49:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:50:11,369 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:50:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:50:29,045 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-08 00:50:29,045 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-08 00:50:29,047 - werkzeug - INFO -  * Restarting with stat
+2026-05-08 00:50:30,255 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 00:50:30,263 - werkzeug - INFO -  * Debugger PIN: 751-870-046
+2026-05-08 00:50:41,136 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:50:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:50:41,312 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:50:41] "GET / HTTP/1.1" 200 -
+2026-05-08 00:50:41,565 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:50:41] "GET /static/css/public.css HTTP/1.1" 200 -
+2026-05-08 00:51:53,067 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:51:53] "GET / HTTP/1.1" 200 -
+2026-05-08 00:51:53,169 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:51:53] "[36mGET /static/css/public.css HTTP/1.1[0m" 304 -
+2026-05-08 00:51:58,091 - root - DEBUG - Weather backfill range: 2026-02-01 to 2026-05-07
+2026-05-08 00:51:58,117 - root - INFO - Found 1 gap(s) in weather data
+2026-05-08 00:51:58,129 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): archive-api.open-meteo.com:443
+2026-05-08 00:51:59,537 - urllib3.connectionpool - DEBUG - https://archive-api.open-meteo.com:443 "GET /v1/archive?latitude=26.1445&longitude=91.7362&start_date=2026-05-07&end_date=2026-05-07&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-08 00:51:59,562 - root - INFO - Backfilled 1 weather logs
+2026-05-08 00:51:59,564 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.open-meteo.com:443
+2026-05-08 00:52:00,741 - urllib3.connectionpool - DEBUG - https://api.open-meteo.com:443 "GET /v1/forecast?latitude=26.1445&longitude=91.7362&daily=weather_code&daily=temperature_2m_max&daily=precipitation_sum&timezone=auto HTTP/1.1" 200 None
+2026-05-08 00:52:00,772 - root - DEBUG - Archived weather for 2026-05-08
+2026-05-08 00:52:00,866 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:52:00] "GET /admin HTTP/1.1" 200 -
+2026-05-08 00:52:01,050 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:52:01] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:52:31,229 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:52:31] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:53:01,228 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:53:01] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:53:22,702 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:53:22] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 00:53:23,267 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:53:23] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:53:23,353 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:53:23] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:53:38,237 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:53:38] "GET /admin/daily_log HTTP/1.1" 200 -
+2026-05-08 00:53:38,481 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:53:38] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:54:07,237 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:54:07] "[32mPOST /admin/save_daily_log HTTP/1.1[0m" 302 -
+2026-05-08 00:54:07,259 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:54:07] "GET /admin/daily_log HTTP/1.1" 200 -
+2026-05-08 00:54:07,474 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:54:07] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:54:27,923 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:54:27] "[32mPOST /admin/save_daily_log HTTP/1.1[0m" 302 -
+2026-05-08 00:54:27,951 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:54:27] "GET /admin/daily_log HTTP/1.1" 200 -
+2026-05-08 00:54:28,225 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:54:28] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:54:58,245 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:54:58] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:55:02,541 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:55:02] "[32mPOST /admin/save_daily_log HTTP/1.1[0m" 302 -
+2026-05-08 00:55:02,577 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:55:02] "GET /admin/daily_log HTTP/1.1" 200 -
+2026-05-08 00:55:02,881 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:55:02] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:55:10,999 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:55:10] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 00:55:11,284 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:55:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:55:11,339 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:55:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:55:41,362 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:55:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:55:48,128 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:55:48] "[33mPOST /add_record HTTP/1.1[0m" 404 -
+2026-05-08 00:57:46,228 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:57:46] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:58:16,229 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:58:16] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:58:46,246 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:58:46] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:59:16,244 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:59:16] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 00:59:46,231 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 00:59:46] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:00:16,232 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:00:16] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:00:44,125 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:00:44] "[33mPOST /add_record HTTP/1.1[0m" 404 -
+2026-05-08 01:01:04,163 - root - INFO - PDF export created: exports\farm_records_20260508_010102.pdf
+2026-05-08 01:01:04,163 - root - INFO - PDF export created: exports\farm_records_20260508_010102.pdf
+2026-05-08 01:01:04,219 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:01:04] "GET /admin/download_export?format=pdf HTTP/1.1" 200 -
+2026-05-08 01:01:04,219 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:01:04] "GET /admin/download_export?format=pdf HTTP/1.1" 200 -
+2026-05-08 01:01:22,221 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:01:22] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:01:22,221 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:01:22] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:01:52,229 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:01:52] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:01:52,229 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:01:52] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:01,005 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:01] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:02:01,005 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:01] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:02:01,297 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:01] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:01,297 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:01] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:01,363 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:01] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:01,363 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:01] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:25,610 - root - INFO - Record created: booster , pooka , noozle - 1029.99 (Expense)
+2026-05-08 01:02:25,610 - root - INFO - Record created: booster , pooka , noozle - 1029.99 (Expense)
+2026-05-08 01:02:25,611 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:25] "[32mPOST /admin/add_record HTTP/1.1[0m" 302 -
+2026-05-08 01:02:25,611 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:25] "[32mPOST /admin/add_record HTTP/1.1[0m" 302 -
+2026-05-08 01:02:25,642 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:25] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:02:25,642 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:25] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:02:25,876 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:25] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:25,876 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:25] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:25,932 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:25] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:25,932 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:25] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:47,991 - root - INFO - Record created: hajira 2 people - 600.0 (Expense)
+2026-05-08 01:02:47,991 - root - INFO - Record created: hajira 2 people - 600.0 (Expense)
+2026-05-08 01:02:47,994 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:47] "[32mPOST /admin/add_record HTTP/1.1[0m" 302 -
+2026-05-08 01:02:47,994 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:47] "[32mPOST /admin/add_record HTTP/1.1[0m" 302 -
+2026-05-08 01:02:48,037 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:48] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:02:48,037 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:48] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:02:48,376 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:48] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:48,376 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:48] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:48,394 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:48] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:02:48,394 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:02:48] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:05,588 - root - INFO - Record created: Labour - 599.98 (Expense)
+2026-05-08 01:03:05,588 - root - INFO - Record created: Labour - 599.98 (Expense)
+2026-05-08 01:03:05,588 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:05] "[32mPOST /admin/add_record HTTP/1.1[0m" 302 -
+2026-05-08 01:03:05,588 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:05] "[32mPOST /admin/add_record HTTP/1.1[0m" 302 -
+2026-05-08 01:03:05,603 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:05] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:03:05,603 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:05] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:03:05,831 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:05] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:05,831 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:05] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:05,846 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:05] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:05,846 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:05] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:35,847 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:35] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:35,847 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:35] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:47,840 - root - INFO - Record created: Up Down putlu 3 times n gold - 150.0 (Expense)
+2026-05-08 01:03:47,840 - root - INFO - Record created: Up Down putlu 3 times n gold - 150.0 (Expense)
+2026-05-08 01:03:47,842 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:47] "[32mPOST /admin/add_record HTTP/1.1[0m" 302 -
+2026-05-08 01:03:47,842 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:47] "[32mPOST /admin/add_record HTTP/1.1[0m" 302 -
+2026-05-08 01:03:47,923 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:47] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:03:47,923 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:47] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:03:48,237 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:48] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:48,237 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:48] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:48,319 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:48] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:03:48,319 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:03:48] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:04:19,228 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:04:19] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:04:19,228 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:04:19] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:04:49,226 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:04:49] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:04:49,226 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:04:49] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:05:19,225 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:05:19] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:05:19,225 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:05:19] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:05:34,132 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-08 01:05:34,132 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-08 01:05:34,414 - werkzeug - INFO -  * Restarting with stat
+2026-05-08 01:18:35,471 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2026-05-08 01:18:35,471 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2026-05-08 01:18:35,497 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:18:36,966 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:18:36,971 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:18:59,143 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:18:59] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:18:59,181 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:18:59] "[33mGET /static/logo.png HTTP/1.1[0m" 404 -
+2026-05-08 01:18:59,418 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:18:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:18:59,455 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:18:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:18:59,566 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:18:59] "[33mGET /static/logo.png HTTP/1.1[0m" 404 -
+2026-05-08 01:19:29,459 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:19:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:19:50,942 - werkzeug - INFO -  * Detected change in 'C:\\Python312\\Lib\\site-packages\\sqlalchemy\\engine\\base.py', reloading
+2026-05-08 01:19:51,256 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:19:54,076 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:19:54,087 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:19:59,455 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:19:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:20:11,701 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:20:11] "POST /admin/api/run_backup HTTP/1.1" 200 -
+2026-05-08 01:20:11,746 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:20:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:20:29,472 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:20:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:20:35,405 - werkzeug - INFO -  * Detected change in 'C:\\Python312\\Lib\\site-packages\\pandas\\core\\generic.py', reloading
+2026-05-08 01:20:35,663 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:20:38,154 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:20:38,162 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:20:59,471 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:20:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:21:29,513 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:21:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:21:29,637 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:21:29] "POST /admin/api/sync_to_render HTTP/1.1" 200 -
+2026-05-08 01:21:48,377 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:21:48] "POST /admin/api/run_backup HTTP/1.1" 200 -
+2026-05-08 01:21:48,414 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:21:48] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:21:59,469 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:21:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:22:09,790 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:22:09] "POST /admin/api/sync_to_render HTTP/1.1" 200 -
+2026-05-08 01:22:29,464 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:22:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:22:59,458 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:22:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:23:15,646 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\migrate_to_prod.py', reloading
+2026-05-08 01:23:15,916 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:23:17,344 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:23:17,352 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:23:29,467 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:23:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:23:59,507 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:23:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:24:02,582 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:24:02] "POST /admin/api/sync_to_render HTTP/1.1" 200 -
+2026-05-08 01:24:29,459 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:24:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:24:59,461 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:24:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:25:29,458 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:25:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:25:46,089 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\migrate_to_prod.py', reloading
+2026-05-08 01:25:46,270 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:25:47,861 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:25:47,866 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:25:59,454 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:25:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:26:00,787 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:26:00] "POST /admin/api/run_backup HTTP/1.1" 200 -
+2026-05-08 01:26:00,801 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:26:00] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:26:06,870 - werkzeug - INFO -  * Detected change in 'C:\\Python312\\Lib\\site-packages\\psycopg\\cursor.py', reloading
+2026-05-08 01:26:07,071 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:26:08,512 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:26:08,517 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:26:14,642 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\migrate_to_prod.py', reloading
+2026-05-08 01:26:14,814 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:26:16,448 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:26:16,455 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:26:29,465 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:26:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:26:48,019 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\migrate_to_prod.py', reloading
+2026-05-08 01:26:48,194 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:26:49,752 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:26:49,760 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:26:59,475 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:26:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:27:29,464 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:27:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:27:35,653 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:27:35] "POST /admin/api/sync_to_render HTTP/1.1" 200 -
+2026-05-08 01:27:59,467 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:27:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:28:29,457 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:28:29] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:28:59,460 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:28:59] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:29:10,953 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:29:10] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:29:11,012 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:29:11] "[33mGET /static/logo.png HTTP/1.1[0m" 404 -
+2026-05-08 01:29:11,068 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:29:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:29:11,083 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:29:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:29:41,096 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:29:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:30:03,765 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:30:03] "POST /admin/api/sync_to_render HTTP/1.1" 200 -
+2026-05-08 01:30:11,089 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:30:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:30:41,084 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:30:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:31:11,085 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:31:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:31:41,085 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:31:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:31:50,835 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:31:50] "POST /admin/api/run_backup HTTP/1.1" 200 -
+2026-05-08 01:31:50,896 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:31:50] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:32:11,087 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:32:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:32:17,694 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:32:17] "POST /admin/api/sync_to_render HTTP/1.1" 200 -
+2026-05-08 01:32:41,088 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:32:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:33:11,094 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:33:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:33:41,084 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:33:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:34:11,093 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:34:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:34:41,086 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:34:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:35:11,094 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:35:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:35:36,813 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:35:36] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:35:41,093 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:35:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:36:11,089 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:36:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:36:41,088 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:36:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:36:45,224 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-08 01:36:45,384 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:36:46,561 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:36:46,566 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:36:54,955 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:36:54] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:37:11,091 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:37:11] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:37:20,432 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\app.py', reloading
+2026-05-08 01:37:20,598 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 01:37:21,919 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 01:37:21,924 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 01:37:45,881 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:37:45] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:38:05,273 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:38:05] "GET /admin/dashboard HTTP/1.1" 200 -
+2026-05-08 01:38:05,330 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:38:05] "[33mGET /static/logo.png HTTP/1.1[0m" 404 -
+2026-05-08 01:38:09,539 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:38:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:38:13,408 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:38:13] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:38:40,339 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:38:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:39:09,817 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:39:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:39:39,495 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:39:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:40:10,049 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:40:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:40:40,076 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:40:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:41:10,005 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:41:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:41:39,797 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:41:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:42:09,726 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:42:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:42:39,774 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:42:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:43:10,148 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:43:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:43:40,063 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:43:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:44:10,113 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:44:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:44:40,233 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:44:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:45:09,833 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:45:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:45:40,243 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:45:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:46:09,924 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:46:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:46:39,812 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:46:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:47:09,878 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:47:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:47:39,733 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:47:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:48:09,697 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:48:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:48:39,545 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:48:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:49:10,632 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:49:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:49:39,627 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:49:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:50:10,136 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:50:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:50:39,629 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:50:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:51:09,966 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:51:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:51:39,548 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:51:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:52:10,169 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:52:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:52:39,897 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:52:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:53:10,131 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:53:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:53:39,413 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:53:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:54:10,183 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:54:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:54:39,380 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:54:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:55:12,507 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:55:12] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:55:39,696 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:55:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:56:10,375 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:56:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:56:41,990 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:56:41] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:57:09,995 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:57:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:57:39,819 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:57:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:58:09,562 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:58:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:58:40,007 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:58:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:59:09,805 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:59:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 01:59:39,619 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 01:59:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:00:09,573 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:00:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:00:40,100 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:00:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:00:42,279 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\backend\\app.py', reloading
+2026-05-08 02:00:42,535 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 02:00:44,447 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 02:00:44,453 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 02:00:48,576 - werkzeug - INFO -  * Detected change in 'C:\\Python312\\Lib\\site-packages\\flask_cors\\__init__.py', reloading
+2026-05-08 02:00:48,746 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 02:00:50,071 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 02:00:50,077 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 02:01:09,872 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:01:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:01:39,806 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:01:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:02:09,475 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:02:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:02:39,654 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:02:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:03:09,952 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:03:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:03:39,471 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:03:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:04:09,777 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:04:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:04:39,712 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:04:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:05:10,190 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:05:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:05:39,596 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:05:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:06:09,704 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:06:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:06:17,029 - werkzeug - INFO -  * Detected change in 'C:\\Python312\\Lib\\site-packages\\pyparsing\\core.py', reloading
+2026-05-08 02:06:17,214 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 02:06:18,689 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 02:06:18,694 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 02:06:40,378 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:06:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:07:10,089 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:07:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:07:39,446 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:07:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:08:10,168 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:08:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:08:40,553 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:08:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:09:09,938 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:09:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:09:10,767 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\.venv\\Lib\\site-packages\\sqlalchemy\\__init__.py', reloading
+2026-05-08 02:09:11,089 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 02:09:12,458 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 02:09:12,463 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 02:09:40,179 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:09:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:10:09,508 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:10:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:10:40,265 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:10:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:11:09,671 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:11:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:11:40,072 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:11:40] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:11:42,555 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\frontend\\node_modules\\flatted\\python\\flatted.py', reloading
+2026-05-08 02:11:42,789 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 02:11:44,260 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 02:11:44,265 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 02:11:57,737 - werkzeug - INFO -  * Detected change in 'C:\\Users\\abhij\\OneDrive\\Desktop\\Agriculture\\backend\\app.py', reloading
+2026-05-08 02:11:57,960 - werkzeug - INFO -  * Restarting with watchdog (windowsapi)
+2026-05-08 02:11:59,269 - werkzeug - WARNING -  * Debugger is active!
+2026-05-08 02:11:59,275 - werkzeug - INFO -  * Debugger PIN: 863-962-067
+2026-05-08 02:12:10,006 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:12:10] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:12:39,986 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:12:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:13:09,522 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:13:09] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:13:39,744 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:13:39] "GET /admin/api/backup_status HTTP/1.1" 200 -
+2026-05-08 02:14:09,996 - werkzeug - INFO - 127.0.0.1 - - [08/May/2026 02:14:09] "GET /admin/api/backup_status HTTP/1.1" 200 -

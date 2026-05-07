@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext, useRef } from 'react'
 import axios from 'axios'
-import { API_URL } from '../config/api'
-import { saveChatMessage, getChatHistory } from '../services/chatService'
+import { saveChat, getChatHistory } from '../services/chatService'
 import { trace } from 'firebase/performance'
 import { perf } from '../firebase'
 import { AuthContext } from '../context/AuthContext'
@@ -13,11 +12,12 @@ export default function AIChat() {
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'
+
   useEffect(() => {
     const fetchHistory = async () => {
       if (user?.uid) {
         const history = await getChatHistory(user.uid)
-        // Map history to the new role structure
         const formattedHistory = history.flatMap((h: any) => [
           { role: 'user', content: h.question },
           { role: 'assistant', content: h.answer }
@@ -37,8 +37,7 @@ export default function AIChat() {
     
     const userMsg = message
     setMessage('')
-    const newMessages = [...messages, { role: 'user', content: userMsg }]
-    setMessages(newMessages)
+    setMessages(prev => [...prev, { role: 'user', content: userMsg }])
     
     let t = null;
     try {
@@ -54,7 +53,7 @@ export default function AIChat() {
       
       setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }])
       
-      await saveChatMessage(user.uid, userMsg, aiResponse)
+      await saveChat(user.uid, userMsg, aiResponse)
     } catch (err) {
       console.error(err)
       setMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I couldn't process that request right now." }])
