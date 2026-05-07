@@ -248,9 +248,14 @@
             <div class="card p-4 border-primary">
                 <div class="d-flex justify-content-between align-items-center">
                     <h4>🛡️ Data Protection & Backup</h4>
-                    <button onclick="runBackup()" class="btn btn-primary" id="backupBtn">
-                        🔄 Run Immediate Backup
-                    </button>
+                    <div>
+                        <button onclick="runBackup()" class="btn btn-outline-primary me-2" id="backupBtn">
+                            🔄 Run Local Backup
+                        </button>
+                        <button onclick="syncToCloud()" class="btn btn-success" id="syncBtn">
+                            ☁️ Sync to Render Cloud
+                        </button>
+                    </div>
                 </div>
                 <hr>
                 <div class="row">
@@ -330,7 +335,34 @@
                 .catch(e => alert('Error: ' + e))
                 .finally(() => {
                     btn.disabled = false;
-                    btn.innerHTML = '🔄 Run Immediate Backup';
+                    btn.innerHTML = '🔄 Run Local Backup';
+                });
+        }
+
+        function syncToCloud() {
+            const btn = document.getElementById('syncBtn');
+            const logDiv = document.getElementById('backupLog');
+            btn.disabled = true;
+            btn.innerHTML = '☁️ Syncing...';
+            logDiv.classList.add('d-none');
+
+            fetch('/admin/api/sync_to_render', { method: 'POST' })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        alert('✅ Successfully Synced to Render Cloud!');
+                        logDiv.innerText = data.log;
+                        logDiv.classList.remove('d-none');
+                    } else {
+                        alert('❌ Sync Failed: ' + data.message);
+                        logDiv.innerText = data.log || data.message;
+                        logDiv.classList.remove('d-none');
+                    }
+                })
+                .catch(e => alert('Error: ' + e))
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '☁️ Sync to Render Cloud';
                 });
         }
 

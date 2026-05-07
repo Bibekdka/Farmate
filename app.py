@@ -1111,6 +1111,48 @@ def admin_run_add_historical_weather():
         return jsonify({'status': 'error', 'message': str(e)})
 
 
+@app.route('/admin/api/run_backup', methods=['POST'])
+def admin_run_backup():
+    try:
+        result = subprocess.run([sys.executable, 'backup_db.py'], capture_output=True, text=True)
+        if result.returncode == 0:
+            return jsonify({'status': 'success', 'log': result.stdout})
+        else:
+            return jsonify({'status': 'error', 'message': 'Backup script failed', 'log': result.stderr})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
+@app.route('/admin/api/backup_status')
+def admin_backup_status():
+    import json
+    backup_dir = Path('backups')
+    last_backup = None
+    if backup_dir.exists():
+        manifests = list(backup_dir.glob('manifest_*.json'))
+        if manifests:
+            latest = sorted(manifests, key=lambda x: x.stat().st_mtime, reverse=True)[0]
+            try:
+                with open(latest, 'r') as f:
+                    data = json.load(f)
+                    # Convert timestamp back to something JS can parse easily
+                    ts = data.get('timestamp', '')
+                    if ts:
+                        last_backup = datetime.datetime.strptime(ts, '%Y%m%d_%H%M%S').isoformat()
+            except:
+                pass
+    return jsonify({'last_backup': last_backup})
+
+@app.route('/admin/api/sync_to_render', methods=['POST'])
+def admin_sync_to_render():
+    try:
+        result = subprocess.run([sys.executable, 'migrate_to_prod.py'], capture_output=True, text=True)
+        if result.returncode == 0:
+            return jsonify({'status': 'success', 'log': result.stdout})
+        else:
+            return jsonify({'status': 'error', 'message': 'Sync script failed', 'log': result.stderr})
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)})
+
 # ============================================================
 # --- PUBLIC WEBSITE ROUTES (Organics-O-Eats) ---
 # ============================================================
