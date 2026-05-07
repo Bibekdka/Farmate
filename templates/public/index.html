@@ -1,0 +1,86 @@
+{% extends 'public/base.html' %}
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Fresh. Organic. <br><span class="highlight">Delivered.</span></h1>
+        <p>Experience the true taste of nature with our farm-to-table organic produce, grown with love and sustainability in mind.</p>
+        <div class="hero-buttons">
+            <a href="{{ url_for('shop') }}" class="btn btn-primary btn-large">Shop Now</a>
+            <a href="#about" class="btn btn-outline btn-large">Discover Our Farm</a>
+        </div>
+    </div>
+    <div class="hero-image">
+        <div class="glass-card decorative-card">
+            <h3>Fresh Harvest Today!</h3>
+            <p><i class="fas fa-check-circle" style="color:var(--primary);"></i> 100% Organic</p>
+            <p><i class="fas fa-check-circle" style="color:var(--primary);"></i> Pesticide Free</p>
+        </div>
+    </div>
+</section>
+
+<section id="about" class="about-section">
+    <div class="section-title">
+        <h2>About Us</h2>
+        <div class="underline"></div>
+    </div>
+    <div class="about-grid">
+        <div class="about-text">
+            <h3>Our Roots</h3>
+            <p>At Organics-O-Eats, we believe in the power of regenerative agriculture. Our farm started with a simple mission: to grow the healthiest, most flavorful food while actually improving the soil and ecosystem around us.</p>
+            <p>Every vegetable, fruit, and grain you order from us is grown without synthetic chemicals, ensuring you get pure, unadulterated nutrition.</p>
+        </div>
+        <div class="about-features">
+            <div class="feature-box">
+                <i class="fas fa-seedling"></i>
+                <h4>Sustainable</h4>
+                <p>We use zero synthetic fertilizers.</p>
+            </div>
+            <div class="feature-box">
+                <i class="fas fa-truck"></i>
+                <h4>Farm to Table</h4>
+                <p>Delivered fresh within 24 hours.</p>
+            </div>
+            <div class="feature-box">
+                <i class="fas fa-heart"></i>
+                <h4>Community First</h4>
+                <p>Supporting local ecosystems.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="schedule" class="schedule-section">
+    <div class="schedule-container glass-panel">
+        <div class="schedule-info">
+            <h2>Schedule a Farm Visit</h2>
+            <p>Come see where your food is grown! We offer guided tours every weekend. Meet the farmers, learn about organic practices, and enjoy a fresh farm lunch.</p>
+            <ul class="visit-perks">
+                <li><i class="fas fa-check"></i> Guided Farm Tour</li>
+                <li><i class="fas fa-check"></i> Harvesting Experience</li>
+                <li><i class="fas fa-check"></i> Farm-fresh Tasting Menu</li>
+            </ul>
+        </div>
+        <div class="schedule-form">
+            <form action="{{ url_for('schedule_visit') }}" method="POST">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Preferred Date</label>
+                    <input type="date" name="date" required>
+                </div>
+                <div class="form-group">
+                    <label>Message (Optional)</label>
+                    <textarea name="message" rows="3" placeholder="Tell us if you have dietary restrictions or bringing kids..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Book My Visit</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %}

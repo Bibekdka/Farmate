@@ -4,7 +4,9 @@ import requests
 import calendar as cal
 import logging
 from pathlib import Path
-from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
+from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file, flash, session
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
@@ -42,6 +44,10 @@ logger = setup_logging(app)
 # CSRFProtect(app)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+# Flask-Login setup for public website
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 # Security check
 if app.config['SECRET_KEY'] == 'dev-secret-key-change-in-production' and config_name == 'production':
@@ -129,6 +135,42 @@ class WeatherLog(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.datetime.now)
 
 
+
+
+# --- PUBLIC WEBSITE MODELS ---
+class User(UserMixin, db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
+    orders = db.relationship('Order', backref='customer', lazy=True)
+
+class Product(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    image_url = db.Column(db.String(200), nullable=True)
+    stock = db.Column(db.Integer, default=0)
+
+class Order(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    total_amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(50), default='Pending')
+    date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+
+class Visit(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    message = db.Column(db.Text)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # --- HELPER FUNCTIONS ---
 def get_weather_openmeteo():
@@ -268,8 +310,9 @@ def backfill_weather_history():
         db.session.rollback()
 
 # --- ROUTES ---
-@app.route('/')
-def home():
+@app.route('/admin')
+@app.route('/admin/')
+def admin_home():
     """Home/dashboard page."""
     backfill_weather_history()
     weather_data = get_weather_openmeteo()
@@ -295,10 +338,10 @@ def home():
     
     recent_activities = FarmRecord.query.order_by(FarmRecord.date.desc()).limit(5).all()
     today_reminders = Reminder.query.filter_by(date=datetime.date.today(), completed=False).all()
-    return render_template('index.html', weather=weather_data, activities=recent_activities, reminders=today_reminders)
+    return render_template('admin/index.html', weather=weather_data, activities=recent_activities, reminders=today_reminders)
 
-@app.route('/calendar')
-def calendar_view():
+@app.route('/admin/calendar')
+def admin_calendar_view():
     now = datetime.date.today()
     year = request.args.get('year', now.year, type=int)
     month = request.args.get('month', now.month, type=int)
@@ -348,14 +391,14 @@ def calendar_view():
     prev_year = year if month > 1 else year - 1
     next_year = year if month < 12 else year + 1
     
-    return render_template('calendar.html', cal_matrix=cal_matrix, year=year, month=month,
+    return render_template('admin/calendar.html', cal_matrix=cal_matrix, year=year, month=month,
                           month_name=month_name, events_by_date=events_by_date,
                           prev_month=prev_month, next_month=next_month,
                           prev_year=prev_year, next_year=next_year,
                           today=now)
 
-@app.route('/dashboard')
-def dashboard():
+@app.route('/admin/dashboard')
+def admin_dashboard():
     # OPTIMIZED: Use SQL Aggregation instead of fetching all records
     total_income = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Income').scalar() or 0
     total_expense = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Expense').scalar() or 0
@@ -381,21 +424,21 @@ def dashboard():
     
     expense_breakdown = {type_: amount for type_, amount in expense_breakdown_query}
     
-    return render_template('dashboard.html', income=total_income, expense=total_expense, 
+    return render_template('admin/dashboard.html', income=total_income, expense=total_expense, 
                           profit=net_profit, records=records, expense_breakdown=expense_breakdown)
 
-@app.route('/weather_history')
-def weather_history():
+@app.route('/admin/weather_history')
+def admin_weather_history():
     logs = WeatherLog.query.order_by(WeatherLog.date.desc()).all()
-    return render_template('weather_history.html', logs=logs)
+    return render_template('admin/weather_history.html', logs=logs)
 
-@app.route('/daily_log')
-def daily_log():
+@app.route('/admin/daily_log')
+def admin_daily_log():
     notes = Note.query.order_by(Note.created_at.desc()).all()
-    return render_template('daily_log.html', notes=notes)
+    return render_template('admin/daily_log.html', notes=notes)
 
-@app.route('/save_daily_log', methods=['POST'])
-def save_daily_log():
+@app.route('/admin/save_daily_log', methods=['POST'])
+def admin_save_daily_log():
     content = request.form.get('content')
     date_str = request.form.get('date')
     
@@ -410,38 +453,38 @@ def save_daily_log():
         note = Note(content=content, created_at=created_at)
         db.session.add(note)
         db.session.commit()
-    return redirect(url_for('daily_log'))
+    return redirect(url_for('admin_daily_log'))
 
-@app.route('/quick_note', methods=['POST'])
-def quick_note():
+@app.route('/admin/quick_note', methods=['POST'])
+def admin_quick_note():
     content = request.form.get('content')
     if content:
         note = Note(content=f"📝 Daily Log: {content}")
         db.session.add(note)
         db.session.commit()
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('admin_dashboard'))
 
-@app.route('/add_record', methods=['POST'])
-def add_record():
+@app.route('/admin/add_record', methods=['POST'])
+def admin_add_record():
     """Add farm record with validation."""
     try:
         # Validate inputs
         date_obj = validate_date(request.form.get('date'))
         if not date_obj:
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('admin_dashboard'))
         
         activity = validate_string(request.form.get('activity'), min_len=2, max_len=100)
         if not activity:
             logger.warning(f"Invalid activity_type from {request.remote_addr}")
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('admin_dashboard'))
         
         category = validate_category(request.form.get('category'))
         if not category:
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('admin_dashboard'))
         
         amount = validate_amount(request.form.get('amount'))
         if amount is None:
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('admin_dashboard'))
         
         expense_types = request.form.getlist('expense_type')
         expense_type_str = ", ".join(expense_types) if expense_types else None
@@ -461,10 +504,10 @@ def add_record():
         logger.error(f"Error adding record: {e}")
         db.session.rollback()
     
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('admin_dashboard'))
 
-@app.route('/edit_record/<int:record_id>', methods=['GET', 'POST'])
-def edit_record(record_id):
+@app.route('/admin/edit_record/<int:record_id>', methods=['GET', 'POST'])
+def admin_edit_record(record_id):
     record = FarmRecord.query.get_or_404(record_id)
     if request.method == 'POST':
         date_str = request.form.get('date')
@@ -480,18 +523,18 @@ def edit_record(record_id):
         record.amount = float(request.form.get('amount'))
         record.description = request.form.get('desc')
         db.session.commit()
-        return redirect(url_for('dashboard'))
-    return render_template('edit_record.html', record=record)
+        return redirect(url_for('admin_dashboard'))
+    return render_template('admin/edit_record.html', record=record)
 
-@app.route('/delete_record/<int:record_id>', methods=['POST'])
-def delete_record(record_id):
+@app.route('/admin/delete_record/<int:record_id>', methods=['POST'])
+def admin_delete_record(record_id):
     record = FarmRecord.query.get_or_404(record_id)
     db.session.delete(record)
     db.session.commit()
-    return redirect(url_for('dashboard'))
+    return redirect(url_for('admin_dashboard'))
 
-@app.route('/crops', methods=['GET', 'POST'])
-def crops():
+@app.route('/admin/crops', methods=['GET', 'POST'])
+def admin_crops():
     if request.method == 'POST':
         crop = Crop(
             crop_name=request.form.get('crop_name'),
@@ -504,12 +547,12 @@ def crops():
         )
         db.session.add(crop)
         db.session.commit()
-        return redirect(url_for('crops'))
+        return redirect(url_for('admin_crops'))
     all_crops = Crop.query.all()
-    return render_template('crops.html', crops=all_crops)
+    return render_template('admin/crops.html', crops=all_crops)
 
-@app.route('/edit_crop/<int:crop_id>', methods=['GET', 'POST'])
-def edit_crop(crop_id):
+@app.route('/admin/edit_crop/<int:crop_id>', methods=['GET', 'POST'])
+def admin_edit_crop(crop_id):
     crop = Crop.query.get_or_404(crop_id)
     if request.method == 'POST':
         crop.crop_name = request.form.get('crop_name')
@@ -521,18 +564,18 @@ def edit_crop(crop_id):
         crop.status = request.form.get('status')
         crop.notes = request.form.get('notes')
         db.session.commit()
-        return redirect(url_for('crops'))
-    return render_template('edit_crop.html', crop=crop)
+        return redirect(url_for('admin_crops'))
+    return render_template('admin/edit_crop.html', crop=crop)
 
-@app.route('/delete_crop/<int:crop_id>', methods=['POST'])
-def delete_crop(crop_id):
+@app.route('/admin/delete_crop/<int:crop_id>', methods=['POST'])
+def admin_delete_crop(crop_id):
     crop = Crop.query.get_or_404(crop_id)
     db.session.delete(crop)
     db.session.commit()
-    return redirect(url_for('crops'))
+    return redirect(url_for('admin_crops'))
 
-@app.route('/yield', methods=['GET', 'POST'])
-def yield_tracking():
+@app.route('/admin/yield', methods=['GET', 'POST'])
+def admin_yield_tracking():
     if request.method == 'POST':
         crop_id = request.form.get('crop_id')
         yield_value = float(request.form.get('yield_value'))
@@ -548,20 +591,20 @@ def yield_tracking():
         )
         db.session.add(yield_rec)
         db.session.commit()
-        return redirect(url_for('yield_tracking'))
+        return redirect(url_for('admin_yield_tracking'))
     crops_list = Crop.query.all()
     yields = Yield.query.all()
-    return render_template('yield.html', crops=crops_list, yields=yields)
+    return render_template('admin/yield.html', crops=crops_list, yields=yields)
 
-@app.route('/delete_yield/<int:yield_id>', methods=['POST'])
-def delete_yield(yield_id):
+@app.route('/admin/delete_yield/<int:yield_id>', methods=['POST'])
+def admin_delete_yield(yield_id):
     yield_rec = Yield.query.get_or_404(yield_id)
     db.session.delete(yield_rec)
     db.session.commit()
-    return redirect(url_for('yield_tracking'))
+    return redirect(url_for('admin_yield_tracking'))
 
-@app.route('/api/financial_data')
-def financial_data_api():
+@app.route('/admin/api/financial_data')
+def admin_financial_data_api():
     # 1. Monthly Income vs Expense (Last 6 Months)
     today = datetime.date.today()
     months = []
@@ -609,8 +652,8 @@ def financial_data_api():
         'expense_values': expense_values
     })
 
-@app.route('/api/analyze_logs', methods=['POST'])
-def analyze_logs_api():
+@app.route('/admin/api/analyze_logs', methods=['POST'])
+def admin_analyze_logs_api():
     # Fetch last 7 days of logs
     one_week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
     recent_logs = Note.query.filter(Note.created_at >= one_week_ago).order_by(Note.created_at.asc()).all()
@@ -622,8 +665,8 @@ def analyze_logs_api():
     result = ai_advisor.analyze_logs(recent_logs)
     return jsonify(result)
 
-@app.route('/api/ask_crop_doctor', methods=['POST'])
-def ask_crop_doctor():
+@app.route('/admin/api/ask_crop_doctor', methods=['POST'])
+def admin_ask_crop_doctor():
     data = request.json
     crop_name = data.get('crop_name')
     sowing_date = data.get('sowing_date')
@@ -634,8 +677,8 @@ def ask_crop_doctor():
     result = ai_advisor.ask_crop_doctor(crop_name, sowing_date)
     return jsonify(result)
 
-@app.route('/api/recommend_crops', methods=['POST'])
-def recommend_crops_api():
+@app.route('/admin/api/recommend_crops', methods=['POST'])
+def admin_recommend_crops_api():
     data = request.json
     area = data.get('area')
     season = data.get('season')
@@ -646,8 +689,8 @@ def recommend_crops_api():
     result = ai_advisor.recommend_crops(area, season)
     return jsonify(result)
 
-@app.route('/api/diagnose_disease', methods=['POST'])
-def diagnose_disease_api():
+@app.route('/admin/api/diagnose_disease', methods=['POST'])
+def admin_diagnose_disease_api():
     if 'image' not in request.files:
         return jsonify({"status": "error", "message": "No image uploaded"})
     
@@ -683,8 +726,8 @@ def diagnose_disease_api():
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)})
 
-@app.route('/api/estimate_duration', methods=['POST'])
-def estimate_duration_api():
+@app.route('/admin/api/estimate_duration', methods=['POST'])
+def admin_estimate_duration_api():
     data = request.json
     crop_name = data.get('crop_name')
     if not crop_name:
@@ -693,8 +736,8 @@ def estimate_duration_api():
     days = ai_advisor.get_crop_duration(crop_name)
     return jsonify({"status": "success", "days": days} if days else {"status": "error"})
 
-@app.route('/disease_log', methods=['GET', 'POST'])
-def disease_log():
+@app.route('/admin/disease_log', methods=['GET', 'POST'])
+def admin_disease_log():
     if request.method == 'POST':
         disease = DiseaseLog(
             date=datetime.datetime.strptime(request.form.get('date'), '%Y-%m-%d').date(),
@@ -707,20 +750,20 @@ def disease_log():
         )
         db.session.add(disease)
         db.session.commit()
-        return redirect(url_for('disease_log'))
+        return redirect(url_for('admin_disease_log'))
     crops_list = Crop.query.all()
     diseases = DiseaseLog.query.order_by(DiseaseLog.date.desc()).all()
-    return render_template('disease_log.html', crops=crops_list, diseases=diseases)
+    return render_template('admin/disease_log.html', crops=crops_list, diseases=diseases)
 
-@app.route('/delete_disease/<int:disease_id>', methods=['POST'])
-def delete_disease(disease_id):
+@app.route('/admin/delete_disease/<int:disease_id>', methods=['POST'])
+def admin_delete_disease(disease_id):
     disease = DiseaseLog.query.get_or_404(disease_id)
     db.session.delete(disease)
     db.session.commit()
-    return redirect(url_for('disease_log'))
+    return redirect(url_for('admin_disease_log'))
 
-@app.route('/reminders', methods=['GET', 'POST'])
-def reminders():
+@app.route('/admin/reminders', methods=['GET', 'POST'])
+def admin_reminders():
     if request.method == 'POST':
         reminder = Reminder(
             date=datetime.datetime.strptime(request.form.get('date'), '%Y-%m-%d').date(),
@@ -730,26 +773,26 @@ def reminders():
         )
         db.session.add(reminder)
         db.session.commit()
-        return redirect(url_for('reminders'))
+        return redirect(url_for('admin_reminders'))
     all_reminders = Reminder.query.order_by(Reminder.date.asc()).all()
-    return render_template('reminders.html', reminders=all_reminders)
+    return render_template('admin/reminders.html', reminders=all_reminders)
 
-@app.route('/complete_reminder/<int:reminder_id>', methods=['POST'])
-def complete_reminder(reminder_id):
+@app.route('/admin/complete_reminder/<int:reminder_id>', methods=['POST'])
+def admin_complete_reminder(reminder_id):
     reminder = Reminder.query.get_or_404(reminder_id)
     reminder.completed = True
     db.session.commit()
-    return redirect(url_for('reminders'))
+    return redirect(url_for('admin_reminders'))
 
-@app.route('/delete_reminder/<int:reminder_id>', methods=['POST'])
-def delete_reminder(reminder_id):
+@app.route('/admin/delete_reminder/<int:reminder_id>', methods=['POST'])
+def admin_delete_reminder(reminder_id):
     reminder = Reminder.query.get_or_404(reminder_id)
     db.session.delete(reminder)
     db.session.commit()
-    return redirect(url_for('reminders'))
+    return redirect(url_for('admin_reminders'))
 
-@app.route('/reports')
-def reports():
+@app.route('/admin/reports')
+def admin_reports():
     """Generate financial and operational reports."""
     # Use aggregation for better performance
     total_income = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Income').scalar() or 0
@@ -785,14 +828,14 @@ def reports():
     
     logger.info(f"Reports generated - Income: {total_income}, Expense: {total_expense}")
     
-    return render_template('reports.html', total_income=total_income, total_expense=total_expense,
+    return render_template('admin/reports.html', total_income=total_income, total_expense=total_expense,
                           net_profit=net_profit, monthly_data=monthly_data, activity_data=activity_data,
                           total_yield_kg=total_yield_kg, disease_count=disease_count,
                           severe_diseases=severe_diseases)
 
-@app.route('/knowledge')
-def knowledge_hub():
-    return render_template('knowledge.html', 
+@app.route('/admin/knowledge')
+def admin_knowledge_hub():
+    return render_template('admin/knowledge.html', 
                           pest_etl=PEST_ETL_DB, 
                           pest_calendar=PEST_CALENDAR_DB, 
                           crop_calendar=CROP_CALENDAR_DB,
@@ -813,8 +856,8 @@ def get_current_weather():
     return None
 
 # --- API: Check ETL ---
-@app.route('/api/check-etl', methods=['POST'])
-def api_check_etl():
+@app.route('/admin/api/check-etl', methods=['POST'])
+def admin_api_check_etl():
     data = request.json
     crop_name = data.get('crop')
     pest_name = data.get('pest')
@@ -882,33 +925,33 @@ def api_check_etl():
     }
     return jsonify(response)
 
-@app.route('/notes', methods=['GET', 'POST'])
-def notes():
+@app.route('/admin/notes', methods=['GET', 'POST'])
+def admin_notes():
     if request.method == 'POST':
         content = request.form.get('content')
         new_note = Note(content=content)
         db.session.add(new_note)
         db.session.commit()
-        return redirect(url_for('notes'))
+        return redirect(url_for('admin_notes'))
     all_notes = Note.query.order_by(Note.created_at.desc()).all()
-    return render_template('notes.html', notes=all_notes)
+    return render_template('admin/notes.html', notes=all_notes)
 
-@app.route('/edit_note/<int:note_id>', methods=['POST'])
-def edit_note(note_id):
+@app.route('/admin/edit_note/<int:note_id>', methods=['POST'])
+def admin_edit_note(note_id):
     note = Note.query.get_or_404(note_id)
     note.content = request.form.get('content')
     db.session.commit()
-    return redirect(request.referrer or url_for('notes'))
+    return redirect(request.referrer or url_for('admin_notes'))
 
-@app.route('/delete_note/<int:note_id>', methods=['POST'])
-def delete_note(note_id):
+@app.route('/admin/delete_note/<int:note_id>', methods=['POST'])
+def admin_delete_note(note_id):
     note = Note.query.get_or_404(note_id)
     db.session.delete(note)
     db.session.commit()
-    return redirect(request.referrer or url_for('notes'))
+    return redirect(request.referrer or url_for('admin_notes'))
 
-@app.route('/api/backup_status')
-def backup_status_api():
+@app.route('/admin/api/backup_status')
+def admin_backup_status_api():
     """Return backup status for UI display"""
     try:
         backup_dir = Path('backups')
@@ -943,8 +986,8 @@ def backup_status_api():
     except Exception as e:
         return jsonify({'error': str(e), 'status': 'error'})
 
-@app.route('/api/run_backup', methods=['POST'])
-def run_manual_backup():
+@app.route('/admin/api/run_backup', methods=['POST'])
+def admin_run_manual_backup():
     try:
         # Run the daily backup logic (reusing backup_db.py)
         # We can run it as a subprocess to keep independent environment
@@ -965,8 +1008,8 @@ def run_manual_backup():
         return jsonify({'status': 'error', 'message': str(e)})
 
 
-@app.route('/download_export')
-def download_export():
+@app.route('/admin/download_export')
+def admin_download_export():
     fmt = request.args.get('format', 'xlsx')
     try:
         from export_records import export_records
@@ -1056,8 +1099,8 @@ def download_export():
         return jsonify({'status': 'error', 'message': str(e)})
 
 
-@app.route('/api/add_historical_weather', methods=['POST'])
-def run_add_historical_weather():
+@app.route('/admin/api/add_historical_weather', methods=['POST'])
+def admin_run_add_historical_weather():
     try:
         # Run add_historical_weather.py
         result = subprocess.run([sys.executable, 'add_historical_weather.py'], capture_output=True, text=True)
@@ -1068,7 +1111,136 @@ def run_add_historical_weather():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 
+
+# ============================================================
+# --- PUBLIC WEBSITE ROUTES (Organics-O-Eats) ---
+# ============================================================
+
+@app.route('/')
+def index():
+    """Public homepage."""
+    return render_template('public/index.html')
+
+@app.route('/shop')
+def shop():
+    products = Product.query.all()
+    return render_template('public/shop.html', products=products)
+
+@app.route('/add_to_cart/<int:product_id>')
+def add_to_cart(product_id):
+    if 'cart' not in session:
+        session['cart'] = {}
+    cart = session['cart']
+    if str(product_id) in cart:
+        cart[str(product_id)] += 1
+    else:
+        cart[str(product_id)] = 1
+    session.modified = True
+    flash('Item added to cart!', 'success')
+    return redirect(url_for('shop'))
+
+@app.route('/cart')
+def cart():
+    cart = session.get('cart', {})
+    cart_items = []
+    total = 0
+    for product_id, quantity in cart.items():
+        product = Product.query.get(int(product_id))
+        if product:
+            item_total = product.price * quantity
+            total += item_total
+            cart_items.append({'product': product, 'quantity': quantity, 'total': item_total})
+    return render_template('public/cart.html', cart_items=cart_items, total=total)
+
+@app.route('/checkout')
+@login_required
+def checkout():
+    cart = session.get('cart', {})
+    if not cart:
+        flash('Your cart is empty', 'warning')
+        return redirect(url_for('shop'))
+    total = 0
+    for p_id, qty in cart.items():
+        p = Product.query.get(int(p_id))
+        if p: total += p.price * qty
+    order = Order(user_id=current_user.id, total_amount=total)
+    db.session.add(order)
+    db.session.commit()
+    session.pop('cart', None)
+    flash('Order placed successfully!', 'success')
+    return redirect(url_for('index'))
+
+@app.route('/schedule_visit', methods=['POST'])
+def schedule_visit():
+    name = request.form.get('name')
+    email = request.form.get('email')
+    date_str = request.form.get('date')
+    message = request.form.get('message')
+    try:
+        visit_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+        visit = Visit(name=name, email=email, date=visit_date, message=message)
+        db.session.add(visit)
+        db.session.commit()
+        flash('Visit scheduled successfully! We will contact you soon.', 'success')
+    except Exception as e:
+        flash('Error scheduling visit. Please try again.', 'error')
+    return redirect(url_for('index'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password_hash, password):
+            login_user(user)
+            flash('Logged in successfully.', 'success')
+            return redirect(url_for('index'))
+        flash('Invalid email or password.', 'error')
+    return render_template('public/login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
+        if User.query.filter_by(email=email).first():
+            flash('Email address already exists.', 'error')
+            return redirect(url_for('register'))
+        new_user = User(
+            name=name,
+            email=email,
+            password_hash=generate_password_hash(password, method='pbkdf2:sha256')
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        login_user(new_user)
+        flash('Registration successful!', 'success')
+        return redirect(url_for('index'))
+    return render_template('public/register.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+def seed_products():
+    """Seed default products if none exist."""
+    if Product.query.count() == 0:
+        products = [
+            Product(name='Organic Turmeric', description='Freshly harvested organic turmeric root.', price=15.99, stock=100),
+            Product(name='Farm Fresh Tomatoes', description='Juicy red tomatoes from our greenhouse.', price=4.99, stock=50),
+            Product(name='Organic Lettuce', description='Crisp organic lettuce leaves.', price=3.50, stock=30),
+            Product(name='Raw Honey', description='Pure, unpasteurized honey from our apiary.', price=24.00, stock=20),
+        ]
+        db.session.bulk_save_objects(products)
+        db.session.commit()
+        print("Seeded default products.")
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+        seed_products()
+    app.run(debug=True, port=5000)

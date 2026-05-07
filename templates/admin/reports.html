@@ -1,0 +1,96 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2>📈 Financial Reports</h2>
+        <p class="text-muted">Visual insights into your farm's performance.</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Income vs Expense Chart -->
+    <div class="col-md-8">
+        <div class="card p-3 shadow-sm h-100">
+            <h4>💰 Income vs Expense (Monthly)</h4>
+            <canvas id="incomeExpenseChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Expense Breakdown Chart -->
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm h-100">
+            <h4>💸 Information Breakdown</h4>
+            <canvas id="expensePieChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log("Fetching chart data...");
+
+        fetch('/admin/api/financial_data')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Data received:", data);
+
+                // 1. Income vs Expense Chart (Bar)
+                const ctxBar = document.getElementById('incomeExpenseChart').getContext('2d');
+                new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: data.months,
+                        datasets: [
+                            {
+                                label: 'Income',
+                                data: data.income,
+                                backgroundColor: '#2d7f3e', // Green
+                                borderRadius: 5
+                            },
+                            {
+                                label: 'Expense',
+                                data: data.expense,
+                                backgroundColor: '#dc3545', // Red
+                                borderRadius: 5
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+
+                // 2. Expense Pie Chart
+                const ctxPie = document.getElementById('expensePieChart').getContext('2d');
+                new Chart(ctxPie, {
+                    type: 'doughnut',
+                    data: {
+                        labels: data.expense_labels,
+                        datasets: [{
+                            data: data.expense_values,
+                            backgroundColor: [
+                                '#ffc107', // Yellow (Seed)
+                                '#0dcaf0', // Cyan (Water)
+                                '#6610f2', // Purple (Labor)
+                                '#fd7e14', // Orange (Fuel)
+                                '#6c757d'  // Grey (Misc)
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching data:', error));
+    });
+</script>
+{% endblock %}

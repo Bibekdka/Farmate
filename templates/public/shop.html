@@ -1,0 +1,30 @@
+{% extends 'public/base.html' %}
+{% block content %}
+<div class="page-header">
+    <h1>Our Organic Market</h1>
+    <p>Fresh from the fields, ready for your kitchen.</p>
+</div>
+
+<div class="shop-container">
+    <div class="products-grid">
+        {% for product in products %}
+        <div class="product-card">
+            <div class="product-image-placeholder">
+                <i class="fas fa-leaf fa-3x"></i>
+            </div>
+            <div class="product-info">
+                <h3>{{ product.name }}</h3>
+                <p class="product-desc">{{ product.description }}</p>
+                <div class="product-meta">
+                    <span class="price">${{ "%.2f"|format(product.price) }}</span>
+                    <span class="stock">In Stock: {{ product.stock }}</span>
+                </div>
+                <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-primary btn-block">
+                    <i class="fas fa-cart-plus"></i> Add to Cart
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

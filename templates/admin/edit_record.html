@@ -1,0 +1,74 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h4>✏️ Edit Farm Record</h4>
+            <form action="{{ url_for('admin_edit_record', record_id=record.id) }}" method="POST">
+                <div class="mb-3">
+                    <label>Date</label>
+                    <input type="date" name="date" class="form-control" value="{{ record.date.strftime('%Y-%m-%d') }}"
+                        required>
+                </div>
+                <div class="mb-3">
+                    <label>Activity Name</label>
+                    <input type="text" name="activity" class="form-control" value="{{ record.activity_type }}"
+                        placeholder="e.g. Bought Seeds" required>
+                </div>
+                <div class="mb-3">
+                    <label>Category</label>
+                    <select name="category" class="form-select" id="categorySelect" onchange="toggleExpenseType()">
+                        <option value="Expense" {% if record.category=='Expense' %}selected{% endif %}>Expense (Cost)
+                        </option>
+                        <option value="Income" {% if record.category=='Income' %}selected{% endif %}>Income (Sales)
+                        </option>
+                    </select>
+                </div>
+                <div class="mb-3" id="expenseTypeDiv">
+                    <label class="form-label fw-600">🏷️ Expense Type (Select Multiple)</label>
+                    <div class="border p-2 rounded" style="max-height: 150px; overflow-y: auto; background: #fff;">
+                        {% set current_types = record.expense_type.split(', ') if record.expense_type else [] %}
+                        {% set expense_options = ['Fuel', 'Labour', 'Seed', 'Water', 'Transportation', 'Medicine',
+                        'Misc'] %}
+                        {% for opt in expense_options %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="expense_type" value="{{ opt }}"
+                                id="exp_{{ opt }}" {% if opt in current_types %}checked{% endif %}>
+                            <label class="form-check-label" for="exp_{{ opt }}">
+                                {% if opt == 'Fuel' %}🛢️{% elif opt == 'Labour' %}👷{% elif opt == 'Seed' %}🌱{% elif
+                                opt == 'Water' %}💧{% elif opt == 'Transportation' %}🚚{% elif opt == 'Medicine' %}💊{%
+                                else %}📦{% endif %}
+                                {{ opt }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label>Amount</label>
+                    <input type="number" step="0.01" name="amount" class="form-control" value="{{ record.amount }}"
+                        required>
+                </div>
+                <div class="mb-3">
+                    <label>Description (Optional)</label>
+                    <input type="text" name="desc" class="form-control" value="{{ record.description or '' }}">
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-success">Update Record</button>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleExpenseType() {
+        const category = document.getElementById('categorySelect').value;
+        const expenseTypeDiv = document.getElementById('expenseTypeDiv');
+        expenseTypeDiv.style.display = category === 'Expense' ? 'block' : 'none';
+    }
+    toggleExpenseType(); // Run on page load
+</script>
+{% endblock %}

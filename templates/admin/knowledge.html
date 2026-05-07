@@ -1,0 +1,745 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12 text-center">
+        <h2 class="fw-bold text-success">🧠 Knowledge Hub</h2>
+        <p class="text-muted">Tools, Calculators & Farming Intelligence for Assam</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Navigation Cards -->
+    <div class="col-md-3 mb-3">
+        <div class="list-group shadow-sm">
+            <a href="#fertilizer" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                🧪 Fertilizer Calculator
+            </a>
+            <a href="#zecc" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                ❄️ Cool Storage (ZECC)
+            </a>
+            <a href="#compliance" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                📋 Export Compliance
+            </a>
+            <a href="#pest_warning" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                ⚠️ Pest Warning System
+            </a>
+            <a href="#pest_calendar" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                🗓️ Pest Calendar
+            </a>
+            <a href="#crop_calendar" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                🌾 Crop Calendar
+            </a>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="col-md-9">
+        <div class="tab-content">
+
+            <!-- 1. Fertilizer Calculator -->
+            <div class="tab-pane fade show active" id="fertilizer">
+                <div class="card shadow-sm p-4">
+                    <h4 class="text-success">🌾 Winter Rice Fertilizer Calculator</h4>
+                    <p class="text-muted small">Based on Assam Agriculture University FPE Formulas for Sali Rice.</p>
+
+                    <form id="fertForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label>Target Yield (Quintal/Ha)</label>
+                                <input type="number" id="targetYield" class="form-control" placeholder="e.g. 40"
+                                    required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Organic Manure (Ton/Ha)</label>
+                                <input type="number" id="organicManure" class="form-control" placeholder="e.g. 2"
+                                    value="0">
+                            </div>
+                        </div>
+                        <h6 class="mt-2">Soil Test Values (Kg/Ha)</h6>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label>Nitrogen (N)</label>
+                                <input type="number" id="soilN" class="form-control" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Phosphorus (P)</label>
+                                <input type="number" id="soilP" class="form-control" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label>Potassium (K)</label>
+                                <input type="number" id="soilK" class="form-control" required>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success w-100" onclick="calculateFertilizer()">Calculate
+                            Dosage</button>
+                    </form>
+
+                    <div id="fertResult" class="mt-4 d-none">
+                        <div class="alert alert-info">
+                            <h5>🧪 Recommended Dosage per Hectare:</h5>
+                            <ul class="mb-0">
+                                <li><strong>Urea:</strong> <span id="resUrea">0</span> kg</li>
+                                <li><strong>SSP (Single Super Phosphate):</strong> <span id="resSSP">0</span> kg</li>
+                                <li><strong>MOP (Muriate of Potash):</strong> <span id="resMOP">0</span> kg</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1.5 ZECC Storage Builder -->
+            <div class="tab-pane fade" id="zecc">
+                <div class="card shadow-sm p-4 border-info">
+                    <h4 class="text-info">❄️ Zero Energy Cool Chamber (ZECC) Builder</h4>
+                    <p class="text-muted small">Extend shelf life by 4x without electricity! (Pusa Model)</p>
+
+                    <div class="row">
+                        <div class="col-md-6 text-center">
+                            <div class="alert alert-light border">
+                                <h6>🌡️ Why build this?</h6>
+                                <ul class="text-start small mb-0">
+                                    <li>Keeps temperature <strong>10-15°C cooler</strong> than outside.</li>
+                                    <li>Maintains <strong>95% humidity</strong> (keeps veggies fresh).</li>
+                                    <li>Ideal for: Spinach, Tomato, Banana.</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Amount to Store (Kg)</label>
+                            <input type="number" id="zeccInput" class="form-control" placeholder="e.g. 120"
+                                onkeyup="calculateZECC()">
+                            <small class="text-muted">Standard size is for 100kg capacity</small>
+                        </div>
+                    </div>
+
+                    <div id="zeccResult" class="mt-4 d-none">
+                        <div class="card bg-light border-0">
+                            <div class="card-body">
+                                <h5>🧱 Materials Required:</h5>
+                                <div class="row text-center mt-3">
+                                    <div class="col-6">
+                                        <h3 class="text-danger" id="resBricks">0</h3>
+                                        <p class="small text-muted">Bricks</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <h3 class="text-warning" id="resSand">0</h3>
+                                        <p class="small text-muted">Sand (m³)</p>
+                                    </div>
+                                </div>
+                                <div class="alert alert-warning mt-2 mb-0 small">
+                                    <strong>Construction Tip:</strong> Build a double-walled chamber. Fill the 7.5cm gap
+                                    between walls with wet river sand. Keep sand wet always!
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Turmeric Intelligence Hub -->
+            <div class="tab-pane fade" id="compliance">
+                <div class="card shadow-sm border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0 fw-bold">🟡 Turmeric Intelligence Hub</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="nav nav-tabs mb-3" id="turmTab" role="tablist">
+                            <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab"
+                                    data-bs-target="#yield-tab">📉 Yield Converter</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#profit-tab">💰 Profit Predictor</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#seed-tab">🌱 Planting Calc</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#check-tab">📋 Export Checklist</button></li>
+                            <li class="nav-item"><button class="nav-link" data-bs-toggle="tab"
+                                    data-bs-target="#process-tab">🏭 Processing Guide</button></li>
+                        </ul>
+
+                        <div class="tab-content border p-3 rounded bg-light">
+                            <!-- 2.1 Yield Converter -->
+                            <div class="tab-pane fade show active" id="yield-tab">
+                                <h5 class="text-secondary">Fresh-to-Cured Recovery Calculator</h5>
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label>Select Variety</label>
+                                        <select id="turmVar" class="form-select" onchange="runTurmCalc()">
+                                            {% for t in turmeric_db.turmeric_varieties %}
+                                            <option value="{{ t.recovery_rate }}">{{ t.name }} (Curcumin: {{
+                                                t.curcumin_pct }}%)</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label>Fresh Raw Harvest (Kg)</label>
+                                        <input type="number" id="fQty" class="form-control" placeholder="1000"
+                                            onkeyup="runTurmCalc()">
+                                    </div>
+                                </div>
+                                <div class="alert alert-warning">
+                                    <div class="row text-center">
+                                        <div class="col-6 border-end">
+                                            <small>Traditional Dry Yield</small>
+                                            <h3 id="tradY" class="text-dark">0 kg</h3>
+                                        </div>
+                                        <div class="col-6">
+                                            <small>CFTRI Novel Method Yield (+10%)</small>
+                                            <h3 id="novelY" class="text-success">0 kg</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2.2 Profit Predictor -->
+                            <div class="tab-pane fade" id="profit-tab">
+                                <h5 class="text-secondary">Processing Profitability Estimator</h5>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label>Raw Quantity (Quintals)</label>
+                                        <input type="number" id="pQty" class="form-control mb-2"
+                                            onkeyup="runTurmProfit()">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>Raw Price (₹/Quintal)</label>
+                                        <input type="number" id="rPrice" class="form-control mb-2" value="3000"
+                                            onkeyup="runTurmProfit()">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label>Dry Powder Price (₹/Q)</label>
+                                        <input type="number" id="dPrice" class="form-control mb-2" value="18000"
+                                            onkeyup="runTurmProfit()">
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row text-center">
+                                    <div class="col-md-4">
+                                        <p class="mb-0 text-muted">Total Cost (Raw+Process)</p>
+                                        <h5 id="tInv" class="text-danger">₹ 0</h5>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-0 text-muted">Benefit-Cost Ratio</p>
+                                        <h5 id="bcr" class="text-primary">1 : 0.0</h5>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="mb-0 text-muted">Net Profit</p>
+                                        <h4 id="nProf" class="fw-bold text-success">₹ 0</h4>
+                                    </div>
+                                </div>
+                                <small class="text-muted text-center d-block mt-2">*Based on std processing cost of
+                                    ₹3480/Q and 20% recovery.</small>
+                            </div>
+
+                            <!-- 2.3 Planting Calculator -->
+                            <div class="tab-pane fade" id="seed-tab">
+                                <h5 class="text-secondary">Seed Rate & Planting Geometry</h5>
+                                <div class="row align-items-center">
+                                    <div class="col-md-6">
+                                        <label>Area to Plant (Hectares)</label>
+                                        <div class="input-group mb-3">
+                                            <input type="number" id="plantArea" class="form-control" placeholder="1"
+                                                onkeyup="calcSeed()">
+                                            <span class="input-group-text">ha</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="alert alert-info py-2">
+                                            <h6 class="mb-1">🌱 Seed Required: <span id="seedReq"
+                                                    class="fw-bold">0</span> kg</h6>
+                                            <small>Standard: 2500 kg/ha</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card bg-white p-3 border-0">
+                                    <h6>📏 Recommended Spacing (Assam):</h6>
+                                    <ul>
+                                        <li><strong>Row to Row:</strong> 45 cm</li>
+                                        <li><strong>Plant to Plant:</strong> 25 cm</li>
+                                        <li><strong>Planting Depth:</strong> 10 cm</li>
+                                        <li><strong>Expected Yield:</strong> ~32,500 kg/ha</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <!-- 2.4 Checklist (Existing) -->
+                            <div class="tab-pane fade" id="check-tab">
+                                <h5>🇺🇸 US / 🇪🇺 EU Export Requirements</h5>
+                                <div class="list-group">
+                                    <label class="list-group-item">
+                                        <input class="form-check-input me-1" type="checkbox" value="">
+                                        <strong>FDA Registration:</strong> Required for all food facilities exporting to
+                                        USA.
+                                    </label>
+                                    <label class="list-group-item">
+                                        <input class="form-check-input me-1" type="checkbox" value="">
+                                        <strong>Phytosanitary Certificate:</strong> Proof that produce is pest-free.
+                                    </label>
+                                    <label class="list-group-item">
+                                        <input class="form-check-input me-1" type="checkbox" value="">
+                                        <strong>Lead Test:</strong> Turmeric must have < 2.5 ppm lead content. </label>
+                                            <label class="list-group-item">
+                                                <input class="form-check-input me-1" type="checkbox" value="">
+                                                <strong>Packaging:</strong> Use Corrugated Plastic / Thermoformed for
+                                                hygiene.
+                                            </label>
+                                </div>
+                            </div>
+
+                            <!-- 2.5 Processing Guide -->
+                            <div class="tab-pane fade" id="process-tab">
+                                <h5 class="text-secondary fw-bold mb-3">🏭 Post-Harvest Processing Guide</h5>
+
+                                <div class="row g-4">
+                                    <!-- 1. Curing -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-warning shadow-sm">
+                                            <div class="card-header bg-warning bg-opacity-25 text-dark">
+                                                <h6 class="mb-0 fw-bold">🔥 1. The Impact of Curing (Boiling)</h6>
+                                            </div>
+                                            <div class="card-body small">
+                                                <p class="mb-2">Boiling helps gelatinize starch and distribute curcumin
+                                                    uniformly.</p>
+                                                <ul class="list-group list-group-flush">
+                                                    <li class="list-group-item px-0 py-1">🧪
+                                                        <strong>Alkalinity:</strong> Add <strong>0.05% – 1.0%</strong>
+                                                        sodium carbonate for orange-yellow tinge.
+                                                    </li>
+                                                    <li class="list-group-item px-0 py-1">👃 <strong>Odor:</strong>
+                                                        Removes raw "green" smell.</li>
+                                                    <li class="list-group-item px-0 py-1 text-danger">⚠️
+                                                        <strong>Risk:</strong> Over-cooking spoils color; Under-cooking
+                                                        causes brittleness.
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2. Drying -->
+                                    <div class="col-md-6">
+                                        <div class="card h-100 border-info shadow-sm">
+                                            <div class="card-header bg-info bg-opacity-25 text-dark">
+                                                <h6 class="mb-0 fw-bold">☀️ 2. Drying Techniques</h6>
+                                            </div>
+                                            <div class="card-body small">
+                                                <div class="row">
+                                                    <div class="col-6 border-end">
+                                                        <strong class="text-secondary">Traditional Sun</strong><br>
+                                                        <span>⏳ 10-15 Days</span><br>
+                                                        <span class="text-danger">❌ 25% Oil Loss</span>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <strong class="text-primary">Mechanical (Sliced)</strong><br>
+                                                        <span>⏳ 8-12 Hours</span><br>
+                                                        <span class="text-success">✅ Max 60°C</span>
+                                                    </div>
+                                                </div>
+                                                <p class="mt-2 text-muted fst-italic mb-0">Tip: Slicing (2mm) speeds up
+                                                    drying significantly.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 3. Comparison Table -->
+                                    <div class="col-12">
+                                        <div class="card border-success shadow-sm">
+                                            <div class="card-header bg-success bg-opacity-25 text-dark">
+                                                <h6 class="mb-0 fw-bold">🏆 Traditional vs. Novel Method (CFTRI)</h6>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered mb-0 small">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th>Feature</th>
+                                                            <th>Traditional (Boil + Polish)</th>
+                                                            <th class="table-success">Novel Method (Slice + No Boil)
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td><strong>Curcumin</strong></td>
+                                                            <td class="text-muted">Standard</td>
+                                                            <td class="fw-bold text-success">⬆️ 20-25% Higher</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Yield Loss</strong></td>
+                                                            <td class="text-danger">10-20% (Polishing)</td>
+                                                            <td class="fw-bold text-success">0% (Zero Waste)</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td><strong>Time</strong></td>
+                                                            <td>20-25 Days</td>
+                                                            <td>1 Day</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 4. Quality Params -->
+                                    <div class="col-12">
+                                        <div class="alert alert-dark mb-0 py-2">
+                                            <h6 class="fw-bold mb-2">⭐ Quality Checklist</h6>
+                                            <div class="row text-center small">
+                                                <div class="col-3 border-end">
+                                                    <strong>Color</strong><br>Max 60°C
+                                                </div>
+                                                <div class="col-3 border-end">
+                                                    <strong>Curcumin</strong><br>Avoiding Light
+                                                </div>
+                                                <div class="col-3 border-end">
+                                                    <strong>Aroma</strong><br>Oil Retention
+                                                </div>
+                                                <div class="col-3">
+                                                    <strong>Hygiene</strong><br>Fast Drying
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mt-3">
+                                        <div class="card bg-white border-0 shadow-sm">
+                                            <div class="card-body">
+                                                <h6 class="fw-bold text-success"><i class="fas fa-flask"></i> Scientific
+                                                    Processing Details</h6>
+
+                                                <div class="accordion accordion-flush" id="procAccord">
+                                                    <!-- 1. Moisture Calculation -->
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header">
+                                                            <button
+                                                                class="accordion-button collapsed fst-italic text-muted"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#flush-collapseOne">
+                                                                💧 Calculating Moisture Loss (Target: 5-10%)
+                                                            </button>
+                                                        </h2>
+                                                        <div id="flush-collapseOne" class="accordion-collapse collapse"
+                                                            data-bs-parent="#procAccord">
+                                                            <div class="accordion-body small text-muted">
+                                                                Expected weight loss is <strong>70% - 80%</strong>. <br>
+                                                                <code>Moisture Loss (%) = ((Fresh Wt - Dry Wt) / Fresh Wt) * 100</code>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- 2. Chemical Additives -->
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header">
+                                                            <button
+                                                                class="accordion-button collapsed fst-italic text-muted"
+                                                                type="button" data-bs-toggle="collapse"
+                                                                data-bs-target="#flush-collapseTwo">
+                                                                🧪 Approved Additives (Curing & Polishing)
+                                                            </button>
+                                                        </h2>
+                                                        <div id="flush-collapseTwo" class="accordion-collapse collapse"
+                                                            data-bs-parent="#procAccord">
+                                                            <div class="accordion-body small text-muted">
+                                                                <ul class="mb-0 ps-3">
+                                                                    <li><strong>Curing:</strong> Sodium Carbonate
+                                                                        (0.05-1.0%) or Lime.</li>
+                                                                    <li><strong>Citric Acid (Some methods):</strong> 2%
+                                                                        concentration.</li>
+                                                                    <li><strong>CFTRI Polishing Mix (for
+                                                                            100kg):</strong> Alum (40g), Turmeric Powder
+                                                                        (2kg), Castor Oil (140g), Sodium Bisulphate
+                                                                        (300g), HCl (30ml).</li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Pest Warning System -->
+            <div class="tab-pane fade" id="pest_warning">
+                <div class="card shadow-sm p-4">
+                    <h4 class="text-danger">⚠️ Pest ETL Warning System</h4>
+                    <p class="text-muted">Enter your observation to check if Action is needed.</p>
+
+                    <div class="mb-3">
+                        <label>Select Crop</label>
+                        <select id="etlCrop" class="form-select">
+                            <option>Rice</option>
+                            <option>Tea</option>
+                            <option>Tomato</option>
+                            <option>Mustard</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Observed Pest</label>
+                        <select id="etlPest" class="form-select">
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label>Observed Count / Percentage</label>
+                        <input type="number" id="etlValue" class="form-control" placeholder="e.g. 5">
+                        <small class="text-muted" id="etlUnitHint"></small>
+                    </div>
+                    <button class="btn btn-danger w-100" onclick="checkEtlStatus()">Check Status</button>
+
+                    <div id="etlResult" class="mt-3"></div>
+                </div>
+            </div>
+
+            <!-- 4. Pest Calendar -->
+            <div class="tab-pane fade" id="pest_calendar">
+                <div class="card shadow-sm p-4">
+                    <h4>🗓️ Monthly Pest Risk Calendar</h4>
+                    <div class="accordion" id="pestAccordion">
+                        {% for item in pest_calendar %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapse{{ loop.index }}">
+                                    <strong>{{ item.crop }}</strong> &nbsp; <small class="text-muted">(Monitor in: {{
+                                        item.season_months|join(', ') }})</small>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ loop.index }}" class="accordion-collapse collapse"
+                                data-bs-parent="#pestAccordion">
+                                <div class="accordion-body">
+                                    <ul class="list-group">
+                                        {% for pest in item.pests %}
+                                        <li class="list-group-item">
+                                            <h6 class="text-danger">{{ pest.name }} <small>({{ pest.risk_stage
+                                                    }})</small></h6>
+                                            <p class="mb-1"><strong>Symptoms:</strong> {{ pest.symptoms }}</p>
+                                            <p class="mb-1"><strong>Threshold:</strong> {{ pest.threshold }}</p>
+                                            <p class="mb-0 text-success"><strong>Prevention:</strong> {{ pest.prevention
+                                                }}</p>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Crop Calendar -->
+            <div class="tab-pane fade" id="crop_calendar">
+                <div class="card shadow-sm p-4">
+                    <h4>🌾 Assam Crop Sowing Calendar</h4>
+                    <input type="text" id="cropSearch" class="form-control mb-3" placeholder="Search crop name..."
+                        onkeyup="filterCrops()">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Crop Name</th>
+                                    <th>Recommended Sowing Months</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cropTableBody">
+                                {% for crop in crop_calendar %}
+                                <tr>
+                                    <td><strong>{{ crop.crop }}</strong></td>
+                                    <td>
+                                        {% for month in crop.sowing_months %}
+                                        <span class="badge bg-success">{{ month }}</span>
+                                        {% endfor %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 1. Fertilizer Logic ---
+    function calculateFertilizer() {
+        const T = parseFloat(document.getElementById('targetYield').value) || 0;
+        const STVN = parseFloat(document.getElementById('soilN').value) || 0;
+        const STVP = parseFloat(document.getElementById('soilP').value) || 0;
+        const STVK = parseFloat(document.getElementById('soilK').value) || 0;
+        const OM = parseFloat(document.getElementById('organicManure').value) || 0;
+
+        // Equations
+        const N_dem = (5.22 * T) - (0.75 * STVN) - (0.11 * OM);
+        const P_dem = (0.77 * T) - (1.64 * STVP) - (0.10 * OM);
+        const K_dem = (5.12 * T) - (1.70 * STVK) - (0.30 * OM);
+
+        // Convert to Commercial Units
+        const urea = Math.max(0, N_dem / 0.46).toFixed(2);
+        const ssp = Math.max(0, P_dem / 0.16).toFixed(2);
+        const mop = Math.max(0, K_dem / 0.60).toFixed(2);
+
+        document.getElementById('resUrea').innerText = urea;
+        document.getElementById('resSSP').innerText = ssp;
+        document.getElementById('resMOP').innerText = mop;
+        document.getElementById('fertResult').classList.remove('d-none');
+    }
+
+    // --- 1.5 ZECC Logic ---
+    function calculateZECC() {
+        const kg = parseFloat(document.getElementById('zeccInput').value) || 0;
+        if (kg > 0) {
+            // Factor: ~4.17 bricks per kg, 0.0042 m3 sand per kg (Derived from standard dimensions)
+            const bricks = Math.ceil(kg * 4.17);
+            const sand = (kg * 0.0042).toFixed(2);
+
+            document.getElementById('resBricks').innerText = bricks;
+            document.getElementById('resSand').innerText = sand;
+            document.getElementById('zeccResult').classList.remove('d-none');
+        } else {
+            document.getElementById('zeccResult').classList.add('d-none');
+        }
+    }
+
+    // --- 2. Turmeric Advanced Logic ---
+    function runTurmCalc() {
+        const qty = parseFloat(document.getElementById('fQty').value) || 0;
+        const rate = parseFloat(document.getElementById('turmVar').value) || 0.15;
+
+        const trad = qty * rate;
+        const novel = trad * 1.10; // 10% gain from CFTRI method
+
+        document.getElementById('tradY').innerText = trad.toFixed(1) + " kg";
+        document.getElementById('novelY').innerText = novel.toFixed(1) + " kg";
+    }
+
+    function runTurmProfit() {
+        const qty = parseFloat(document.getElementById('pQty').value) || 0;
+        const rPrice = parseFloat(document.getElementById('rPrice').value) || 0;
+        const dPrice = parseFloat(document.getElementById('dPrice').value) || 0;
+
+        const procCost = 3480; // per Quintal
+        const tCost = (qty * rPrice) + (qty * procCost);
+        const revenue = (qty * 0.20) * dPrice; // 20% dry recovery model for profit
+
+        const net = revenue - tCost;
+        const bcr = (tCost > 0) ? (revenue / tCost).toFixed(2) : "0.0";
+
+        document.getElementById('tInv').innerText = "₹ " + tCost.toLocaleString('en-IN');
+        document.getElementById('nProf').innerText = "₹ " + net.toLocaleString('en-IN');
+        document.getElementById('bcr').innerText = "1 : " + bcr;
+    }
+
+    function calcSeed() {
+        const ha = parseFloat(document.getElementById('plantArea').value) || 0;
+        document.getElementById('seedReq').innerText = (ha * 2500).toLocaleString();
+    }
+
+    // --- 3. Pest ETL Logic ---
+    // Load pest data from server-side variable passed to template? 
+    // Ideally we fetch, but for simplicity let's inline a small subset or use the JSON if rendered.
+    // We will use the JSON injected into the template variable safely.
+    // --- 3. Real-Time Pest ETL Logic (API) ---
+    const pestDB = {{ pest_etl | tojson }};
+
+    function updatePestList() {
+        const crop = document.getElementById('etlCrop').value;
+        const pestSelect = document.getElementById('etlPest');
+        pestSelect.innerHTML = "";
+
+        // Check if crop exists in DB key
+        if (!pestDB[crop]) {
+            pestSelect.innerHTML = "<option>No data available</option>";
+            return;
+        }
+
+        const pests = pestDB[crop];
+        // Iterate over keys since new structure is a dict
+        for (const [pestName, info] of Object.entries(pests)) {
+            const opt = document.createElement('option');
+            opt.value = pestName;
+            opt.text = pestName + " (" + info.unit.replace(/_/g, " ") + ")";
+            pestSelect.appendChild(opt);
+        }
+    }
+
+    document.getElementById('etlCrop').addEventListener('change', updatePestList);
+    // Init once
+    window.onload = function () {
+        updatePestList();
+    };
+
+    function checkEtlStatus() {
+        const crop = document.getElementById('etlCrop').value;
+        const pest = document.getElementById('etlPest').value;
+        const val = parseFloat(document.getElementById('etlValue').value) || 0;
+        const div = document.getElementById('etlResult');
+
+        div.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div> Checking...';
+
+        fetch('/admin/api/check-etl', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ crop: crop, pest: pest, value: val }),
+        })
+            .then(response => response.json())
+            .then(data => {
+                let alertClass = data.status === "ALERT" ? "alert-danger" : "alert-success";
+
+                let html = `
+                <div class="alert ${alertClass} shadow-sm">
+                    <h5 class="alert-heading fw-bold">${data.message}</h5>
+                    <hr>
+                    <p class="mb-1"><strong>Action:</strong> ${data.recommendation}</p>
+                    <p class="mb-0 small text-muted">Threshold: ${data.threshold} ${data.unit}</p>
+            `;
+
+                if (data.weather_context) {
+                    html += `<div class="mt-2 p-2 bg-white rounded border border-warning text-warning-emphasis small">
+                            <i class="fas fa-cloud-sun-rain"></i> <strong>Weather Warning:</strong> ${data.weather_context}
+                         </div>`;
+                }
+
+                if (data.trend) {
+                    html += `<div class="mt-2 text-primary small">
+                            ${data.trend}
+                         </div>`;
+                }
+
+                html += `</div>`;
+                div.innerHTML = html;
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                div.innerHTML = `<div class="alert alert-warning">Error checking status. Please try again.</div>`;
+            });
+    }
+
+    // --- 5. Crop Filter ---
+    function filterCrops() {
+        const input = document.getElementById("cropSearch");
+        const filter = input.value.toUpperCase();
+        const table = document.getElementById("cropTableBody");
+        const tr = table.getElementsByTagName("tr");
+
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0];
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}
