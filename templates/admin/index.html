@@ -28,12 +28,12 @@
         <div class="card p-3">
             <h4>📢 Quick Actions</h4>
 
-            <a href="/daily_log" class="btn btn-success w-100 mb-2 py-2">📝 Daily Blog</a>
+            <a href="{{ url_for('admin_daily_log') }}" class="btn btn-success w-100 mb-2 py-2">📝 Daily Blog</a>
 
-            <a href="/dashboard" class="btn btn-success mb-2">Add Today's Expenses</a>
-            <a href="/notes" class="btn btn-warning mb-2">Write a Note</a>
-            <a href="/calendar" class="btn btn-info mb-2">📅 View Calendar</a>
-            <a href="/crops" class="btn btn-primary mb-2">🌾 Manage Crops</a>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-success mb-2">Add Today's Expenses</a>
+            <a href="{{ url_for('admin_notes') }}" class="btn btn-warning mb-2">Write a Note</a>
+            <a href="{{ url_for('admin_calendar_view') }}" class="btn btn-info mb-2">📅 View Calendar</a>
+            <a href="{{ url_for('admin_crops') }}" class="btn btn-primary mb-2">🌾 Manage Crops</a>
         </div>
     </div>
     <div class="col-md-6">

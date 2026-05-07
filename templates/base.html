@@ -168,31 +168,31 @@
             <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
                 🏠 Home
             </a>
-            <a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
+            <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
                 📊 Dashboard
             </a>
-            <a href="/calendar" class="nav-link {% if request.path == '/calendar' %}active{% endif %}">
+            <a href="{{ url_for('admin_calendar_view') }}" class="nav-link {% if request.path == '/calendar' %}active{% endif %}">
                 📅 Calendar
             </a>
-            <a href="/weather_history" class="nav-link {% if request.path == '/weather_history' %}active{% endif %}">
+            <a href="{{ url_for('admin_weather_history') }}" class="nav-link {% if request.path == '/weather_history' %}active{% endif %}">
                 🌤️ Weather
             </a>
-            <a href="/crops" class="nav-link {% if request.path == '/crops' %}active{% endif %}">
+            <a href="{{ url_for('admin_crops') }}" class="nav-link {% if request.path == '/crops' %}active{% endif %}">
                 🌾 Crops & Yield
             </a>
-            <a href="/knowledge" class="nav-link {% if request.path == '/knowledge' %}active{% endif %}">
+            <a href="{{ url_for('admin_knowledge_hub') }}" class="nav-link {% if request.path == '/knowledge' %}active{% endif %}">
                 🧠 Knowledge Hub
             </a>
-            <a href="/daily_log" class="nav-link {% if request.path == '/daily_log' %}active{% endif %}">
+            <a href="{{ url_for('admin_daily_log') }}" class="nav-link {% if request.path == '/daily_log' %}active{% endif %}">
                 📝 Daily Blog
             </a>
-            <a href="/notes" class="nav-link {% if request.path == '/notes' %}active{% endif %}">
+            <a href="{{ url_for('admin_notes') }}" class="nav-link {% if request.path == '/notes' %}active{% endif %}">
                 📒 General Notes
             </a>
-            <a href="/reminders" class="nav-link {% if request.path == '/reminders' %}active{% endif %}">
+            <a href="{{ url_for('admin_reminders') }}" class="nav-link {% if request.path == '/reminders' %}active{% endif %}">
                 🔔 Tasks
             </a>
-            <a href="/reports" class="nav-link {% if request.path == '/reports' %}active{% endif %}">
+            <a href="{{ url_for('admin_reports') }}" class="nav-link {% if request.path == '/reports' %}active{% endif %}">
                 📈 Reports
             </a>
         </div>

@@ -1102,12 +1102,8 @@ def admin_download_export():
 @app.route('/admin/api/add_historical_weather', methods=['POST'])
 def admin_run_add_historical_weather():
     try:
-        # Run add_historical_weather.py
-        result = subprocess.run([sys.executable, 'add_historical_weather.py'], capture_output=True, text=True)
-        if result.returncode == 0:
-             return jsonify({'status': 'success', 'message': 'Historical weather data added!', 'log': result.stdout})
-        else:
-             return jsonify({'status': 'error', 'message': 'Failed to add weather data', 'log': result.stderr})
+        backfill_weather_history()
+        return jsonify({'status': 'success', 'message': 'Historical weather data added!'})
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)})
 
