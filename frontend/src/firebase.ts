@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app'
+import { getAnalytics } from "firebase/analytics"
 import {
   getAuth,
   GoogleAuthProvider
@@ -7,15 +8,17 @@ import {
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: 'YOUR_KEY',
-  authDomain: 'YOUR_DOMAIN',
-  projectId: 'YOUR_PROJECT_ID',
-  storageBucket: 'YOUR_BUCKET',
-  messagingSenderId: 'YOUR_SENDER_ID',
-  appId: 'YOUR_APP_ID'
+  apiKey: "AIzaSyDAYD5s48q48g-ftxhVu5lzIA1KoXsVMSg",
+  authDomain: "farmate-b3e93.firebaseapp.com",
+  projectId: "farmate-b3e93",
+  storageBucket: "farmate-b3e93.firebasestorage.app",
+  messagingSenderId: "143966806033",
+  appId: "1:143966806033:web:a493563594a5456f1ad1b0",
+  measurementId: "G-TL45TPRG89"
 }
 
 const app = initializeApp(firebaseConfig)
+export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null
 
 export const auth = getAuth(app)
 export const provider = new GoogleAuthProvider()
