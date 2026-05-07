@@ -36,16 +36,16 @@ def migrate_data():
                 # We use if_exists='append' to add to the remote db.
                 # If you want to completely overwrite remote, change 'append' to 'replace'
                 df.to_sql(table, pg_engine, if_exists='append', index=False)
-                print(f"✅ Successfully migrated {table}!")
+                print(f"Successfully migrated {table}!")
             else:
                 print(f"Table '{table}' is empty locally, skipping.")
         except Exception as e:
-            print(f"⚠️ Could not migrate table '{table}': {e}")
+            print(f"Could not migrate table '{table}': {e}")
             
-    print("\n🎉 MIGRATION COMPLETE! Your local data is now live on Render.")
+    print("\nMIGRATION COMPLETE! Your local data is now live on Render.")
 
 if __name__ == '__main__':
     print("="*50)
-    print("🚀 LOCAL TO RENDER CLOUD DATA MIGRATION SCRIPT")
+    print("LOCAL TO RENDER CLOUD DATA MIGRATION SCRIPT")
     print("="*50)
     migrate_data()
