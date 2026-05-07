@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { saveChat } from '../services/chatService'
+import { trace } from 'firebase/performance'
+import { perf } from '../firebase'
 
 export default function AIChat() {
   const [message, setMessage] = useState('')
@@ -8,8 +10,14 @@ export default function AIChat() {
   const [loading, setLoading] = useState(false)
 
   const askAI = async () => {
+    let t = null;
     try {
       setLoading(true)
+      
+      if (perf) {
+        t = trace(perf, 'ask_ai_trace');
+        t.start();
+      }
 
       const res = await axios.post(
         'http://localhost:5000/api/ai',
@@ -24,6 +32,7 @@ export default function AIChat() {
     } catch (err) {
       console.error(err)
     } finally {
+      if (t) t.stop();
       setLoading(false)
     }
   }

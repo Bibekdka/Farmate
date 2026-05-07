@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app'
 import { getAnalytics } from "firebase/analytics"
+import { getPerformance } from "firebase/performance"
 import {
   getAuth,
   GoogleAuthProvider
@@ -19,6 +20,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig)
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null
+export const perf = typeof window !== 'undefined' ? getPerformance(app) : null
 
 export const auth = getAuth(app)
 export const provider = new GoogleAuthProvider()
