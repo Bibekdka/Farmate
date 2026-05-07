@@ -29,7 +29,10 @@ from utils import (
     FARM_LATITUDE, FARM_LONGITUDE, WMO_CODES, RECORDS_PER_PAGE
 )
 
+from whitenoise import WhiteNoise
 app = Flask(__name__)
+# Add whitenoise to serve static files efficiently in production
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/', prefix='static/')
 
 # --- CONFIGURATION ---
 # Load configuration from environment

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Organics-O-Eats | Fresh From Farm</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/public.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -11,7 +12,9 @@
 <body>
     <nav class="navbar">
         <div class="logo">
-            <a href="{{ url_for('index') }}">Organics-O-Eats <i class="fas fa-leaf"></i></a>
+            <a href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='logo.png') }}" alt="Organics-O-Eats Logo" class="nav-logo" style="max-height: 50px;">
+            </a>
         </div>
         <ul class="nav-links">
             <li><a href="{{ url_for('index') }}">Home</a></li>
