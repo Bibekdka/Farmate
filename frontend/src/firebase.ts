@@ -9,13 +9,12 @@ import {
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDAYD5s48q48g-ftxhVu5lzIA1KoXsVMSg",
-  authDomain: "farmate-b3e93.firebaseapp.com",
-  projectId: "farmate-b3e93",
-  storageBucket: "farmate-b3e93.firebasestorage.app",
-  messagingSenderId: "143966806033",
-  appId: "1:143966806033:web:a493563594a5456f1ad1b0",
-  measurementId: "G-TL45TPRG89"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 }
 
 const app = initializeApp(firebaseConfig)

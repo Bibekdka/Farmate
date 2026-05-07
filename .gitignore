@@ -14,3 +14,5 @@ venv/
 *.log
 instance/
 exports/
+frontend/.env
+backend/.env
