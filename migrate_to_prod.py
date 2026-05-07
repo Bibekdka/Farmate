@@ -33,14 +33,20 @@ def migrate_data():
             
             if len(df) > 0:
                 print(f"Uploading {len(df)} rows to remote table '{table}'...")
-                # We use if_exists='append' to add to the remote db.
-                # If you want to completely overwrite remote, change 'append' to 'replace'
+                
+                # Clear the remote table first to avoid duplicate key errors
+                from sqlalchemy import text
+                with pg_engine.begin() as conn:
+                    conn.execute(text(f"TRUNCATE TABLE {table} CASCADE"))
+                    
                 df.to_sql(table, pg_engine, if_exists='append', index=False)
                 print(f"Successfully migrated {table}!")
             else:
                 print(f"Table '{table}' is empty locally, skipping.")
         except Exception as e:
-            print(f"Could not migrate table '{table}'")
+            print(f"Could not migrate table '{table}' - see error.txt")
+            with open("error.txt", "a", encoding="utf-8") as f:
+                f.write(f"Could not migrate table '{table}': {str(e)}\n")
             
     print("\nMIGRATION COMPLETE! Your local data is now live on Render.")
 
