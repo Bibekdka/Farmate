@@ -8,8 +8,8 @@ import {
   signInWithPopup,
   signOut,
   onAuthStateChanged,
-  User
 } from 'firebase/auth'
+import type { User } from 'firebase/auth'
 
 import {
   auth,
