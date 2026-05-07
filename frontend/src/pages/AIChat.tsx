@@ -70,65 +70,19 @@ export default function AIChat() {
         <h1 className="text-xl font-bold text-center text-green-700">Farm AI Assistant</h1>
       </header>
 
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.length === 0 && !loading && (
-          <div className="text-center text-gray-500 mt-10">
-            <p>Start a conversation with your Farm AI!</p>
-          </div>
-        )}
-        
-        <div className="space-y-4">
-          {messages.map((msg, index) => (
-            <div
-              key={index}
-              className={msg.role === 'user' ? 'text-right' : 'text-left'}
-            >
-              <div className={`inline-block p-3 rounded-xl shadow-sm ${
-                msg.role === 'user' 
-                  ? 'bg-green-600 text-white rounded-tr-sm' 
-                  : 'bg-white text-gray-800 border border-gray-100 rounded-tl-sm'
-              }`}>
-                {msg.content}
-              </div>
-            </div>
-          ))}
-          {loading && (
-            <div className="text-left">
-              <div className="inline-block bg-white p-3 rounded-xl shadow-sm border border-gray-100 rounded-tl-sm">
-                <div className="flex space-x-1 items-center h-5">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.4s' }}></div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-        <div ref={messagesEndRef} />
-      </main>
-
-      <footer className="bg-white p-3 border-t">
-        <div className="max-w-4xl mx-auto flex gap-2">
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && askAI()}
-            placeholder={user ? "Ask about crops, weather..." : "Please login to chat"}
-            disabled={!user || loading}
-            className="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500"
-          />
-          <button
-            onClick={askAI}
-            disabled={!user || loading || !message.trim()}
-            className="bg-green-600 hover:bg-green-700 text-white rounded-full p-2 w-10 h-10 flex items-center justify-center disabled:opacity-50 transition-colors"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 1.414L10.586 9H7a1 1 0 100 2h3.586l-1.293 1.293a1 1 0 101.414 1.414l3-3a1 1 0 000-1.414z" clipRule="evenodd" />
+      <main className="flex-1 flex items-center justify-center p-4">
+        <div className="bg-white p-12 text-center rounded-2xl shadow-sm border border-gray-100 max-w-md">
+          <div className="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-          </button>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Coming Soon!</h2>
+          <p className="text-gray-600">
+            We are fine-tuning our agricultural AI models to give you the best organic farming advice. Check back shortly for updates.
+          </p>
         </div>
-      </footer>
+      </main>
     </div>
   )
 }
