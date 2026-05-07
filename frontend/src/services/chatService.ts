@@ -10,7 +10,7 @@ import {
 
 import { db } from '../firebase'
 
-export const saveChatMessage = async (
+export const saveChat = async (
   uid: string,
   question: string,
   answer: string

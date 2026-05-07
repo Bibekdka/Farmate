@@ -6,8 +6,10 @@ import datetime
 
 admin_routes = Blueprint('admin_routes', __name__, template_folder='../../templates')
 
+@admin_routes.route('/')
 @admin_routes.route('/admin')
 @admin_routes.route('/admin/')
+@admin_routes.route('/admin_dashboard')
 def admin_home():
     recent_activities = FarmRecord.query.order_by(FarmRecord.date.desc()).limit(5).all()
     today_reminders = Reminder.query.filter_by(date=datetime.date.today(), completed=False).all()

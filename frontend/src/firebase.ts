@@ -1,4 +1,4 @@
-import { initializeApp } from 'firebase/app'
+import { initializeApp, getApps, getApp } from 'firebase/app'
 import { getAnalytics } from "firebase/analytics"
 import { getPerformance } from "firebase/performance"
 import {
@@ -17,7 +17,7 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 }
 
-const app = initializeApp(firebaseConfig)
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig)
 export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null
 export const perf = typeof window !== 'undefined' ? getPerformance(app) : null
 
