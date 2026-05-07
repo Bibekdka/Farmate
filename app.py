@@ -1,1074 +1,183 @@
 import os
-import datetime
-import requests
-import calendar as cal
-import logging
-from pathlib import Path
-from flask import Flask, render_template, request, redirect, url_for, jsonify, send_file
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_wtf.csrf import CSRFProtect
-from sqlalchemy import func
-import subprocess
-import sys
-
-from dotenv import load_dotenv
-# Load environment variables FIRST before any module that uses os.environ
-load_dotenv()
-
-from ai_service import ai_advisor
-
-from dateutil.relativedelta import relativedelta
-
-from config import config
-from utils import (
-    setup_logging, load_all_knowledge_bases, convert_to_kg, validate_date,
-    validate_amount, validate_crop_id, validate_string, validate_category,
-    FARM_LATITUDE, FARM_LONGITUDE, WMO_CODES, RECORDS_PER_PAGE
-)
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from werkzeug.security import generate_password_hash, check_password_hash
+import datetime
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///public.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# --- CONFIGURATION ---
-# Load configuration from environment
-config_name = os.environ.get('APP_ENV', 'development')
-app.config.from_object(config[config_name])
-
-# Setup logging
-logger = setup_logging(app)
-
-# Security was breaking forms due to missing CSRF tokens in HTML forms.
-# To use CSRFProtect, we need to add <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/> to all forms.
-# CSRFProtect(app)
 db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
-# Security check
-if app.config['SECRET_KEY'] == 'dev-secret-key-change-in-production' and config_name == 'production':
-    logger.critical("SECURITY: Using default SECRET_KEY in production!")
-    raise RuntimeError("Must set SECRET_KEY environment variable in production")
-
-# Load Knowledge Data
-knowledge_bases = load_all_knowledge_bases()
-PEST_ETL_DB = knowledge_bases['pest_etl']
-PEST_CALENDAR_DB = knowledge_bases['pest_calendar']
-CROP_CALENDAR_DB = knowledge_bases['crop_calendar']
-TURMERIC_DB = knowledge_bases['turmeric_data']
-
-# --- DATABASE MODELS (SQL TABLES) ---
-class FarmRecord(db.Model):
+# --- MODELS ---
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, default=datetime.date.today)
-    activity_type = db.Column(db.String(50))
-    category = db.Column(db.String(50))
-    expense_type = db.Column(db.String(50))  # Fuel, Labour, Food, Transportation, Misc
-    amount = db.Column(db.Float, default=0.0)
-    description = db.Column(db.String(200))
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
+    orders = db.relationship('Order', backref='customer', lazy=True)
 
-class Note(db.Model):
+class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    content = db.Column(db.String(500))
-    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    price = db.Column(db.Float, nullable=False)
+    image_url = db.Column(db.String(200), nullable=True)
+    stock = db.Column(db.Integer, default=0)
 
-class Crop(db.Model):
+class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    crop_name = db.Column(db.String(100), nullable=False)
-    variety = db.Column(db.String(100))
-    season = db.Column(db.String(50))
-    area = db.Column(db.String(100))
-    sowing_date = db.Column(db.Date)
-    expected_harvest = db.Column(db.Date)
-    status = db.Column(db.String(50), default='Active')
-    notes = db.Column(db.String(500))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    total_amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(50), default='Pending')
+    date = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-class Yield(db.Model):
+class Visit(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, default=datetime.date.today)
-    crop_id = db.Column(db.Integer, db.ForeignKey('crop.id'))
-    yield_value = db.Column(db.Float)
-    unit = db.Column(db.String(20))
-    yield_in_kg = db.Column(db.Float)
-    notes = db.Column(db.String(200))
-    crop = db.relationship('Crop', backref='yields')
-
-class DiseaseLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, default=datetime.date.today)
-    crop_id = db.Column(db.Integer, db.ForeignKey('crop.id'))
-    disease_name = db.Column(db.String(100))
-    severity = db.Column(db.String(20))
-    affected_area = db.Column(db.String(100))
-    treatment = db.Column(db.String(500))
-    notes = db.Column(db.String(200))
-    crop = db.relationship('Crop', backref='diseases')
-
-# --- 3. Pest Log Model ---
-class PestLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, default=datetime.date.today)
-    crop_name = db.Column(db.String(50))
-    pest_name = db.Column(db.String(50))
-    value = db.Column(db.Float)
-    alert_status = db.Column(db.String(20)) # SAFE, ALERT, WARNING
-    notes = db.Column(db.String(200))
-
-class Reminder(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    title = db.Column(db.String(150), nullable=False)
-    description = db.Column(db.String(500))
-    priority = db.Column(db.String(20), default='Normal')
-    completed = db.Column(db.Boolean, default=False)
+    message = db.Column(db.Text)
 
-class WeatherLog(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    date = db.Column(db.Date, unique=True, nullable=False)
-    max_temp = db.Column(db.Float)
-    rainfall = db.Column(db.Float)
-    description = db.Column(db.String(100))
-    created_at = db.Column(db.DateTime, default=datetime.datetime.now)
-
-
-
-# --- HELPER FUNCTIONS ---
-def get_weather_openmeteo():
-    """Fetch weather forecast from Open-Meteo API."""
-    try:
-        url = "https://api.open-meteo.com/v1/forecast"
-        params = {
-            "latitude": FARM_LATITUDE,
-            "longitude": FARM_LONGITUDE,
-            "daily": ["weather_code", "temperature_2m_max", "precipitation_sum"],
-            "timezone": "auto"
-        }
-        
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-
-        forecast = []
-        if response.status_code == 200:
-            daily = data.get('daily', {})
-            for i in range(len(daily.get('time', []))):
-                code = daily['weather_code'][i]
-                desc = WMO_CODES.get(code, f"Code: {code}")
-                
-                day_data = {
-                    'date': daily['time'][i],
-                    'temp': daily['temperature_2m_max'][i],
-                    'desc': desc,
-                    'rain_prob': daily['precipitation_sum'][i]
-                }
-                forecast.append(day_data)
-        
-        return forecast
-    except requests.RequestException as e:
-        logger.error(f"Weather API error: {e}")
-        return []
-    except Exception as e:
-        logger.error(f"Weather Error: {e}")
-        return []
-
-def fetch_historical_weather(start_date, end_date):
-    """Fetch historical weather data."""
-    try:
-        url = "https://archive-api.open-meteo.com/v1/archive"
-        params = {
-            "latitude": FARM_LATITUDE,
-            "longitude": FARM_LONGITUDE,
-            "start_date": start_date.strftime('%Y-%m-%d'),
-            "end_date": end_date.strftime('%Y-%m-%d'),
-            "daily": ["weather_code", "temperature_2m_max", "precipitation_sum"],
-            "timezone": "auto"
-        }
-        response = requests.get(url, params=params, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        return data.get('daily')
-    except requests.RequestException as e:
-        logger.error(f"Historical Weather API Error: {e}")
-    except Exception as e:
-        logger.error(f"Historical Weather Error: {e}")
-    return None
-
-def backfill_weather_history():
-    """Fetch missing weather data for past 30 days."""
-    try:
-        today = datetime.date.today()
-        feb_start_2026 = datetime.date(2026, 2, 1)
-        thirty_days_ago = today - datetime.timedelta(days=30)
-        start_date = min(feb_start_2026, thirty_days_ago)
-        end_date = today - datetime.timedelta(days=1)
-        
-        logger.debug(f"Weather backfill range: {start_date} to {end_date}")
-        
-        # Check which dates exist
-        existing_logs = WeatherLog.query.filter(
-            WeatherLog.date >= start_date,
-            WeatherLog.date <= end_date
-        ).all()
-        existing_dates = {log.date for log in existing_logs}
-        
-        # Find gaps
-        current_date = start_date
-        missing_ranges = []
-        range_start = None
-        
-        while current_date <= end_date:
-            if current_date not in existing_dates:
-                if range_start is None:
-                    range_start = current_date
-            else:
-                if range_start is not None:
-                    missing_ranges.append((range_start, current_date - datetime.timedelta(days=1)))
-                    range_start = None
-            current_date += datetime.timedelta(days=1)
-        
-        if range_start is not None:
-            missing_ranges.append((range_start, end_date))
-        
-        if not missing_ranges:
-            logger.debug("No missing weather data to fetch")
-            return
-        
-        logger.info(f"Found {len(missing_ranges)} gap(s) in weather data")
-        
-        total_added = 0
-        for range_start, range_end in missing_ranges:
-            daily_data = fetch_historical_weather(range_start, range_end)
-            
-            if daily_data and 'time' in daily_data:
-                for i in range(len(daily_data['time'])):
-                    try:
-                        d_str = daily_data['time'][i]
-                        d_obj = datetime.datetime.strptime(d_str, '%Y-%m-%d').date()
-                        
-                        if not WeatherLog.query.filter_by(date=d_obj).first():
-                            code = daily_data['weather_code'][i]
-                            new_log = WeatherLog(
-                                date=d_obj,
-                                max_temp=daily_data['temperature_2m_max'][i],
-                                rainfall=daily_data['precipitation_sum'][i],
-                                description=f"History (Code: {code})"
-                            )
-                            db.session.add(new_log)
-                            total_added += 1
-                    except Exception as e:
-                        logger.warning(f"Error processing date {d_str}: {e}")
-                        continue
-        
-        if total_added > 0:
-            db.session.commit()
-            logger.info(f"Backfilled {total_added} weather logs")
-        else:
-            logger.debug("No new weather data to add")
-            
-    except Exception as e:
-        logger.error(f"Backfill Error: {e}")
-        db.session.rollback()
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 # --- ROUTES ---
 @app.route('/')
-def home():
-    """Home/dashboard page."""
-    backfill_weather_history()
-    weather_data = get_weather_openmeteo()
-    
-    # Auto-archive today's weather
-    if weather_data:
-        today = datetime.date.today()
-        if not WeatherLog.query.filter_by(date=today).first():
-            try:
-                todays_weather = weather_data[0]
-                new_log = WeatherLog(
-                    date=today,
-                    max_temp=todays_weather['temp'],
-                    rainfall=todays_weather['rain_prob'],
-                    description=todays_weather['desc']
-                )
-                db.session.add(new_log)
-                db.session.commit()
-                logger.debug(f"Archived weather for {today}")
-            except Exception as e:
-                logger.error(f"Failed to archive weather: {e}")
-                db.session.rollback()
-    
-    recent_activities = FarmRecord.query.order_by(FarmRecord.date.desc()).limit(5).all()
-    today_reminders = Reminder.query.filter_by(date=datetime.date.today(), completed=False).all()
-    return render_template('index.html', weather=weather_data, activities=recent_activities, reminders=today_reminders)
+def index():
+    return render_template('index.html')
 
-@app.route('/calendar')
-def calendar_view():
-    now = datetime.date.today()
-    year = request.args.get('year', now.year, type=int)
-    month = request.args.get('month', now.month, type=int)
-    cal_matrix = cal.monthcalendar(year, month)
-    
-    records = FarmRecord.query.filter(
-        FarmRecord.date >= datetime.date(year, month, 1),
-        FarmRecord.date < datetime.date(year, month, 1) + relativedelta(months=1)
-    ).all()
-    
-    reminders = Reminder.query.filter(
-        Reminder.date >= datetime.date(year, month, 1),
-        Reminder.date < datetime.date(year, month, 1) + relativedelta(months=1)
-    ).all()
-    
-    events_by_date = {}
-    for record in records:
-        date_key = record.date.day
-        if date_key not in events_by_date:
-            events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
-        events_by_date[date_key]['records'].append(record)
-    
-    for reminder in reminders:
-        date_key = reminder.date.day
-        if date_key not in events_by_date:
-            events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
-        events_by_date[date_key]['reminders'].append(reminder)
-        
-    start_date = datetime.datetime(year, month, 1)
-    if month == 12:
-        end_date = datetime.datetime(year + 1, 1, 1)
+@app.route('/shop')
+def shop():
+    products = Product.query.all()
+    return render_template('shop.html', products=products)
+
+@app.route('/add_to_cart/<int:product_id>')
+def add_to_cart(product_id):
+    if 'cart' not in session:
+        session['cart'] = {}
+    cart = session['cart']
+    if str(product_id) in cart:
+        cart[str(product_id)] += 1
     else:
-        end_date = datetime.datetime(year, month + 1, 1)
+        cart[str(product_id)] = 1
+    session.modified = True
+    flash('Item added to cart!', 'success')
+    return redirect(url_for('shop'))
+
+@app.route('/cart')
+def cart():
+    cart = session.get('cart', {})
+    cart_items = []
+    total = 0
+    for product_id, quantity in cart.items():
+        product = Product.query.get(int(product_id))
+        if product:
+            item_total = product.price * quantity
+            total += item_total
+            cart_items.append({'product': product, 'quantity': quantity, 'total': item_total})
+    return render_template('cart.html', cart_items=cart_items, total=total)
+
+@app.route('/checkout')
+@login_required
+def checkout():
+    cart = session.get('cart', {})
+    if not cart:
+        flash('Your cart is empty', 'warning')
+        return redirect(url_for('shop'))
+    
+    total = 0
+    for p_id, qty in cart.items():
+        p = Product.query.get(int(p_id))
+        if p: total += p.price * qty
         
-    notes = Note.query.filter(Note.created_at >= start_date, Note.created_at < end_date).all()
+    order = Order(user_id=current_user.id, total_amount=total)
+    db.session.add(order)
+    db.session.commit()
     
-    for note in notes:
-        date_key = note.created_at.day
-        if date_key not in events_by_date:
-             events_by_date[date_key] = {'records': [], 'reminders': [], 'notes': []}
-        events_by_date[date_key]['notes'].append(note)
-    
-    
-    month_name = cal.month_name[month]
-    prev_month = month - 1 if month > 1 else 12
-    next_month = month + 1 if month < 12 else 1
-    prev_year = year if month > 1 else year - 1
-    next_year = year if month < 12 else year + 1
-    
-    return render_template('calendar.html', cal_matrix=cal_matrix, year=year, month=month,
-                          month_name=month_name, events_by_date=events_by_date,
-                          prev_month=prev_month, next_month=next_month,
-                          prev_year=prev_year, next_year=next_year,
-                          today=now)
+    session.pop('cart', None)
+    flash('Order placed successfully!', 'success')
+    return redirect(url_for('index'))
 
-@app.route('/dashboard')
-def dashboard():
-    # OPTIMIZED: Use SQL Aggregation instead of fetching all records
-    total_income = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Income').scalar() or 0
-    total_expense = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Expense').scalar() or 0
-    net_profit = total_income - total_expense
-    
-    # optimize graph data fetching (limit to recent if needed, but for now just all for graph is okay, or aggregate)
-    # The template uses 'records' list for the table. We still need that, but maybe limit it?
-    # The user didn't ask to pagination, but explicitly mentioned "calculating totals" as the bottleneck.
-    # Let's keep fetching records for the table display, but the Math is now fast.
-    # If the user has 1000 records, displaying them all in HTML is also slow. 
-    # For now, I will keep 'records' query as is to avoid breaking the "Transaction History" table feature, 
-    # but the TOP CARDS (totals) which are the most important are now instant.
-    
-    records = FarmRecord.query.order_by(FarmRecord.date.desc()).all()
-    
-    # Expense breakdown by type (Also Optimized)
-    expense_breakdown_query = db.session.query(
-        FarmRecord.expense_type, func.sum(FarmRecord.amount)
-    ).filter(
-        FarmRecord.category == 'Expense', 
-        FarmRecord.expense_type != None
-    ).group_by(FarmRecord.expense_type).all()
-    
-    expense_breakdown = {type_: amount for type_, amount in expense_breakdown_query}
-    
-    return render_template('dashboard.html', income=total_income, expense=total_expense, 
-                          profit=net_profit, records=records, expense_breakdown=expense_breakdown)
-
-@app.route('/weather_history')
-def weather_history():
-    logs = WeatherLog.query.order_by(WeatherLog.date.desc()).all()
-    return render_template('weather_history.html', logs=logs)
-
-@app.route('/daily_log')
-def daily_log():
-    notes = Note.query.order_by(Note.created_at.desc()).all()
-    return render_template('daily_log.html', notes=notes)
-
-@app.route('/save_daily_log', methods=['POST'])
-def save_daily_log():
-    content = request.form.get('content')
+@app.route('/schedule_visit', methods=['POST'])
+def schedule_visit():
+    name = request.form.get('name')
+    email = request.form.get('email')
     date_str = request.form.get('date')
+    message = request.form.get('message')
     
-    if content:
-        created_at = datetime.datetime.now()
-        if date_str:
-            try:
-                created_at = datetime.datetime.strptime(date_str, '%Y-%m-%d')
-            except ValueError:
-                pass
-        
-        note = Note(content=content, created_at=created_at)
-        db.session.add(note)
-        db.session.commit()
-    return redirect(url_for('daily_log'))
-
-@app.route('/quick_note', methods=['POST'])
-def quick_note():
-    content = request.form.get('content')
-    if content:
-        note = Note(content=f"📝 Daily Log: {content}")
-        db.session.add(note)
-        db.session.commit()
-    return redirect(url_for('dashboard'))
-
-@app.route('/add_record', methods=['POST'])
-def add_record():
-    """Add farm record with validation."""
     try:
-        # Validate inputs
-        date_obj = validate_date(request.form.get('date'))
-        if not date_obj:
-            return redirect(url_for('dashboard'))
-        
-        activity = validate_string(request.form.get('activity'), min_len=2, max_len=100)
-        if not activity:
-            logger.warning(f"Invalid activity_type from {request.remote_addr}")
-            return redirect(url_for('dashboard'))
-        
-        category = validate_category(request.form.get('category'))
-        if not category:
-            return redirect(url_for('dashboard'))
-        
-        amount = validate_amount(request.form.get('amount'))
-        if amount is None:
-            return redirect(url_for('dashboard'))
-        
-        expense_types = request.form.getlist('expense_type')
-        expense_type_str = ", ".join(expense_types) if expense_types else None
-        
-        new_record = FarmRecord(
-            date=date_obj,
-            activity_type=activity,
-            category=category,
-            expense_type=expense_type_str,
-            amount=amount,
-            description=validate_string(request.form.get('desc'), min_len=0, max_len=200, allow_empty=True)
-        )
-        db.session.add(new_record)
+        visit_date = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
+        visit = Visit(name=name, email=email, date=visit_date, message=message)
+        db.session.add(visit)
         db.session.commit()
-        logger.info(f"Record created: {activity} - {amount} ({category})")
+        flash('Visit scheduled successfully! We will contact you soon.', 'success')
     except Exception as e:
-        logger.error(f"Error adding record: {e}")
-        db.session.rollback()
-    
-    return redirect(url_for('dashboard'))
+        flash('Error scheduling visit. Please try again.', 'error')
+        
+    return redirect(url_for('index'))
 
-@app.route('/edit_record/<int:record_id>', methods=['GET', 'POST'])
-def edit_record(record_id):
-    record = FarmRecord.query.get_or_404(record_id)
+@app.route('/login', methods=['GET', 'POST'])
+def login():
     if request.method == 'POST':
-        date_str = request.form.get('date')
-        date_obj = datetime.datetime.strptime(date_str, '%Y-%m-%d').date()
-        record.date = date_obj
-        record.activity_type = request.form.get('activity')
-        record.category = request.form.get('category')
-        
-        # Multiple expense types
-        expense_types = request.form.getlist('expense_type')
-        record.expense_type = ", ".join(expense_types) if expense_types else request.form.get('expense_type')
-        
-        record.amount = float(request.form.get('amount'))
-        record.description = request.form.get('desc')
-        db.session.commit()
-        return redirect(url_for('dashboard'))
-    return render_template('edit_record.html', record=record)
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = User.query.filter_by(email=email).first()
+        if user and check_password_hash(user.password_hash, password):
+            login_user(user)
+            flash('Logged in successfully.', 'success')
+            return redirect(url_for('index'))
+        flash('Invalid email or password.', 'error')
+    return render_template('login.html')
 
-@app.route('/delete_record/<int:record_id>', methods=['POST'])
-def delete_record(record_id):
-    record = FarmRecord.query.get_or_404(record_id)
-    db.session.delete(record)
-    db.session.commit()
-    return redirect(url_for('dashboard'))
-
-@app.route('/crops', methods=['GET', 'POST'])
-def crops():
+@app.route('/register', methods=['GET', 'POST'])
+def register():
     if request.method == 'POST':
-        crop = Crop(
-            crop_name=request.form.get('crop_name'),
-            variety=request.form.get('variety'),
-            season=request.form.get('season'),
-            area=request.form.get('area'),
-            sowing_date=datetime.datetime.strptime(request.form.get('sowing_date'), '%Y-%m-%d').date() if request.form.get('sowing_date') else None,
-            expected_harvest=datetime.datetime.strptime(request.form.get('expected_harvest'), '%Y-%m-%d').date() if request.form.get('expected_harvest') else None,
-            notes=request.form.get('notes')
-        )
-        db.session.add(crop)
-        db.session.commit()
-        return redirect(url_for('crops'))
-    all_crops = Crop.query.all()
-    return render_template('crops.html', crops=all_crops)
-
-@app.route('/edit_crop/<int:crop_id>', methods=['GET', 'POST'])
-def edit_crop(crop_id):
-    crop = Crop.query.get_or_404(crop_id)
-    if request.method == 'POST':
-        crop.crop_name = request.form.get('crop_name')
-        crop.variety = request.form.get('variety')
-        crop.season = request.form.get('season')
-        crop.area = request.form.get('area')
-        crop.sowing_date = datetime.datetime.strptime(request.form.get('sowing_date'), '%Y-%m-%d').date() if request.form.get('sowing_date') else None
-        crop.expected_harvest = datetime.datetime.strptime(request.form.get('expected_harvest'), '%Y-%m-%d').date() if request.form.get('expected_harvest') else None
-        crop.status = request.form.get('status')
-        crop.notes = request.form.get('notes')
-        db.session.commit()
-        return redirect(url_for('crops'))
-    return render_template('edit_crop.html', crop=crop)
-
-@app.route('/delete_crop/<int:crop_id>', methods=['POST'])
-def delete_crop(crop_id):
-    crop = Crop.query.get_or_404(crop_id)
-    db.session.delete(crop)
-    db.session.commit()
-    return redirect(url_for('crops'))
-
-@app.route('/yield', methods=['GET', 'POST'])
-def yield_tracking():
-    if request.method == 'POST':
-        crop_id = request.form.get('crop_id')
-        yield_value = float(request.form.get('yield_value'))
-        unit = request.form.get('unit')
-        yield_in_kg = convert_to_kg(yield_value, unit)
-        yield_rec = Yield(
-            date=datetime.datetime.strptime(request.form.get('date'), '%Y-%m-%d').date(),
-            crop_id=crop_id,
-            yield_value=yield_value,
-            unit=unit,
-            yield_in_kg=yield_in_kg,
-            notes=request.form.get('notes')
-        )
-        db.session.add(yield_rec)
-        db.session.commit()
-        return redirect(url_for('yield_tracking'))
-    crops_list = Crop.query.all()
-    yields = Yield.query.all()
-    return render_template('yield.html', crops=crops_list, yields=yields)
-
-@app.route('/delete_yield/<int:yield_id>', methods=['POST'])
-def delete_yield(yield_id):
-    yield_rec = Yield.query.get_or_404(yield_id)
-    db.session.delete(yield_rec)
-    db.session.commit()
-    return redirect(url_for('yield_tracking'))
-
-@app.route('/api/financial_data')
-def financial_data_api():
-    # 1. Monthly Income vs Expense (Last 6 Months)
-    today = datetime.date.today()
-    months = []
-    income_data = []
-    expense_data = []
-    
-    # Needs relativedelta import if not present globally, but it was imported at top
-    for i in range(5, -1, -1):
-        start_date = (today.replace(day=1) - relativedelta(months=i))
-        end_date = start_date + relativedelta(months=1)
+        name = request.form.get('name')
+        email = request.form.get('email')
+        password = request.form.get('password')
         
-        month_label = start_date.strftime("%b")
-        months.append(month_label)
-        
-        inc = db.session.query(func.sum(FarmRecord.amount)).filter(
-            FarmRecord.date >= start_date,
-            FarmRecord.date < end_date,
-            FarmRecord.category == 'Income'
-        ).scalar() or 0
-        income_data.append(inc)
-        
-        exp = db.session.query(func.sum(FarmRecord.amount)).filter(
-            FarmRecord.date >= start_date,
-            FarmRecord.date < end_date,
-            FarmRecord.category == 'Expense'
-        ).scalar() or 0
-        expense_data.append(exp)
-
-    # 2. Expense Breakdown (All Time)
-    expense_breakdown = db.session.query(
-        FarmRecord.expense_type, func.sum(FarmRecord.amount)
-    ).filter(
-        FarmRecord.category == 'Expense', 
-        FarmRecord.expense_type != None
-    ).group_by(FarmRecord.expense_type).all()
-    
-    expense_labels = [item[0] for item in expense_breakdown]
-    expense_values = [item[1] for item in expense_breakdown]
-    
-    return jsonify({
-        'months': months,
-        'income': income_data,
-        'expense': expense_data,
-        'expense_labels': expense_labels,
-        'expense_values': expense_values
-    })
-
-@app.route('/api/analyze_logs', methods=['POST'])
-def analyze_logs_api():
-    # Fetch last 7 days of logs
-    one_week_ago = datetime.datetime.now() - datetime.timedelta(days=7)
-    recent_logs = Note.query.filter(Note.created_at >= one_week_ago).order_by(Note.created_at.asc()).all()
-    
-    if not recent_logs:
-        return jsonify({"status": "error", "message": "No logs found for the last 7 days to analyze."})
-        
-    # Call AI Service
-    result = ai_advisor.analyze_logs(recent_logs)
-    return jsonify(result)
-
-@app.route('/api/ask_crop_doctor', methods=['POST'])
-def ask_crop_doctor():
-    data = request.json
-    crop_name = data.get('crop_name')
-    sowing_date = data.get('sowing_date')
-    
-    if not crop_name:
-        return jsonify({"status": "error", "message": "Crop name is required"})
-        
-    result = ai_advisor.ask_crop_doctor(crop_name, sowing_date)
-    return jsonify(result)
-
-@app.route('/api/recommend_crops', methods=['POST'])
-def recommend_crops_api():
-    data = request.json
-    area = data.get('area')
-    season = data.get('season')
-    
-    if not area or not season:
-        return jsonify({"status": "error", "message": "Area and Season are required"})
-        
-    result = ai_advisor.recommend_crops(area, season)
-    return jsonify(result)
-
-@app.route('/api/diagnose_disease', methods=['POST'])
-def diagnose_disease_api():
-    if 'image' not in request.files:
-        return jsonify({"status": "error", "message": "No image uploaded"})
-    
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({"status": "error", "message": "No selected file"})
-        
-    try:
-        image_bytes = file.read()
-        mime_type = file.mimetype or "image/jpeg"
-        
-        result = ai_advisor.diagnose_from_image(image_bytes, mime_type)
-        
-        # Ensure result is JSON
-        if result.get('status') == 'success':
-            import json
-            content = result['content']
-            # Strip markdown code blocks if present
-            if "```json" in content:
-                content = content.split("```json")[1].split("```")[0].strip()
-            elif "```" in content:
-                content = content.split("```")[1].split("```")[0].strip()
+        if User.query.filter_by(email=email).first():
+            flash('Email address already exists.', 'error')
+            return redirect(url_for('register'))
             
-            try:
-                # Parse string to JSON object
-                json_data = json.loads(content)
-                return jsonify({"status": "success", "data": json_data})
-            except:
-                # If parsing fails, return text as is
-                return jsonify({"status": "success", "data": {"treatment": content, "disease_name": "AI Diagnosis", "severity": "Check Description"}})
-                
-        return jsonify(result)
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)})
-
-@app.route('/api/estimate_duration', methods=['POST'])
-def estimate_duration_api():
-    data = request.json
-    crop_name = data.get('crop_name')
-    if not crop_name:
-        return jsonify({"status": "error"})
-    
-    days = ai_advisor.get_crop_duration(crop_name)
-    return jsonify({"status": "success", "days": days} if days else {"status": "error"})
-
-@app.route('/disease_log', methods=['GET', 'POST'])
-def disease_log():
-    if request.method == 'POST':
-        disease = DiseaseLog(
-            date=datetime.datetime.strptime(request.form.get('date'), '%Y-%m-%d').date(),
-            crop_id=request.form.get('crop_id'),
-            disease_name=request.form.get('disease_name'),
-            severity=request.form.get('severity'),
-            affected_area=request.form.get('affected_area'),
-            treatment=request.form.get('treatment'),
-            notes=request.form.get('notes')
+        new_user = User(
+            name=name, 
+            email=email, 
+            password_hash=generate_password_hash(password, method='pbkdf2:sha256')
         )
-        db.session.add(disease)
+        db.session.add(new_user)
         db.session.commit()
-        return redirect(url_for('disease_log'))
-    crops_list = Crop.query.all()
-    diseases = DiseaseLog.query.order_by(DiseaseLog.date.desc()).all()
-    return render_template('disease_log.html', crops=crops_list, diseases=diseases)
+        login_user(new_user)
+        flash('Registration successful!', 'success')
+        return redirect(url_for('index'))
+    return render_template('register.html')
 
-@app.route('/delete_disease/<int:disease_id>', methods=['POST'])
-def delete_disease(disease_id):
-    disease = DiseaseLog.query.get_or_404(disease_id)
-    db.session.delete(disease)
-    db.session.commit()
-    return redirect(url_for('disease_log'))
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
-@app.route('/reminders', methods=['GET', 'POST'])
-def reminders():
-    if request.method == 'POST':
-        reminder = Reminder(
-            date=datetime.datetime.strptime(request.form.get('date'), '%Y-%m-%d').date(),
-            title=request.form.get('title'),
-            description=request.form.get('description'),
-            priority=request.form.get('priority', 'Normal')
-        )
-        db.session.add(reminder)
+def seed_db():
+    if Product.query.count() == 0:
+        products = [
+            Product(name='Organic Turmeric', description='Freshly harvested organic turmeric root.', price=15.99, stock=100),
+            Product(name='Farm Fresh Tomatoes', description='Juicy red tomatoes from our greenhouse.', price=4.99, stock=50),
+            Product(name='Organic Lettuce', description='Crisp organic lettuce leaves.', price=3.50, stock=30),
+            Product(name='Raw Honey', description='Pure, unpasteurized honey from our apiary.', price=24.00, stock=20),
+        ]
+        db.session.bulk_save_objects(products)
         db.session.commit()
-        return redirect(url_for('reminders'))
-    all_reminders = Reminder.query.order_by(Reminder.date.asc()).all()
-    return render_template('reminders.html', reminders=all_reminders)
-
-@app.route('/complete_reminder/<int:reminder_id>', methods=['POST'])
-def complete_reminder(reminder_id):
-    reminder = Reminder.query.get_or_404(reminder_id)
-    reminder.completed = True
-    db.session.commit()
-    return redirect(url_for('reminders'))
-
-@app.route('/delete_reminder/<int:reminder_id>', methods=['POST'])
-def delete_reminder(reminder_id):
-    reminder = Reminder.query.get_or_404(reminder_id)
-    db.session.delete(reminder)
-    db.session.commit()
-    return redirect(url_for('reminders'))
-
-@app.route('/reports')
-def reports():
-    """Generate financial and operational reports."""
-    # Use aggregation for better performance
-    total_income = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Income').scalar() or 0
-    total_expense = db.session.query(func.sum(FarmRecord.amount)).filter(FarmRecord.category == 'Expense').scalar() or 0
-    net_profit = total_income - total_expense
-    
-    # Get monthly breakdown
-    records = FarmRecord.query.all()
-    monthly_data = {}
-    activity_data = {}
-    
-    for record in records:
-        month_key = record.date.strftime('%Y-%m')
-        if month_key not in monthly_data:
-            monthly_data[month_key] = {'income': 0, 'expense': 0}
-        if record.category == 'Income':
-            monthly_data[month_key]['income'] += record.amount
-        else:
-            monthly_data[month_key]['expense'] += record.amount
-        
-        activity = record.activity_type
-        if activity not in activity_data:
-            activity_data[activity] = {'income': 0, 'expense': 0}
-        if record.category == 'Income':
-            activity_data[activity]['income'] += record.amount
-        else:
-            activity_data[activity]['expense'] += record.amount
-    
-    # Yield and disease data (optimized)
-    total_yield_kg = db.session.query(func.sum(Yield.yield_in_kg)).scalar() or 0
-    disease_count = db.session.query(func.count(DiseaseLog.id)).scalar() or 0
-    severe_diseases = db.session.query(func.count(DiseaseLog.id)).filter(DiseaseLog.severity == 'Severe').scalar() or 0
-    
-    logger.info(f"Reports generated - Income: {total_income}, Expense: {total_expense}")
-    
-    return render_template('reports.html', total_income=total_income, total_expense=total_expense,
-                          net_profit=net_profit, monthly_data=monthly_data, activity_data=activity_data,
-                          total_yield_kg=total_yield_kg, disease_count=disease_count,
-                          severe_diseases=severe_diseases)
-
-@app.route('/knowledge')
-def knowledge_hub():
-    return render_template('knowledge.html', 
-                          pest_etl=PEST_ETL_DB, 
-                          pest_calendar=PEST_CALENDAR_DB, 
-                          crop_calendar=CROP_CALENDAR_DB,
-                          turmeric_db=TURMERIC_DB)
-
-# --- HELPER: Weather ---
-def get_current_weather():
-    api_key = os.environ.get('OPENWEATHERMAP_API_KEY')
-    if not api_key:
-        return None
-    try:
-        url = f"http://api.openweathermap.org/data/2.5/weather?lat={LAT}&lon={LON}&appid={api_key}&units=metric"
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            return response.json()
-    except:
-        pass
-    return None
-
-# --- API: Check ETL ---
-@app.route('/api/check-etl', methods=['POST'])
-def api_check_etl():
-    data = request.json
-    crop_name = data.get('crop')
-    pest_name = data.get('pest')
-    current_value = float(data.get('value', 0))
-    
-    # 1. Database Lookup
-    if crop_name not in PEST_ETL_DB:
-         return jsonify({"status": "Error", "message": f"Crop '{crop_name}' not found."})
-    
-    crop_data = PEST_ETL_DB[crop_name]
-    if pest_name not in crop_data:
-        return jsonify({"status": "Error", "message": f"Pest '{pest_name}' not found for {crop_name}."})
-        
-    pest_info = crop_data[pest_name]
-    threshold = pest_info["threshold"]
-    condition = pest_info["condition"]
-    unit = pest_info["unit"]
-    
-    # 2. Logic Check
-    is_alert = False
-    if condition == "greater_equal" and current_value >= threshold:
-        is_alert = True
-    elif condition == "greater" and current_value > threshold:
-        is_alert = True
-        
-    # 3. Weather Context (Real-time)
-    weather = get_current_weather()
-    weather_risk = ""
-    if weather:
-        temp = weather['main']['temp']
-        humidity = weather['main']['humidity']
-        # Contextual Logic: Tea Mosquito Bug loves warm & humid
-        if pest_name == "Tea Mosquito Bug" and temp > 25 and humidity > 80:
-             weather_risk = "Create Pre-warning: Current warm & humid weather favors rapid pest growth."
-             if not is_alert and current_value >= (threshold * 0.8):
-                 is_alert = True # Lower threshold trigger
-                 pest_info["advisory"] += " (Triggered early due to high risk weather)"
-
-    # 4. Historical Trend Check
-    # Check if value is increasing
-    last_log = PestLog.query.filter_by(crop_name=crop_name, pest_name=pest_name).order_by(PestLog.date.desc()).first()
-    trend_msg = ""
-    if last_log:
-        if current_value > last_log.value:
-            trend_msg = f"📈 Trend: Value increased from {last_log.value} since {last_log.date}."
-        elif current_value < last_log.value:
-            trend_msg = "📉 Trend: Pest population is declining."
-            
-    # 5. Save to Log
-    status_label = "ALERT" if is_alert else "SAFE"
-    new_log = PestLog(crop_name=crop_name, pest_name=pest_name, value=current_value, alert_status=status_label, notes=weather_risk)
-    db.session.add(new_log)
-    db.session.commit()
-    
-    # 6. Response
-    response = {
-        "status": status_label,
-        "severity": "High" if is_alert else "Low",
-        "threshold": threshold,
-        "unit": unit,
-        "message": f"⚠️ ALERT: {pest_name} ({current_value}) exceeds threshold!" if is_alert else f"✅ Normal: Below limit ({threshold}).",
-        "recommendation": pest_info["advisory"] if is_alert else "Continue regular monitoring.",
-        "weather_context": weather_risk,
-        "trend": trend_msg
-    }
-    return jsonify(response)
-
-@app.route('/notes', methods=['GET', 'POST'])
-def notes():
-    if request.method == 'POST':
-        content = request.form.get('content')
-        new_note = Note(content=content)
-        db.session.add(new_note)
-        db.session.commit()
-        return redirect(url_for('notes'))
-    all_notes = Note.query.order_by(Note.created_at.desc()).all()
-    return render_template('notes.html', notes=all_notes)
-
-@app.route('/edit_note/<int:note_id>', methods=['POST'])
-def edit_note(note_id):
-    note = Note.query.get_or_404(note_id)
-    note.content = request.form.get('content')
-    db.session.commit()
-    return redirect(request.referrer or url_for('notes'))
-
-@app.route('/delete_note/<int:note_id>', methods=['POST'])
-def delete_note(note_id):
-    note = Note.query.get_or_404(note_id)
-    db.session.delete(note)
-    db.session.commit()
-    return redirect(request.referrer or url_for('notes'))
-
-@app.route('/api/backup_status')
-def backup_status_api():
-    """Return backup status for UI display"""
-    try:
-        backup_dir = Path('backups')
-        if not backup_dir.exists():
-            return jsonify({'last_backup': None, 'status': 'no_backups'})
-        
-        # Find all backups
-        all_backups = list(backup_dir.glob('*.db'))
-        if not all_backups:
-            return jsonify({'last_backup': None, 'status': 'no_backups'})
-        
-        # Get the newest backup
-        newest_backup = max(all_backups, key=lambda x: x.stat().st_mtime)
-        last_backup_time = datetime.datetime.fromtimestamp(newest_backup.stat().st_mtime)
-        
-        # Get current database info
-        db_path = Path('instance/farm_data.db')
-        db_info = {}
-        if db_path.exists():
-            db_time = datetime.datetime.fromtimestamp(db_path.stat().st_mtime)
-            db_info = {
-                'last_modified': db_time.isoformat(),
-                'size_kb': db_path.stat().st_size / 1024
-            }
-        
-        return jsonify({
-            'last_backup': last_backup_time.isoformat(),
-            'backup_count': len(all_backups),
-            'database': db_info,
-            'status': 'ok'
-        })
-    except Exception as e:
-        return jsonify({'error': str(e), 'status': 'error'})
-
-@app.route('/api/run_backup', methods=['POST'])
-def run_manual_backup():
-    try:
-        # Run the daily backup logic (reusing backup_db.py)
-        # We can run it as a subprocess to keep independent environment
-        import os
-        cwd = os.path.dirname(os.path.abspath(__file__))
-        result = subprocess.run(
-            [sys.executable, 'backup_db.py'], 
-            capture_output=True, 
-            text=True,
-            cwd=cwd
-        )
-        
-        if result.returncode == 0:
-            return jsonify({'status': 'success', 'message': 'Backup completed successfully!', 'log': result.stdout})
-        else:
-            return jsonify({'status': 'error', 'message': 'Backup failed.', 'log': result.stderr})
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)})
-
-
-@app.route('/download_export')
-def download_export():
-    fmt = request.args.get('format', 'xlsx')
-    try:
-        from export_records import export_records
-        xlsx_path = export_records()
-
-        if fmt in ('xlsx', 'excel'):
-            return send_file(xlsx_path, as_attachment=True, download_name=os.path.basename(xlsx_path))
-
-        if fmt in ('pdf',):
-            # Lazy import heavy deps
-            import pandas as pd
-            from reportlab.lib.pagesizes import A4, landscape
-            from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageBreak
-            from reportlab.lib import colors
-            from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-            from reportlab.lib.units import inch
-
-            xls = pd.ExcelFile(xlsx_path)
-            pdf_path = xlsx_path.replace('.xlsx', '.pdf')
-
-            # Use A4 landscape for better data fit
-            doc = SimpleDocTemplate(
-                pdf_path, 
-                pagesize=landscape(A4),
-                topMargin=0.3*inch,
-                bottomMargin=0.3*inch,
-                leftMargin=0.4*inch,
-                rightMargin=0.4*inch
-            )
-            elements = []
-            styles = getSampleStyleSheet()
-            
-            # Custom styles for compact layout
-            title_style = ParagraphStyle(
-                'CustomTitle',
-                parent=styles['Heading2'],
-                fontSize=11,
-                textColor=colors.HexColor('#2d7f3e'),
-                spaceAfter=6
-            )
-
-            for sheet in xls.sheet_names:
-                df = xls.parse(sheet)
-                
-                # Add page break between sections (except first)
-                if elements:
-                    elements.append(PageBreak())
-                
-                elements.append(Paragraph(f"<b>{sheet}</b>", title_style))
-                elements.append(Spacer(1, 4))
-
-                # Prepare table data with optimized sizing
-                data = [list(df.columns)] + df.fillna('').astype(str).values.tolist()
-                
-                # Calculate column widths based on content
-                col_widths = []
-                for i in range(len(df.columns)):
-                    max_width = max((len(str(cell)) for cell in df.iloc[:, i].astype(str)), default=len(str(df.columns[i])))
-                    col_widths.append(min(max(max_width * 0.08, 0.8), 2.2) * inch)  # Scale and cap
-                
-                table = Table(data, colWidths=col_widths, repeatRows=1)
-                table.setStyle(TableStyle([
-                    ('GRID', (0, 0), (-1, -1), 0.3, colors.grey),
-                    ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#2d7f3e')),
-                    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                    ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                    ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                    ('FONTSIZE', (0, 0), (-1, 0), 8),
-                    ('FONTSIZE', (0, 1), (-1, -1), 7),
-                    ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#f8f8f8')]),
-                    ('TOPPADDING', (0, 0), (-1, -1), 2),
-                    ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
-                    ('LEFTPADDING', (0, 0), (-1, -1), 3),
-                    ('RIGHTPADDING', (0, 0), (-1, -1), 3),
-                ]))
-                elements.append(table)
-                elements.append(Spacer(1, 8))
-
-            # Build PDF with optimization
-            doc.build(elements)
-            logger.info(f"PDF export created: {pdf_path}")
-            return send_file(pdf_path, as_attachment=True, download_name=os.path.basename(pdf_path))
-
-    except Exception as e:
-        logger.error(f"Export error: {e}")
-        return jsonify({'status': 'error', 'message': str(e)})
-
-
-@app.route('/api/add_historical_weather', methods=['POST'])
-def run_add_historical_weather():
-    try:
-        # Run add_historical_weather.py
-        result = subprocess.run([sys.executable, 'add_historical_weather.py'], capture_output=True, text=True)
-        if result.returncode == 0:
-             return jsonify({'status': 'success', 'message': 'Historical weather data added!', 'log': result.stdout})
-        else:
-             return jsonify({'status': 'error', 'message': 'Failed to add weather data', 'log': result.stderr})
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)})
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+        seed_db()
+    app.run(debug=True, port=5000)

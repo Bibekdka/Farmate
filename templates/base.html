@@ -1,281 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Farmer App - Kisan Smart</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --primary-color: #2d7f3e;
-            --secondary-color: #52b788;
-            --accent-color: #95d5b2;
-            --danger-color: #d62828;
-            --warning-color: #f77f00;
-            --info-color: #457b9d;
-            --sidebar-width: 260px;
-        }
-
-        body {
-            background: linear-gradient(135deg, #f0f9f0 0%, #e8f5e9 100%);
-            font-family: 'Outfit', sans-serif;
-            min-height: 100vh;
-            color: #2c3e50;
-        }
-
-        /* Sidebar Styling */
-        .sidebar {
-            position: fixed;
-            top: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 100;
-            width: var(--sidebar-width);
-            padding: 48px 0 0;
-            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
-            background: #2d7f3e;
-            /* Primary Color Background */
-            color: white;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-brand {
-            position: absolute;
-            top: 0;
-            width: 100%;
-            height: 60px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            text-align: center;
-            line-height: 60px;
-            background: rgba(0, 0, 0, 0.1);
-            color: white;
-            text-decoration: none;
-        }
-
-        .nav-link {
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.85);
-            padding: 12px 24px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.2s;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: #fff;
-            background: rgba(255, 255, 255, 0.15);
-            padding-left: 28px;
-        }
-
-        .nav-link.active {
-            border-left: 4px solid var(--accent-color);
-        }
-
-        /* Main Content Styling */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 30px;
-            transition: all 0.3s ease;
-        }
-
-        /* Card Styling to Match Theme */
-        .card {
-            border: none;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            background: white;
-            margin-bottom: 24px;
-        }
-
-        .card-header {
-            background: white;
-            border-bottom: 1px solid #f0f0f0;
-            font-weight: 700;
-            color: var(--primary-color);
-            padding: 1.25rem;
-        }
-
-        /* Mobile Responsive */
-        @media (max-width: 768px) {
-            .sidebar {
-                margin-left: calc(var(--sidebar-width) * -1);
-            }
-
-            .sidebar.active {
-                margin-left: 0;
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-        }
-
-        /* Button & Form Overrides */
-        .btn-success {
-            background-color: var(--primary-color);
-            border: none;
-        }
-
-        .btn-success:hover {
-            background-color: #246632;
-        }
-
-        /* Stats Cards */
-        .stat-card {
-            border-radius: 12px;
-            padding: 1.5rem;
-            color: white;
-            text-align: center;
-        }
-
-        .stat-income {
-            background: linear-gradient(135deg, #52b788 0%, #2d9d78 100%);
-        }
-
-        .stat-expense {
-            background: linear-gradient(135deg, #d62828 0%, #a4161a 100%);
-        }
-
-        .stat-profit {
-            background: linear-gradient(135deg, #457b9d 0%, #1d3557 100%);
-        }
-
-        .stat-card .display-value {
-            font-size: 2rem;
-            font-weight: 800;
-        }
-
-        /* Weather specific */
-        .weather-card {
-            background: linear-gradient(135deg, rgba(79, 172, 254, 0.9) 0%, rgba(0, 242, 254, 0.9) 100%);
-            color: white;
-        }
-    </style>
+    <title>Organics-O-Eats | Fresh From Farm</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-
 <body>
-
-    <!-- Sidebar -->
-    <nav class="sidebar">
-        <a class="sidebar-brand" href="/">🌾 Kisan Smart</a>
-        <div class="d-flex flex-column mb-auto mt-2">
-            <a href="/" class="nav-link {% if request.path == '/' %}active{% endif %}">
-                🏠 Home
-            </a>
-            <a href="/dashboard" class="nav-link {% if request.path == '/dashboard' %}active{% endif %}">
-                📊 Dashboard
-            </a>
-            <a href="/calendar" class="nav-link {% if request.path == '/calendar' %}active{% endif %}">
-                📅 Calendar
-            </a>
-            <a href="/weather_history" class="nav-link {% if request.path == '/weather_history' %}active{% endif %}">
-                🌤️ Weather
-            </a>
-            <a href="/crops" class="nav-link {% if request.path == '/crops' %}active{% endif %}">
-                🌾 Crops & Yield
-            </a>
-            <a href="/knowledge" class="nav-link {% if request.path == '/knowledge' %}active{% endif %}">
-                🧠 Knowledge Hub
-            </a>
-            <a href="/daily_log" class="nav-link {% if request.path == '/daily_log' %}active{% endif %}">
-                📝 Daily Blog
-            </a>
-            <a href="/notes" class="nav-link {% if request.path == '/notes' %}active{% endif %}">
-                📒 General Notes
-            </a>
-            <a href="/reminders" class="nav-link {% if request.path == '/reminders' %}active{% endif %}">
-                🔔 Tasks
-            </a>
-            <a href="/reports" class="nav-link {% if request.path == '/reports' %}active{% endif %}">
-                📈 Reports
-            </a>
+    <nav class="navbar">
+        <div class="logo">
+            <a href="{{ url_for('index') }}">Organics-O-Eats <i class="fas fa-leaf"></i></a>
         </div>
-
-        <!-- Backup Status Indicator -->
-        <div class="mt-auto px-3 pb-3">
-            <div class="backup-status p-2"
-                style="background: rgba(255,255,255,0.1); border-radius: 8px; border-left: 4px solid #52b788;">
-                <div class="d-flex align-items-center gap-2 mb-1">
-                    <span style="font-size: 1.1rem;">💾</span>
-                    <strong style="font-size: 0.85rem;">Data Protection</strong>
-                </div>
-                <div class="small text-white-50" id="backup-status">
-                    <div class="mb-1">✅ Auto-backup: <span style="color: #95d5b2;">Active</span></div>
-                    <div id="last-backup-time">Loading...</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Bottom Section -->
-        <div class="p-3 text-center">
-            <div class="text-white-50 small">v1.1 Setup</div>
+        <ul class="nav-links">
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('index') }}#about">About Us</a></li>
+            <li><a href="{{ url_for('shop') }}">Shop</a></li>
+            <li><a href="{{ url_for('index') }}#schedule">Visit Us</a></li>
+        </ul>
+        <div class="nav-actions">
+            <a href="{{ url_for('cart') }}" class="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                {% if session.cart %}
+                <span class="cart-count">{{ session.cart.values()|sum }}</span>
+                {% endif %}
+            </a>
+            {% if current_user.is_authenticated %}
+                <span class="user-greeting">Hi, {{ current_user.name.split()[0] }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+            {% endif %}
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Mobile Toggle (Visible only on small screens) -->
-        <button class="btn btn-dark d-md-none mb-3"
-            onclick="document.querySelector('.sidebar').classList.toggle('active')">
-            ☰ Menu
-        </button>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flash-messages">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+                {{ message }}
+                <span class="close-btn" onclick="this.parentElement.style.display='none';">&times;</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
 
+    <main>
         {% block content %}{% endblock %}
     </main>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Fetch and display backup status
-        function updateBackupStatus() {
-            fetch('/api/backup_status')
-                .then(response => response.json())
-                .then(data => {
-                    const statusDiv = document.getElementById('last-backup-time');
-                    if (data.last_backup) {
-                        const timeAgo = getTimeAgo(new Date(data.last_backup));
-                        statusDiv.innerHTML = `📅 Last: <span style="color: #95d5b2;">${timeAgo}</span>`;
-                    } else {
-                        statusDiv.innerHTML = '⚠️ No backups found';
-                    }
-                })
-                .catch(err => {
-                    console.error('Backup status error:', err);
-                });
-        }
-
-        function getTimeAgo(date) {
-            const seconds = Math.floor((new Date() - date) / 1000);
-            if (seconds < 60) return 'Just now';
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes}m ago`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours}h ago`;
-            const days = Math.floor(hours / 24);
-            if (days === 1) return 'Yesterday';
-            if (days < 7) return `${days}d ago`;
-            return date.toLocaleDateString();
-        }
-
-        // Update on load and every 30 seconds
-        updateBackupStatus();
-        setInterval(updateBackupStatus, 30000);
-
-        // Check for specific reminders
-        function checkReminders() {
-            const now = new Date();
-            const hour = now.getHours();
-            if (hour === 8 || hour === 17) {
-                // Mock notification
-            }
-        }
-        setInterval(checkReminders, 600000); 
-    </script>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>Organics-O-Eats</h3>
+                <p>Bringing nature's best to your table, sustainably.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="{{ url_for('shop') }}">Shop</a>
+                <a href="{{ url_for('index') }}#about">About</a>
+                <a href="{{ url_for('index') }}#schedule">Schedule Visit</a>
+            </div>
+            <div class="footer-contact">
+                <h4>Contact</h4>
+                <p><i class="fas fa-envelope"></i> hello@organics-o-eats.online</p>
+                <p><i class="fas fa-phone"></i> +1 234 567 890</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Organics-O-Eats. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
-
 </html>
