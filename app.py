@@ -957,14 +957,28 @@ def admin_delete_note(note_id):
 def admin_backup_status_api():
     """Return backup status for UI display"""
     try:
+        # Check Render Connection
+        render_connected = False
+        try:
+            from sqlalchemy import create_engine
+            # Use the environment DATABASE_URL or the hardcoded Render one if .env is commented
+            uri = os.environ.get('DATABASE_URL', 'postgresql+psycopg://farm_db_myec_user:hM3S5wGB5goEbmjqQV9c7dA9R4Y68Xxj@dpg-d7te7irrjlhs73apot60-a.virginia-postgres.render.com/farm_db_myec')
+            if "postgres" in uri:
+                uri = uri.replace("postgres://", "postgresql+psycopg://").replace("postgresql://", "postgresql+psycopg://").replace("postgresql+psycopg2://", "postgresql+psycopg://")
+            eng = create_engine(uri, connect_args={'connect_timeout': 3})
+            with eng.connect() as conn:
+                render_connected = True
+        except Exception as e:
+            render_connected = False
+
         backup_dir = Path('backups')
         if not backup_dir.exists():
-            return jsonify({'last_backup': None, 'status': 'no_backups'})
+            return jsonify({'last_backup': None, 'status': 'no_backups', 'render_connected': render_connected})
         
         # Find all backups
         all_backups = list(backup_dir.glob('*.db'))
         if not all_backups:
-            return jsonify({'last_backup': None, 'status': 'no_backups'})
+            return jsonify({'last_backup': None, 'status': 'no_backups', 'render_connected': render_connected})
         
         # Get the newest backup
         newest_backup = max(all_backups, key=lambda x: x.stat().st_mtime)
@@ -984,10 +998,11 @@ def admin_backup_status_api():
             'last_backup': last_backup_time.isoformat(),
             'backup_count': len(all_backups),
             'database': db_info,
-            'status': 'ok'
+            'status': 'ok',
+            'render_connected': render_connected
         })
     except Exception as e:
-        return jsonify({'error': str(e), 'status': 'error'})
+        return jsonify({'error': str(e), 'status': 'error', 'render_connected': False})
 
 @app.route('/admin/api/run_backup', methods=['POST'])
 def admin_run_manual_backup():
@@ -1111,36 +1126,7 @@ def admin_run_add_historical_weather():
         return jsonify({'status': 'error', 'message': str(e)})
 
 
-@app.route('/admin/api/run_backup', methods=['POST'])
-def admin_run_backup():
-    try:
-        result = subprocess.run([sys.executable, 'backup_db.py'], capture_output=True, text=True)
-        if result.returncode == 0:
-            return jsonify({'status': 'success', 'log': result.stdout})
-        else:
-            return jsonify({'status': 'error', 'message': 'Backup script failed', 'log': result.stderr})
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)})
 
-@app.route('/admin/api/backup_status')
-def admin_backup_status():
-    import json
-    backup_dir = Path('backups')
-    last_backup = None
-    if backup_dir.exists():
-        manifests = list(backup_dir.glob('manifest_*.json'))
-        if manifests:
-            latest = sorted(manifests, key=lambda x: x.stat().st_mtime, reverse=True)[0]
-            try:
-                with open(latest, 'r') as f:
-                    data = json.load(f)
-                    # Convert timestamp back to something JS can parse easily
-                    ts = data.get('timestamp', '')
-                    if ts:
-                        last_backup = datetime.datetime.strptime(ts, '%Y%m%d_%H%M%S').isoformat()
-            except:
-                pass
-    return jsonify({'last_backup': last_backup})
 
 @app.route('/admin/api/sync_to_render', methods=['POST'])
 def admin_sync_to_render():

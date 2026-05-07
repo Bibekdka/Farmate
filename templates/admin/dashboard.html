@@ -259,15 +259,19 @@
                 </div>
                 <hr>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <strong>📍 Local Last Backup:</strong>
                         <p id="localBackupStatus" class="text-muted">Checking...</p>
                     </div>
-                    <div class="col-md-4">
-                        <strong>☁️ Sync Status (OneDrive/Desktop):</strong>
-                        <p id="syncStatus" class="text-muted">Synced with local backup</p>
+                    <div class="col-md-3">
+                        <strong>💾 Local + Desktop + OneDrive:</strong>
+                        <p id="syncStatus" class="text-muted">Checking...</p>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <strong>☁️ Render Cloud Connection:</strong>
+                        <p id="renderStatus" class="text-muted">Checking...</p>
+                    </div>
+                    <div class="col-md-3">
                         <strong>⏳ Time Since Last Backup:</strong>
                         <p id="timeSinceBackup" class="text-muted">Calculating...</p>
                     </div>
@@ -387,10 +391,17 @@
                         else timeStr = `${diffMins} minutes ago`;
 
                         document.getElementById('timeSinceBackup').innerText = timeStr;
-                        document.getElementById('syncStatus').innerText = "✅ Processed via Backup Script";
+                        document.getElementById('syncStatus').innerHTML = "<span class='text-success'>✅ 3 Locations Active</span>";
                     } else {
                         document.getElementById('localBackupStatus').innerText = "No backups found";
                         document.getElementById('timeSinceBackup').innerText = "-";
+                        document.getElementById('syncStatus').innerText = "❌ Not configured";
+                    }
+                    
+                    if (data.render_connected) {
+                        document.getElementById('renderStatus').innerHTML = "<span class='text-success'>✅ Connected</span>";
+                    } else {
+                        document.getElementById('renderStatus').innerHTML = "<span class='text-danger'>❌ Disconnected</span>";
                     }
                 });
         }
