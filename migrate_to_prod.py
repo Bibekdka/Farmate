@@ -10,7 +10,7 @@ load_dotenv()
 
 SQLITE_URL = 'sqlite:///instance/farm_data.db'
 # This is the Render URL from your .env
-POSTGRES_URL = 'postgresql+psycopg2://farm_db_myec_user:hM3S5wGB5goEbmjqQV9c7dA9R4Y68Xxj@dpg-d7te7irrjlhs73apot60-a.virginia-postgres.render.com/farm_db_myec'
+POSTGRES_URL = 'postgresql+psycopg://farm_db_myec_user:hM3S5wGB5goEbmjqQV9c7dA9R4Y68Xxj@dpg-d7te7irrjlhs73apot60-a.virginia-postgres.render.com/farm_db_myec'
 
 def migrate_data():
     print("Connecting to local SQLite database...")
@@ -40,7 +40,7 @@ def migrate_data():
             else:
                 print(f"Table '{table}' is empty locally, skipping.")
         except Exception as e:
-            print(f"Could not migrate table '{table}': {e}")
+            print(f"Could not migrate table '{table}'")
             
     print("\nMIGRATION COMPLETE! Your local data is now live on Render.")
 
